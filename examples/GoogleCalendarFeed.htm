@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+    <title>Google Calendar Feed</title>
+    
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="helper.js"></script>
+    <script type="text/javascript" src="jquery.json2html-2.3-min.js"></script>
+    <link rel="StyleSheet" href="helper.css" type="text/css"/>
+
+</head>
+<body>
+
+	<h2>Google Calendar Feed Example</h2>
+
+	<!-- Container to hold feed -->
+	<div id="googleFeed"></div>
+
+    <!-- Load JSON2HTML -->
+    <script type="text/javascript">
+
+		var transform = 
+			{"tag":"div","class":"googleCalendarEntry","children":[
+				{"tag":"a","href":function(obj){return(getLink(obj));},"children":[
+					{"tag":"span","html":".title.$t"}
+
+				]},
+			    
+				{"tag":"span","html":"-"},
+			    
+				{"tag":"span","html":function(obj){return(formatGCalTime(obj.gd$when[0].startTime));}}
+		    
+			]};
+    	
+    	 //Callback Function
+	     function insertAgenda(json) {
+	        
+			if(json != undefined )
+		        
+				$('#googleFeed').json2html(json.feed.entry,transform);
+        
+		}
+    </script>
+
+    <!-- Load Data Feed -->
+    <script type="text/javascript" src="http://www.google.com/calendar/feeds/developer-calendar@google.com/public/full?alt=json-in-script&#038;callback=insertAgenda&#038;orderby=starttime&#038;max-results=15&#038;singleevents=true&#038;sortorder=ascending&#038;futureevents=true"></script>
+    
+</body>
+
+</html>
