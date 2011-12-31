@@ -6,7 +6,7 @@
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js"></script>
     <script type="text/javascript" src="helper.js"></script>
-    <script type="text/javascript" src="jquery.json2html-2.3-min.js"></script>
+    <script type="text/javascript" src="../jquery.json2html-2.5-min.js"></script>
     <link rel="StyleSheet" href="helper.css" type="text/css"/>
 
 </head>
@@ -15,13 +15,13 @@
 	<h2>Google Calendar Feed Example</h2>
 
 	<!-- Container to hold feed -->
-	<div id="googleFeed"></div>
+	<ul id="googleFeed"></ul>
 
     <!-- Load JSON2HTML -->
     <script type="text/javascript">
 
 		var transform = 
-			{"tag":"div","class":"googleCalendarEntry","children":[
+			{"tag":"li","class":"googleCalendarEntry","children":[
 				{"tag":"a","href":function(obj){return(getLink(obj));},"children":[
 					{"tag":"span","html":".title.$t"}
 

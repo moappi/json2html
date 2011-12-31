@@ -6,7 +6,7 @@
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js"></script>
     <script type="text/javascript" src="helper.js"></script>
-    <script type="text/javascript" src="jquery.json2html-2.3-min.js"></script>
+    <script type="text/javascript" src="../jquery.json2html-2.5-min.js"></script>
     <link rel="StyleSheet" href="helper.css" type="text/css"/>
     
 </head>
@@ -27,12 +27,12 @@
 	        
 			'barChart': [
 		        
-					{"tag":"div","class":"barChart", "children":function(obj) {return($.json2html(obj.groups,transforms.barChartGroup));}}
+					{"tag":"ul","class":"barChart", "children":function(obj) {return($.json2html(obj.groups,transforms.barChartGroup));}}
 
 	        ],
 			'barChartGroup': [
 		       
-					{"tag":"div","class":"group","children":[
+					{"tag":"li","class":"group","children":[
 						{"tag":"div","class":"bar","style":function(obj){return('height:' + obj['value'] + "px;");}},
 						{"tag":"div","class":"label","html":".label"}
 					]}

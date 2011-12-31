@@ -6,7 +6,7 @@
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js"></script>
     <script type="text/javascript" src="helper.js"></script>
-    <script type="text/javascript" src="jquery.json2html-2.3-min.js"></script>
+    <script type="text/javascript" src="../jquery.json2html-2.5-min.js"></script>
     <link rel="StyleSheet" href="helper.css" type="text/css"/>
     
 </head>
@@ -15,7 +15,7 @@
 	<h2>Twitter Feed Example</h2>
 	
 	<!-- Twitter Feed Container -->
-    <div id="twitterFeed"></div>
+    <ul id="twitterFeed"></ul>
 
     <!-- Load JSON2HTML -->
     <script type="text/javascript">
@@ -23,7 +23,7 @@
 		//Define the transform
 
 		var transform = 
-			{"tag":"div","class":"twitterFeed","children":[
+			{"tag":"li","class":"twitterFeed","children":[
 			    
 				{"tag":"div","class":"image","children":[
 				    

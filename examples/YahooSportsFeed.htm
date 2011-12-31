@@ -6,7 +6,7 @@
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js"></script>
     <script type="text/javascript" src="helper.js"></script>
-    <script type="text/javascript" src="jquery.json2html-2.3-min.js"></script>
+    <script type="text/javascript" src="../jquery.json2html-2.5-min.js"></script>
     <link rel="StyleSheet" href="helper.css" type="text/css"/>
 
 </head>
@@ -15,14 +15,14 @@
 	<h2>Yahoo Sports Feed Example</h2>
 
 	<!-- Container for the Feed -->
-	<div id="yahooFeed"</div>
+	<ul id="yahooFeed"</ul>
 
     <!-- Load JSON2HTML -->
     <script type="text/javascript">
 
 		var transform = 
 		    
-			{"tag":"div","class":"yahooSportsEntry", "children":[
+			{"tag":"li","class":"yahooSportsEntry", "children":[
 			    
 				{"tag":"div","class":"thumbnail", "style":function(obj){if(obj['media:content']==undefined) return('display:none');},"children":[
 					{"tag":"img","src":".media:content.url","align":"left"}

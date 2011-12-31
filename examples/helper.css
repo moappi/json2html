@@ -54,7 +54,7 @@
 
 	#releaseNotes ul {margin:0;}
 
-	#yahooFeed ul {list-style:none}
+	#yahooFeed {list-style:none}
     .yahooSportsEntry {padding: 5px 5px 5px 0;font-size:13px;}
 	.yahooSportsEntry .thumbnail {float: left;margin-bottom: 3px;margin-right: 8px;position: relative;}
 	.yahooSportsEntry .thumbnail img {border:none; height: 50px; position: static; width: 50px;}
@@ -63,26 +63,25 @@
 	.yahooSportsEntry .description {letter-spacing: normal;word-spacing: normal;}
 	.yahooSportsEntry .description img {display:none}
 
-    div.googleCalendarEntry a div {display:inline;}
-	div.googleCalendarEntry span {margin-left:2px;}
+    .googleCalendarEntry a div {display:inline;}
+	.googleCalendarEntry span {margin-left:2px;}
 
 	#flickrImages ul {list-style:none;}
-	div.flickrImage {display:block;height:55px;}
-    div.flickrImage .image {float:left;position:relative;}
-	div.flickrImage .image img {width:50px;height:50px;position:static;}
-	div.flickrImage .text {margin-left:55px;}
+	.flickrImage {display:block;height:55px;}
+    .flickrImage .image {float:left;position:relative;}
+	.flickrImage .image img {width:50px;height:50px;position:static;}
+	.flickrImage .text {margin-left:55px;}
 
-	#twitterFeed {font:13px/1.5 Helvetica Neue,Arial,Helvetica,'Liberation Sans',FreeSans,sans-serif;}
-	#twitterFeed ul {list-style:none;}
+	#twitterFeed {font:13px/1.5 Helvetica Neue,Arial,Helvetica,'Liberation Sans',FreeSans,sans-serif;list-style:none;}
 
-	div.twitterFeed {border-bottom: 1px solid #EBEBEB;clear: both; display: block; min-height: 60px; outline: medium none; position: relative; padding:10px;}
-	div.twitterFeed:hover {background-color:rgba(0,132,180,0.1);border-color:rgba(0,132,180,0.1);}
-	div.twitterFeed .user {margin-left:60px;}
-	div.twitterFeed .user a {color:#333333;font-size:15px;font-weight:bold;text-decoration:none;}
-	div.twitterFeed .user a:hover {color:#0084B4;text-decoration:underline;}
-	div.twitterFeed .user span {color:#999999;font-size:12px;margin-left:5px;}
-	div.twitterFeed .text {font-family: Arial,"Helvetica Neue",sans-serif;line-height: 19px;padding: 0;font-size:15px;margin-left:63px;}
-	div.twitterFeed .date {color:gray;font-size:9px;margin-left:60px;}
+	.twitterFeed {border-bottom: 1px solid #EBEBEB;clear: both; display: block; min-height: 60px; outline: medium none; position: relative; padding:10px;}
+	.twitterFeed:hover {background-color:rgba(0,132,180,0.1);border-color:rgba(0,132,180,0.1);}
+	.twitterFeed .user {margin-left:60px;}
+	.twitterFeed .user a {color:#333333;font-size:15px;font-weight:bold;text-decoration:none;}
+	.twitterFeed .user a:hover {color:#0084B4;text-decoration:underline;}
+	.twitterFeed .user span {color:#999999;font-size:12px;margin-left:5px;}
+	.twitterFeed .text {font-family: Arial,"Helvetica Neue",sans-serif;line-height: 19px;padding: 0;font-size:15px;margin-left:63px;}
+	.twitterFeed .date {color:gray;font-size:9px;margin-left:60px;}
 
 	div.twitterFeed .source {float:right;margin-right:5px;color:gray;font-size:9px;display:inline;}
 
