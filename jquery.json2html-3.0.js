@@ -43,9 +43,9 @@
 	}
 		
 		//Perform the transformation
-		$.json2html = function(JSON, transform)
+		$.json2html = function(json, transform)
 		{
-			var type = jQuery.type(JSON);
+			var type = jQuery.type(json);
 
 			if( transform == null ) return(null);
 
@@ -57,18 +57,18 @@
 				case 'array':
 
 					//Itterrate through the array and add it to the elements array
-					var len=JSON.length;
+					var len=json.length;
 					for(var j=0;j<len;++j)
 					{	
 						//Concat the return elements from this objects tranformation
-						elements = elements.concat($.json2html.apply(JSON[j],transform));
+						elements = elements.concat($.json2html.apply(json[j],transform,j));
 
 					}
 				break;
 
 				case 'object':
 					//Concat the return elements from this objects tranformation
-					elements = elements.concat($.json2html.apply(JSON,transform));
+					elements = elements.concat($.json2html.apply(json,transform));
 				break;
 			}
 
@@ -84,12 +84,12 @@
 		}
 
 		//Apply the transform (at the first level)
-		$.json2html.apply = function(json,transform)
+		$.json2html.apply = function(json,transform,index)
 		{
 			var elements = [];
 			i = 0;
 
-			var objs = $.json2html.applyTransform(json, transform);
+			var objs = $.json2html.applyTransform(json, transform,index);
 					
 			var objType = jQuery.type(objs);
 			
@@ -111,7 +111,7 @@
 		}
 
 		//Apply the transform at the second level
-		$.json2html.applyTransform = function(obj,transform)
+		$.json2html.applyTransform = function(obj,transform,index)
 		{
 			//var html = $(document.createElement('div'));
 			var objects = [];
@@ -124,7 +124,7 @@
 				case 'array':
 					var t_len = transform.length;
 					for(var t=0; t < t_len; ++t)
-						objects = objects.concat($.json2html.applyTransform(obj, transform[t]));
+						objects = objects.concat($.json2html.applyTransform(obj, transform[t], index));
 				break;
 
 				case 'object':
@@ -157,7 +157,7 @@
 										break;
 
 										case 'array':													
-											$.fn.append.apply($(element),$.json2html.applyTransform(obj, transform['children']));
+											$.fn.append.apply($(element),$.json2html.applyTransform(obj, transform['children'], index));
 										break;
 
 										default:
@@ -169,7 +169,7 @@
 
 								case 'html':
 									//Create the html attribute
-									$(element).html($.json2html.getValue(obj,transform,'html'));
+									$(element).html($.json2html.getValue(obj,transform,'html',index));
 								break;
 
 								default:
@@ -183,7 +183,8 @@
 												var data = {
 													'action':transform[key],
 													'obj':obj,
-													'data':$.json2html.options.eventData
+													'data':$.json2html.options.eventData,
+													'index':index
 												};
 
 												//Bind the event to the element
@@ -197,7 +198,7 @@
 											}
 									
 									//If this wasn't an even the add it as an attribute
-									if( !isEvent ) $(element).attr(key, $.json2html.getValue(obj, transform, key));
+									if( !isEvent ) $(element).attr(key, $.json2html.getValue(obj, transform, key,index));
 								break;
 							}
 						}
@@ -213,7 +214,7 @@
 		}
 
 		//Get the html value of the object
-		$.json2html.getValue = function(obj, transform, key)
+		$.json2html.getValue = function(obj, transform, key,index)
 		{
 			var out = '';
 			
@@ -223,38 +224,111 @@
 			switch(type)
 			{
 				case 'function':
-					return(val(obj));
+					return(val(obj,index));
 				break;
 
 				case 'string':
-					
-					//Check to see if this transform value is an object (must have a period to start)
-					if( val.charAt(0) === '.' )
-					{
-						//Split the string into it's seperate components
-						var components = val.split('.');
+						var _tokenizer = new $.json2html.tokenizer([
+							/\${([^\}\{]+)}/
+						 ],function( src, real, re ){
+							return real ? src.replace(re,function(all,name){
+								
+								//Split the string into it's seperate components
+								var components = name.split('.');
 
-						var useObj = obj;
+								//Set the object we use to query for this name to be the original object
+								var useObj = obj;
+
+								//Output value
+								var outVal = '';
+								
+								//Parse the object components
+								var c_len = components.length;
+								for (var i=0;i<c_len;++i)
+								{
+									if( components[i].length > 0 )
+									{
+										var newObj = useObj[components[i]];
+										useObj = newObj;
+										if(useObj == null || useObj == undefined) break;
+									}
+								}
+								
+								//As long as we have an object to use then set the out
+								if(useObj != null && useObj != undefined) outVal = useObj;
+
+							    return(outVal);
+							}) : src;
+						  }
+						);
 						
-						//Parse the object components
-						var c_len = components.length;
-						for (var i=0;i<c_len;++i)
-						{
-							if( components[i].length > 0 )
-							{
-								var newObj = useObj[components[i]];
-								useObj = newObj;
-								if(useObj == null || useObj == undefined) break;
-							}
-						}
-
-						if(useObj != null && useObj != undefined) out = useObj;
-					} else out = val;
-					 
+						out = _tokenizer.parse(val).join('');
 				break;
 			}
 
 			return(out);
 		}
+		
+		//Tokenizer
+		$.json2html.tokenizer = function( tokenizers, doBuild ){
+
+			if( !(this instanceof $.json2html.tokenizer ) )
+				return new $.json2html.tokenizer( tokenizers, onEnd, onFound );
+				
+			this.tokenizers = tokenizers.splice ? tokenizers : [tokenizers];
+			if( doBuild )
+				this.doBuild = doBuild;
+
+			this.parse = function( src ){
+				this.src = src;
+				this.ended = false;
+				this.tokens = [ ];
+				do this.next(); while( !this.ended );
+				return this.tokens;
+			}
+			
+			this.build = function( src, real ){
+				if( src )
+					this.tokens.push(
+						!this.doBuild ? src :
+						this.doBuild(src,real,this.tkn)
+					);	
+			}
+
+			this.next = function(){
+				var self = this,
+					plain;
+					
+				self.findMin();
+				plain = self.src.slice(0, self.min);
+				
+				self.build( plain, false );
+					
+				self.src = self.src.slice(self.min).replace(self.tkn,function( all ){
+					self.build(all, true);
+					return '';
+				});
+				
+				if( !self.src )
+					self.ended = true;
+			}
+
+			this.findMin = function(){
+				var self = this, i=0, tkn, idx;
+				self.min = -1;
+				self.tkn = '';
+				
+				while(( tkn = self.tokenizers[i++]) !== undefined ){
+					idx = self.src[tkn.test?'search':'indexOf'](tkn);
+					if( idx != -1 && (self.min == -1 || idx < self.min )){
+						self.tkn = tkn;
+						self.min = idx;
+					}
+				}
+				if( self.min == -1 )
+					self.min = self.src.length;
+			}
+		}
 
 })(jQuery);
+

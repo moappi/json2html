@@ -6,7 +6,7 @@
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js"></script>
     <script type="text/javascript" src="helper.js"></script>
-    <script type="text/javascript" src="../jquery.json2html-2.5-min.js"></script>
+    <script type="text/javascript" src="../jquery.json2html-3.0.js"></script>
     <link rel="StyleSheet" href="helper.css" type="text/css"/>
     
 </head>
@@ -27,26 +27,26 @@
 			    
 				{"tag":"div","class":"image","children":[
 				    
-					{"tag":"img","src":".user.profile_image_url","align":"left"}
+					{"tag":"img","src":"${user.profile_image_url}","align":"left"}
 			    
 				]},
 			    
 				{"tag":"div","class":"user","children":[
 				    
-					{"tag":"a","href":function(obj){return('http://twitter.com/#!/' + obj.user.screen_name);},"html":".user.screen_name"},
-				    {"tag":"span","html":".user.name"}
+					{"tag":"a","href":'http://twitter.com/#!/${user.screen_name}',"html":"${user.screen_name}"},
+					{"tag":"span","html":"${user.name}"}
 			    
 				]},
 			   
 				{"tag":"div","class":"text","children":[
 				   
-					{"tag":"span","html":".text"}
+					{"tag":"span","html":"${text}"}
 			    
 				]},
 			    
 				{"tag":"div","class":"date","children":[
 				    
-					{"tag":"span","html":".created_at"},
+					{"tag":"span","html":"${created_at}"},
 				    
 					{"tag":"div","class":"source","html":function(obj){if(obj.source != null) return("Source: " + obj.source); else return('');}}
 			    

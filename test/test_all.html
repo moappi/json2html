@@ -1,5 +1,5 @@
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
-<script type="text/javascript" src="../jquery.json2html-2.5.js"></script>
+<script type="text/javascript" src="../jquery.json2html-3.0.js"></script>
 
 <style>
 	.indent {margin-left:10px;}
@@ -25,7 +25,7 @@
 	}
 </script>
 
-<h1>jquery.json2html-2.5 Tests</h1>
+<h1>jquery.json2html-3.0 Tests</h1>
 
 <button onclick="javascript:$('.run').click();">Run ALL Tests</button>
 
@@ -58,8 +58,8 @@
 		
 	var transform = 
 			{tag:'li',children:[
-				{tag:'b',html:'.Name'},
-				{tag:'span',html:'.ReleaseYear'}
+				{tag:'b',html:'${Name}'},
+				{tag:'span',html:'${ReleaseYear}'}
 			]};
 	$(document).ready(function(){
 
@@ -100,13 +100,13 @@
 <script>
 	var transform_single = 
 			{tag:'li',children:[
-				{tag:'b',html:'.Name'},
-				{tag:'span',html:'.ReleaseYear'}
+				{tag:'b',html:'${Name}'},
+				{tag:'span',html:'${ReleaseYear}'}
 			]};
 
 	var transform_multi = [
-				{tag:'b',html:'.Name'},
-				{tag:'span',html:'.ReleaseYear'}
+				{tag:'b',html:'${Name}'},
+				{tag:'span',html:'${ReleaseYear}'}
 		];
 
 	$(document).ready(function(){
@@ -147,8 +147,8 @@
 
 <script>
 	var transform_shortHand = [
-				{tag:'b',html:'.Name'},
-				{tag:'span',html:'.ReleaseYear'}
+				{tag:'b',html:'${Name}'},
+				{tag:'span',html:'${ReleaseYear}'}
 			];
 
 	var transform_longHand = [
@@ -186,13 +186,11 @@
 	</div>
 </div>
 
-
-
 <script>
 	var transform_onclick = 
 			{tag:'li',children:[
-				{tag:'b',html:'.Name',onclick:function(e){status( true, $('#onclick .status'));}},
-				{tag:'span',html:'.ReleaseYear'}
+				{tag:'b',html:'${Name}',onclick:function(e){status( true, $('#onclick .status'));}},
+				{tag:'span',html:'${ReleaseYear}'}
 			]};
 
 	$(document).ready(function(){
@@ -225,13 +223,13 @@
 	var nested = {Name:'Master', Children:[ {Name:'Child1'},{Name:'Child1'} ]};
 
 	var transform_master = [
-			{tag:'span',html:'.Name'},
+			{tag:'span',html:'${Name}'},
 			{tag:'ul',children:function(obj){return($.json2html(obj.Children, transform_child));}}
 		];
 
 	var transform_child = 
 			{tag:'li',children:[
-				{tag:'b',html:'.Name'}
+				{tag:'b',html:'${Name}'}
 			]};
 
 	$(document).ready(function(){

@@ -17,17 +17,15 @@ Example of a Transform?
 --------------
 ```javascript
 var transform = 
- {tag:'li',id:'.id',children:[
-	{tag:'span',html:'.name},
-	{tag:'span',html:function(obj){return(' ('+obj.year+')');}}
+ {tag:'li',id:'${id}',children:[
+	{tag:'span',html:'${name} ${year}'}
   ]};		
 ```
 Will render into the following html
 
 ```html
 <li id=1123>
-	<span>Jack and Jill</span>
-	<span>( 2001 )</span>
+	<span>Jack and Jill (2001)</span>
 </li>	
 ```
 

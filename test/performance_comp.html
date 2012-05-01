@@ -10,7 +10,7 @@
 
 	<script src="./resources/jsrender.js" type="text/javascript"></script>
 
-	<script src="../jquery.json2html-2.5-min.js" type="text/javascript"></script>
+	<script src="../jquery.json2html-3.0.js" type="text/javascript"></script>
 </head>
 <body>
 
@@ -63,6 +63,9 @@
 <h1>JSON2HTML</h1>
 <div id="outputJSON2HTML"></div>
 
+<h1>JSON2HTML (No Shorthand)</h1>
+<div id="outputJSON2HTML_NS"></div>
+
 <br /><em>Times in milliseconds:</em>
 <table><tbody id="console"></tbody></table>
 
@@ -74,20 +77,22 @@
 				{ Name: "The <i>Orange</i> Violin", ReleaseYear: "2009" },
 				{ Name: "The <i>Green</i> Violin", ReleaseYear: "2001" }];
 
-		tmpl_jQueryTmpl = $( "#jqueryTmplTemplate" ).templateJQT(),
-		tmpl_JsRender = $( "#jsRenderTemplate" ).template(),
-		tmpl_jQueryTmplEncode = $( "#jqueryTmplTemplateEncode" ).templateJQT(),
-		tmpl_JsRenderEncode = $( "#jsRenderTemplateEncode" ).template(),
-		tmp_json2html = 
+		var tmpl_jQueryTmpl = $( "#jqueryTmplTemplate" ).templateJQT();
+		var tmpl_JsRender = $( "#jsRenderTemplate" ).template();
+		var tmpl_jQueryTmplEncode = $( "#jqueryTmplTemplateEncode" ).templateJQT();
+		var tmpl_JsRenderEncode = $( "#jsRenderTemplateEncode" ).template();
+		
+		var tmp_json2html = 
 			{tag:'li',children:[
-				{tag:'b','html':'.Name'},
-				{tag:'span','html':function(obj){return(' ('+obj.ReleaseYear+')');}}
+				{tag:'b','html':'${Name}'},
+				{tag:'span','html':' (${ReleaseYear})'}
 			]};
 
-		tmp_json2html_ns = [
+		var tmp_json2html_ns = 
+			{tag:'li',children:[
 				{tag:'b','html':function(obj){return(obj.Name);}},
 				{tag:'span','html':function(obj){return(' ('+obj.ReleaseYear+')');}}
-			];
+			]};
 /*
 	// Test render perf
 	$( "#console" ).append( "<tr><td colspan='2'>____________________________________________</td></tr>" );
@@ -97,8 +102,7 @@
 	var dotRun = test( "doT render", 50000, 1, function() {
 		ret = tmpl_doT(movie);
 	});
-	*/
-/*
+
 	var jsrRun = test( "JsRender render", 50000, 1, function() {
 		ret = tmpl_JsRender( movie );
 	});
@@ -109,10 +113,10 @@
 	// Test compile perf
 	$( "#console" ).append( "<tr><td colspan='2'>____________________________________________</td></tr>" );
 	$( "#console" ).append( "<tr><td colspan='2'><b>Compile</b></td></tr>");
-*/
+
 	//Render the template
 	ret = tmpl_JsRender( movie );
-/*
+
 	tmplString = $( "#jsRenderTemplate" )[0].innerHTML;
 	var jsrCompile = test( "JsRender compile", 5000, 0, function() {
 		tmpl_JsRender = $.template( tmplString );
@@ -126,13 +130,14 @@
 	var runs = 5000;
 
 	$( "#console" ).append( "<tr><td colspan='2'>____________________________________________</td></tr>" );
-	$( "#console" ).append( "<tr><td colspan='2'><b>Full features - view hierarchy etc.</b></td></tr>");
 
 	test( "JsRender full features - inserted in DOM", runs, 0, function() {
+		var tmpl_JsRender = $( "#jsRenderTemplate" ).template();
 		$( "#outputJSRender" ).empty();
 		$( "#outputJSRender" ).html( ret = $.render( movie, tmpl_JsRender ));
 	});
 	test( "jQuery Template full features - inserted in DOM", runs, 0, function() {
+		var tmpl_jQueryTmpl = $( "#jqueryTmplTemplate" ).templateJQT();
 		$( "#outputJTemp" ).empty();
 		$.tmpl( tmpl_jQueryTmpl, movie ).appendTo( "#outputJTemp" );
 	});
@@ -140,6 +145,11 @@
 	test( "json2html full features - inserted in DOM", runs, 0, function() {
 		$( "#outputJSON2HTML" ).empty();
 		$('#outputJSON2HTML').json2html(movie, tmp_json2html);
+	});
+
+	test( "json2html full features - inserted in DOM (No Shorthand)", runs, 0, function() {
+		$("#outputJSON2HTML_NS").empty();
+		$('#outputJSON2HTML_NS').json2html(movie, tmp_json2html_ns);
 	});
 
 /*
