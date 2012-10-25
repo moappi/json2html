@@ -6,7 +6,7 @@
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js"></script>
     <script type="text/javascript" src="helper.js"></script>
-    <script type="text/javascript" src="../jquery.json2html-3.0.js"></script>
+    <script type="text/javascript" src="../jquery.json2html-3.1.js"></script>
     <link rel="StyleSheet" href="helper.css" type="text/css"/>
 
 </head>
@@ -22,21 +22,19 @@
 
 		var transform = 
 			{"tag":"li","class":"googleCalendarEntry","children":[
-				{"tag":"a","href":function(obj){return(getLink(obj));},"children":[
-					{"tag":"span","html":"${title.$t}"}
+				{"tag":"a","href":function(){return( getLink(this));},"children":[
+					{"tag":"span","html":"${title.$t} - "}
 
 				]},
-			    
-				{"tag":"span","html":"-"},
-			    
-				{"tag":"span","html":function(obj){return(formatGCalTime(obj.gd$when[0].startTime));}}
+			    		    
+				{"tag":"span","html":function(){return(formatGCalTime(this.gd$when[0].startTime));}}
 		    
 			]};
     	
     	 //Callback Function
 	     function insertAgenda(json) {
 	        
-			if(json != undefined )
+			if(json !== undefined )
 		        
 				$('#googleFeed').json2html(json.feed.entry,transform);
         

@@ -31,7 +31,7 @@ Will render into the following html
 
 Where is the project now?
 --------------
-json2html is still in beta version, however it is being used in production on a number of projects.   Performance wise it's comparable to jQuery templates (around 20% slower).  Any additions/improvements are very much welcome!
+json2html has been fully released (v 3.1) and has being used in production on a number of projects.   Performance wise it's comparable to jQuery templates (around 20% slower).  Any additions/improvements are very much welcome!
 
 How do I start?
 --------------
