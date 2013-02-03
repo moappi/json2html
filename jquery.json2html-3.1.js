@@ -234,7 +234,7 @@
 		$.json2html.tokenizer = function( tokenizers, doBuild ){
 
 			if( !(this instanceof $.json2html.tokenizer ) )
-				return new $.json2html.tokenizer( tokenizers, onEnd, onFound );
+				return new $.json2html.tokenizer( tokenizers, doBuild );
 				
 			this.tokenizers = tokenizers.splice ? tokenizers : [tokenizers];
 			if( doBuild )
