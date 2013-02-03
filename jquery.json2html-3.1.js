@@ -25,8 +25,9 @@
 		
 		//Make sure to take care of any chaining
 		return this.each(function(){ 
-			if( $.json2html.options.prepend ) $.fn.prepend.apply($(this),$.json2html(JSONObject, transform));
-			else  $.fn.append.apply($(this),$.json2html(JSONObject, transform));
+			if      ($.json2html.options.replace) { $.fn.replaceWith.apply($(this),$.json2html(JSONObject, transform)); }
+			else if ($.json2html.options.prepend) {     $.fn.prepend.apply($(this),$.json2html(JSONObject, transform)); }
+			else                                  {      $.fn.append.apply($(this),$.json2html(JSONObject, transform)); }
 		});
 		
 	};
