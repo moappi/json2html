@@ -10,36 +10,26 @@
 //  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
 //  WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+/*jshint jquery:true, loopfunc:true, browser:true*/
+
 (function($){	
 
 	//Main method
 	$.fn.json2html = function(JSON, transform, options){	
 
-		var JSONObject;
-		var type = jQuery.type(JSON);
-
-		//Convert the string to a json object
-		switch( type ) {
-			case 'string':
-				JSONObject = jQuery.parseJSON(JSON);
-			break;
-
-			default:
-				JSONObject = JSON;
-			break;
-
-		}
+		//Normalize strings to JSON objects if necessary
+		var JSONObject = $.type(JSON) === "string" ? $.parseJSON(JSON) : JSON;
 		
 		//Extend the options (with defaults)
-		if( options != undefined ) $.extend($.json2html.options, options);
+		if( options !== undefined ) $.extend($.json2html.options, options);
 		
 		//Make sure to take care of any chaining
 		return this.each(function(){ 
-		    if( $.json2html.options.prepend ) $.fn.prepend.apply($(this),$.json2html(JSONObject, transform));
+			if( $.json2html.options.prepend ) $.fn.prepend.apply($(this),$.json2html(JSONObject, transform));
 			else  $.fn.append.apply($(this),$.json2html(JSONObject, transform));
 		});
 		
-	}
+	};
 		
 		//Perform the transformation
 		$.json2html = function(json, transform)
@@ -73,40 +63,21 @@
 
 			//Return the element array
 			return( elements );
-		}
+		};
 		
 		//Default Options
 		$.json2html.options = {
 			'eventData': undefined,
 			'prepend':false
-		}
+		};
 
 		//Apply the transform (at the first level)
 		$.json2html.apply = function(json,transform,index)
 		{
-			var elements = [];
-			i = 0;
-
 			var objs = $.json2html.applyTransform(json, transform,index);
-					
-			var objType = jQuery.type(objs);
-			
-			//Flatten the return object
-			switch (objType)
-			{
-				case 'array':
-					elements = elements.concat(objs);
-					i += objs.length;
-				break;
 
-				default:
-					elements[i] = objs;
-					i++;
-				break;
-			}
-
-			return(elements);
-		}
+			return ($.type(objs) === 'array' ? objs : [objs]);
+		};
 
 		//Apply the transform at the second level
 		$.json2html.applyTransform = function(obj,transform,index)
@@ -114,7 +85,7 @@
 			//var html = $(document.createElement('div'));
 			var objects = [];
 			var i = 0;
-			var type = jQuery.type(transform);
+			var type = $.type(transform);
 
 			//Itterate through the transform and create html as needed
 			switch(type)
@@ -127,7 +98,7 @@
 
 				case 'object':
 					//Get the tag element of this transform
-					var tag = transform['tag'];
+					var tag = transform.tag;
 					if( tag !== undefined )
 					{
 						//Create a new element
@@ -145,8 +116,8 @@
 								case 'children':
 
 									//Add the children
-									var children = transform['children'];
-									var c_type = jQuery.type(children);
+									var children = transform.children;
+									var c_type = $.type(children);
 
 									switch( c_type )
 									{
@@ -155,7 +126,7 @@
 										break;
 
 										case 'array':													
-											$.fn.append.apply($(element),$.json2html.applyTransform(obj, transform['children'], index));
+											$.fn.append.apply($(element),$.json2html.applyTransform(obj, transform.children, index));
 										break;
 
 										default:
@@ -175,24 +146,22 @@
 									var isEvent = false;
 									
 									//Check if the first two characters are 'on' then this is an event
-									if( key.charAt(0) === 'o' )
-										if( key.charAt(1) === 'n')
-											{	
-												var data = {
-													'action':transform[key],
-													'obj':obj,
-													'data':$.json2html.options.eventData,
-													'index':index
-												};
+									if( key.charAt(0) === 'o' && key.charAt(1) === 'n') {	
+										var data = {
+											'action':transform[key],
+											'obj':obj,
+											'data':$.json2html.options.eventData,
+											'index':index
+										};
 
-												//Bind the event to the element
-												$(element).bind(key.substring(key.indexOf('on')+2),data, function(event) {
-													data.event = event;
-													data.action.call($(this),data);
-												});
+										//Bind the event to the element
+										$(element).bind(key.substring(key.indexOf('on')+2),data, function(event) {
+											data.event = event;
+											data.action.call($(this),data);
+										});
 
-												isEvent = true;
-											}
+										isEvent = true;
+									}
 									
 									//If this wasn't an even the add it as an attribute
 									if( !isEvent ) $(element).attr(key, $.json2html.getValue(obj, transform, key,index));
@@ -208,7 +177,7 @@
 			}
 			
 			return(objects);
-		}
+		};
 
 		//Get the html value of the object
 		$.json2html.getValue = function(obj, transform, key,index)
@@ -216,55 +185,49 @@
 			var out = '';
 			
 			var val = transform[key];
-			var type = jQuery.type(val);
-			
-			switch(type)
-			{
-				case 'function':
-					return(val.call(obj,obj,index));
-				break;
+			var type = $.type(val);
 
-				case 'string':
-						var _tokenizer = new $.json2html.tokenizer([
-							/\${([^\}\{]+)}/
-						 ],function( src, real, re ){
-							return real ? src.replace(re,function(all,name){
-								
-								//Split the string into it's seperate components
-								var components = name.split('.');
-
-								//Set the object we use to query for this name to be the original object
-								var useObj = obj;
-
-								//Output value
-								var outVal = '';
-								
-								//Parse the object components
-								var c_len = components.length;
-								for (var i=0;i<c_len;++i)
-								{
-									if( components[i].length > 0 )
-									{
-										var newObj = useObj[components[i]];
-										useObj = newObj;
-										if(useObj === null || useObj === undefined) break;
-									}
-								}
-								
-								//As long as we have an object to use then set the out
-								if(useObj !== null && useObj !== undefined) outVal = useObj;
-
-							    return(outVal);
-							}) : src;
-						  }
-						);
+			if (type === 'function') {
+				return(val.call(obj,obj,index));
+			} else if (type === 'string') {
+				var _tokenizer = new $.json2html.tokenizer([
+					/\$\{([^\}\{]+)\}/
+				],function( src, real, re ){
+					return real ? src.replace(re,function(all,name){
 						
-						out = _tokenizer.parse(val).join('');
-				break;
+						//Split the string into it's seperate components
+						var components = name.split('.');
+
+						//Set the object we use to query for this name to be the original object
+						var useObj = obj;
+
+						//Output value
+						var outVal = '';
+						
+						//Parse the object components
+						var c_len = components.length;
+						for (var i=0;i<c_len;++i)
+						{
+							if( components[i].length > 0 )
+							{
+								var newObj = useObj[components[i]];
+								useObj = newObj;
+								if(useObj === null || useObj === undefined) break;
+							}
+						}
+						
+						//As long as we have an object to use then set the out
+						if(useObj !== null && useObj !== undefined) outVal = useObj;
+
+						return(outVal);
+					}) : src;
+				});
+				
+				out = _tokenizer.parse(val).join('');
 			}
 
 			return(out);
-		}
+		};
 		
 		//Tokenizer
 		$.json2html.tokenizer = function( tokenizers, doBuild ){
@@ -280,9 +243,11 @@
 				this.src = src;
 				this.ended = false;
 				this.tokens = [ ];
-				do this.next(); while( !this.ended );
+				do {
+					this.next();
+				} while( !this.ended );
 				return this.tokens;
-			}
+			};
 			
 			this.build = function( src, real ){
 				if( src )
@@ -290,7 +255,7 @@
 						!this.doBuild ? src :
 						this.doBuild(src,real,this.tkn)
 					);	
-			}
+			};
 
 			this.next = function(){
 				var self = this,
@@ -308,7 +273,7 @@
 				
 				if( !self.src )
 					self.ended = true;
-			}
+			};
 
 			this.findMin = function(){
 				var self = this, i=0, tkn, idx;
@@ -324,8 +289,8 @@
 				}
 				if( self.min == -1 )
 					self.min = self.src.length;
-			}
-		}
+			};
+		};
 
 })(jQuery);
 
