@@ -191,7 +191,7 @@ var json2html = {
 							if( !isEvent){
 								var val = json2html._getValue(obj, transform, key, index);
 								
-								if(val !== undefined) element.html += ' ' + key + '="' + val + '"';
+								if(val !== undefined) element.html += ' ' + key + '="' + val.replace(/"/g, '&quot;') + '"';
 
 							}
 						break;
