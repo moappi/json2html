@@ -27,20 +27,20 @@ Example
 Transform (template)
 ```javascript
 var transform = 
- {tag:'li',id:'${id}',children:[
-	{tag:'span',html:'${name} ${year}'}
+ {"tag": "li", "id":"${id}", children:[
+	{"tag": "span", "html": "${name} ${year}"}
   ]};		
 ```
 Plus JSON Data
 ```javascript
 var data = 
- {'id':1123,'name':'Jack and Jill','year':2001};		
+ {"id": 1123, "name": "Jack and Jill", "year":2001};		
 ```
 
 Will render the following html
 
 ```html
-<li id='1123'>
+<li id="1123">
 	<span>Jack and Jill (2001)</span>
 </li>	
 ```
