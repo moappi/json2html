@@ -189,10 +189,17 @@ var json2html = {
 
 							//If this wasn't an event AND we actually have a value then add it as a property
 							if( !isEvent){
-								var val = json2html._getValue(obj, transform, key, index);
-								
-								if(val !== undefined) element.html += ' ' + key + '="' + val.replace(/"/g, '&quot;') + '"';
-
+                                //Make sure we have a value
+                                if(val !== undefined) {
+                                    var out;
+                                    
+                                    //Determine the output type of this value (wrap with quotes)
+                                    if(typeof val === 'string') out = '"' + val.replace(/"/g, '&quot;') + '"';
+                                    else out = val;
+                                    
+                                    //creat the name value pair
+								    element.html += ' ' + key + '=' + out;
+                                }
 							}
 						break;
 					}
