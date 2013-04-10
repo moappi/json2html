@@ -189,7 +189,10 @@ var json2html = {
 
 							//If this wasn't an event AND we actually have a value then add it as a property
 							if( !isEvent){
-                                //Make sure we have a value
+								//Get the value
+								var val = json2html._getValue(obj, transform, key, index);
+								
+								//Make sure we have a value
                                 if(val !== undefined) {
                                     var out;
                                     
