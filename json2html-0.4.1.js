@@ -279,6 +279,8 @@ var json2html = {
 			});
 			
 			out = _tokenizer.parse(val).join('');
+		} else {
+			out = val;
 		}
 
 		return(out);
