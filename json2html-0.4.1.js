@@ -207,7 +207,6 @@ var json2html = {
 				}
 			}
 
-
 			// check that tag name defined ( can be left undefined if you only want html or children )
 			if (transform.tag !== undefined) {
 				if (transform.tag[transform.tag.length - 1] !== '/') {
@@ -226,12 +225,10 @@ var json2html = {
 			element = json2html._append(element, children);
 
 			// check that tag is not an empty tag (  for example; 'tag':'br/'  )
-			if (transform.tag !== undefined && typeof transform.tag === 'string' && transform.tag[transform.tag.length - 1] !== '/') {
-				//if (typeof transform.tag === 'string' && transform.tag.indexOf('/') === -1) {
+			if (transform.tag !== undefined && transform.tag[transform.tag.length - 1] !== '/') {
 
 				//add the closing tag
 				element.html += '</' + transform.tag + '>';
-
 			}
 		}
 		//Return the output object
