@@ -181,7 +181,7 @@ var json2html = {
 										element.events[element.events.length] = {'id':id,'type':key.substring(2),'data':data};
 
 										//Insert temporary event property (json2html-event-id) into the element
-										element.html += " json2html-event-id='" + id + "'";
+										element.html += " json2html-event-id-"+key.substring(2)+"='" + id + "'";
 									}
 									//this is an event
 									isEvent = true;
