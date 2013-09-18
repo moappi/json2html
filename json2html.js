@@ -63,6 +63,11 @@ var json2html = {
 
 		return(out);
 	},
+
+	//isArray (fix for IE prior to 9)
+	'_isArray':function(obj) {
+		return Object.prototype.toString.call(obj) === '[object Array]';
+	},
 	
 	//Transform object
 	'_transform':function(json, transform, options) {
@@ -70,7 +75,7 @@ var json2html = {
 		var elements = {'events':[],'html':''};
 		
 		//Determine the type of this object
-		if(Array.isArray(json)) {
+		if(json2html._isArray(json)) {
 			
 			//Itterrate through the array and add it to the elements array
 			var len=json.length;
@@ -95,7 +100,7 @@ var json2html = {
 		var element = {'events':[],'html':''};
 		
 		//Itterate through the transform and create html as needed
-		if(Array.isArray(transform)) {
+		if(json2html._isArray(transform)) {
 			
 			var t_len = transform.length;
 			for(var t=0; t < t_len; ++t) {
@@ -127,7 +132,7 @@ var json2html = {
 
 						case 'children':
 							//Add the children
-							if(Array.isArray(transform.children)) {
+							if(json2html._isArray(transform.children)) {
 
 								//Apply the transform to the children
 								children = json2html._append(children,json2html._apply(obj, transform.children, index, options));
