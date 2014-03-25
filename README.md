@@ -28,7 +28,7 @@ Transform (template)
 ```javascript
 var transform = 
  {"tag": "li", "id":"${id}", children:[
-	{"tag": "span", "html": "${name} ${year}"}
+	{"tag": "span", "html": "${name} (${year})"}
   ]};		
 ```
 Plus JSON Data
