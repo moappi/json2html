@@ -113,8 +113,12 @@ var json2html = {
 			//Get the tag element of this transform
 			if( transform.tag !== undefined ) {
 
+				var tag = json2html._getValue(obj,transform,'tag',index);
+
 				//Create a new element
-				element.html += '<' + transform.tag;
+				element.html += '<' + tag;
+
+				console.log(element.html);
 				
 				//Create a new object for the children
 				var children = {'events':[],'html':''};
@@ -223,7 +227,7 @@ var json2html = {
 				element = json2html._append(element,children);
 
 				//add the closing tag
-				element.html += '</' + transform.tag + '>';
+				element.html += '</' + tag + '>';
 			}
 		}
 		
