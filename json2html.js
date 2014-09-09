@@ -118,8 +118,6 @@ var json2html = {
 				//Create a new element
 				element.html += '<' + tag;
 
-				console.log(element.html);
-				
 				//Create a new object for the children
 				var children = {'events':[],'html':''};
 				
