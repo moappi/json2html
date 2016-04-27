@@ -5,10 +5,10 @@
     var test_data2 = {"test1":"<b>escape HTML test</b>", "test2":"<b>escape HTML test</b>"};
 
     var transform = [
-			{"tag":"input", "html":"", "value":"${test1}"},
-			{"tag":"input", "html":"", "value":"${test2}"},
-			{"tag":"textarea", "html":"${test1}"},
-			{"tag":"textarea", "html":"${test2}"},
+			{"<>":"input", "html":"", "value":"${test1}"},
+			{"<>":"input", "html":"", "value":"${test2}"},
+			{"<>":"textarea", "html":"${test1}"},
+			{"<>":"textarea", "html":"${test2}"},
 		];
 
         
