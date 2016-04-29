@@ -148,7 +148,7 @@ var json2html = {
 							//Get the transform value associated with this key
 							// added as key could be children or html
 							var _transform = transform[key];
-							
+
 							//Determine what kind of object this is
 							// array & function => children
 							// other => html
@@ -161,19 +161,29 @@ var json2html = {
 								//Get the result from the function
 								var temp = _transform.call(obj, obj, index);
 
-								//Make sure we have an object result with the props
-								// html (string), events (array)
-								// OR a string (then just append it to the children)
-								if(typeof temp === 'object') {
-									//make sure this object is a valid json2html response object
-									if(temp.html !== undefined && temp.events !== undefined) children = json2html._append(children,temp);
-								} else if(typeof temp === 'string') {
+								//Determine what type of object was returned
+								switch(typeof temp){
 
-									//append the result directly to the html of the children
-									children.html += temp;
+									//Only returned by json2html.transform or $.json2html calls
+									case 'object':
+										//make sure this object is a valid json2html response object
+										// we ignore all other objects (since we don't know how to represent them in html)
+										if(temp.html !== undefined && temp.events !== undefined) children = json2html._append(children,temp);
+									break;
+									
+									//Not supported
+									case 'function':
+									case 'undefined':
+									break; 
+
+									//Append to html
+									// string, number, boolean
+									default:
+										children.html += temp;
+									break;
 								}
 							} else {
-
+								
 								//Create the html attribute for this element
 								html = json2html._getValue(obj,transform,key,index);
 							}
