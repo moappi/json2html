@@ -1,4 +1,4 @@
-json2html core
+json2html + sprintf core
 =========
 
 Readme First!
