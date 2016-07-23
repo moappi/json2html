@@ -21,6 +21,7 @@ Instead of writing HTML templates json2html relies on JSON transforms to convert
 +	Short hand notation for mapping data objects to markup ${name}
 +	Event binding to DOM objects (with the jquery plugin)
 +	Use of inline functions to allow for complex logic during transformation 
++   Use of sprintf like syntax to format the data values
 
 Example
 --------------
@@ -28,20 +29,20 @@ Transform (template)
 ```javascript
 var transform = 
  {"<>": "li", "id":"${id}", "html":[
-	{"<>": "span", "html": "${name} (${year})"}
+	{"<>": "span", "html": "${name} (${year}) ${salary}.2f"}
   ]};		
 ```
 Plus JSON Data
 ```javascript
 var data = 
- {"id": 1123, "name": "Jack and Jill", "year":2001};		
+ {"id": 1123, "name": "Jack and Jill", "year":2001, "salary":50000.99999};		
 ```
 
 Will render the following html
 
 ```html
 <li id="1123">
-	<span>Jack and Jill (2001)</span>
+	<span>Jack and Jill (2001) 500000.99</span>
 </li>	
 ```
 
