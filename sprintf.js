@@ -41,7 +41,7 @@ IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY O
         text: /^[^\x24]+/,
         modulo: /^\x24{2}/,
         placeholder: /\x24(?:([1-9]\d*)\$|\{([^\}]+)\})?(\+)?(0|'[^$])?(-)?(\d+)?(?:\.(\d+))?([b-gijostTuvxX])?/,
-        key: /^([a-z_][a-z_\d]*)/i,
+        key: /^([a-z_\d]*)/i,
         key_access: /^\.([a-z_\d]*)/i, /* /^\.([a-z_][a-z_\d]*)/i */
         index_access: /^\[(\d+)\]/,
         sign: /^[\+\-]/
