@@ -1,4 +1,6 @@
-//Copyright (c) 2016 Crystalline Technologies
+//  Original work Copyright (c) 2016 Crystalline Technologies
+//  Modified work Copyright (c) 2016 Andrés Solís Montero  (www.solism.ca)
+//
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the 'Software'),
 //  to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
@@ -275,44 +277,11 @@ var json2html = {
 		
 		var val = transform[key];
 		var type = typeof val;
-		
+	
 		if (type === 'function') {
 			return(val.call(obj,obj,index));
 		} else if (type === 'string') {
-			var _tokenizer = new json2html._tokenizer([
-				/\$\{([^\}\{]+)\}/
-			],function( src, real, re ){
-				return real ? src.replace(re,function(all,name){
-					
-					//Split the string into it's seperate components
-					var components = name.split('.');
-
-					//Set the object we use to query for this name to be the original object
-					var useObj = obj;
-
-					//Output value
-					var outVal = '';
-					
-					//Parse the object components
-					var c_len = components.length;
-					for (var i=0;i<c_len;++i) {
-
-						if( components[i].length > 0 ) {
-
-							var newObj = useObj[components[i]];
-							useObj = newObj;
-							if(useObj === null || useObj === undefined) break;
-						}
-					}
-					
-					//As long as we have an object to use then set the out
-					if(useObj !== null && useObj !== undefined) outVal = useObj;
-
-					return(outVal);
-				}) : src;
-			});
-			
-			out = _tokenizer.parse(val).join('');
+			out = sprintf(val,obj);
 		} else {
 			out = val;
 		}
@@ -320,66 +289,4 @@ var json2html = {
 		return(out);
 	},
 	
-	//Tokenizer
-	'_tokenizer':function( tokenizers, doBuild ){
-
-		if( !(this instanceof json2html._tokenizer ) )
-			return new json2html._tokenizer( tokenizers, doBuild );
-			
-		this.tokenizers = tokenizers.splice ? tokenizers : [tokenizers];
-		if( doBuild )
-			this.doBuild = doBuild;
-
-		this.parse = function( src ){
-			this.src = src;
-			this.ended = false;
-			this.tokens = [ ];
-			do {
-				this.next();
-			} while( !this.ended );
-			return this.tokens;
-		};
-		
-		this.build = function( src, real ){
-			if( src )
-				this.tokens.push(
-					!this.doBuild ? src :
-					this.doBuild(src,real,this.tkn)
-				);	
-		};
-
-		this.next = function(){
-			var self = this,
-				plain;
-				
-			self.findMin();
-			plain = self.src.slice(0, self.min);
-			
-			self.build( plain, false );
-				
-			self.src = self.src.slice(self.min).replace(self.tkn,function( all ){
-				self.build(all, true);
-				return '';
-			});
-			
-			if( !self.src )
-				self.ended = true;
-		};
-
-		this.findMin = function(){
-			var self = this, i=0, tkn, idx;
-			self.min = -1;
-			self.tkn = '';
-			
-			while(( tkn = self.tokenizers[i++]) !== undefined ){
-				idx = self.src[tkn.test?'search':'indexOf'](tkn);
-				if( idx != -1 && (self.min == -1 || idx < self.min )){
-					self.tkn = tkn;
-					self.min = idx;
-				}
-			}
-			if( self.min == -1 )
-				self.min = self.src.length;
-		};
-	}
 };
