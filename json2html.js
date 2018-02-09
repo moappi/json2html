@@ -1,4 +1,4 @@
-//Copyright (c) 2016 Crystalline Technologies
+//Copyright (c) 2018 Crystalline Technologies
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the 'Software'),
 //  to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, 
@@ -135,14 +135,61 @@ var json2html = {
 
 					switch(key) {
 						
-						//LEGACY support for tag
+						//DEPRECATED (use <> instead)
 						case 'tag':
+
+						//HTML element to render
 						case '<>':
 							//Do nothing as we have already created the element
 						break;
+						
+						//Encode as text
+						case 'text':
+							//Get the transform value associated with this key
+							var _transform = transform[key];
+							
+							//Determine what kind of object this is
+							// array => NOT SUPPORTED
+							// other => text
+							if(json2html._isArray(_transform)) {
+                                //NOT Supported
+							} else if(typeof _transform === 'function') {
+								
+								//Get the result from the function
+								var temp = _transform.call(obj, obj, index);
+								
+								//Don't allow arrays as return objects from functions
+    							if(!json2html._isArray(temp)) {
 
-						//LEGACY support for children
+    								//Determine what type of object was returned
+    								switch(typeof temp){
+                                    
+    									//Not supported for text
+    									case 'function':
+    									case 'undefined':
+    									case 'object':
+    									break; 
+    									
+    									//Append as text
+    									// string, number, boolean
+    									default:
+    										//Insure we encode as text first
+    										children.html += json2html.toText(temp);
+    									break;
+    								}
+    							}
+							} else {
+								
+								//Get the encoded text associated with this element
+								html = json2html.toText( json2html._getValue(obj,transform,key,index) );
+							}
+						break;
+
+						//DEPRECATED (use HTML instead)
 						case 'children':
+
+						//Encode as HTML
+						// accepts Array of children, functions, string, number, boolean
 						case 'html':
 
 							//Get the transform value associated with this key
@@ -160,31 +207,35 @@ var json2html = {
 								
 								//Get the result from the function
 								var temp = _transform.call(obj, obj, index);
-
-								//Determine what type of object was returned
-								switch(typeof temp){
-
-									//Only returned by json2html.transform or $.json2html calls
-									case 'object':
-										//make sure this object is a valid json2html response object
-										// we ignore all other objects (since we don't know how to represent them in html)
-										if(temp.html !== undefined && temp.events !== undefined) children = json2html._append(children,temp);
-									break;
-									
-									//Not supported
-									case 'function':
-									case 'undefined':
-									break; 
-
-									//Append to html
-									// string, number, boolean
-									default:
-										children.html += temp;
-									break;
-								}
+                                
+                                //Don't allow arrays as return objects from functions
+                                if(!json2html._isArray(temp)) {
+                                    
+    								//Determine what type of object was returned
+    								switch(typeof temp){
+    
+    									//Only returned by json2html.transform or $.json2html calls
+    									case 'object':
+    										//make sure this object is a valid json2html response object
+    										// we ignore all other objects (since we don't know how to represent them in html)
+    										if(temp.html !== undefined && temp.events !== undefined) children = json2html._append(children,temp);
+    									break;
+    									
+    									//Not supported
+    									case 'function':
+    									case 'undefined':
+    									break; 
+    
+    									//Append to html
+    									// string, number, boolean
+    									default:
+    										children.html += temp;
+    									break;
+    								}
+                                }
 							} else {
 								
-								//Create the html attribute for this element
+								//Get the HTML associated with this element
 								html = json2html._getValue(obj,transform,key,index);
 							}
 						break;
@@ -318,6 +369,17 @@ var json2html = {
 		}
 
 		return(out);
+	},
+
+	//Encode the html to text
+	'toText':function(html) {
+		return html
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/\"/g, '&quot;')
+			.replace(/\'/g, '&#39;')
+			.replace(/\//g, '&#x2F;');
 	},
 	
 	//Tokenizer
