@@ -6,7 +6,7 @@
   },
   "name": "json2html",
   "description": "json2html - HTML Templating",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "homepage": "http://json2html.com",
   "repository": {
     "url": "https://github.com/moappi/json2html.git"
