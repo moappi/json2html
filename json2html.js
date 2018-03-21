@@ -325,10 +325,13 @@ var json2html = {
 		var out = '';
 		
 		var val = transform[key];
-		var type = typeof val;
-		
+        var type = typeof val;
+        if (type === 'function') {
+            val = val.call(obj,obj,index);
+        }
+		type = typeof val;
 		if (type === 'function') {
-			return(val.call(obj,obj,index));
+			return val.call(obj,obj,index);
 		} else if (type === 'string') {
 			var _tokenizer = new json2html._tokenizer([
 				/\$\{([^\}\{]+)\}/
