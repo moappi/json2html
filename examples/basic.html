@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>JSON2HTML Basic Example</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes"> 
+    
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+
+	<!-- Bootstrap & Font Awesome  -->
+    <link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.css" rel="stylesheet">
+    
+    <!-- Json2html -->
+    <script src="../json2html.js"></script>
+    <script src="../jquery.json2html.js"></script>
+    
+    <!-- Simple Styling -->
+    <style>
+    </style>
+</head>
+
+<body>
+	<h2>Basic Example</h2>
+	
+	<ul id="list"></ul>
+</body>
+
+<script type="text/javascript">
+
+    //List items
+    var data = [
+        {"name":"apple","icon":"fa-apple"},
+        {"name":"facebook","icon":"fa-facebook"},
+        {"name":"twitter","icon":"fa-twitter"},
+        {"name":"reddit","icon":"fa-reddit"},
+        {"name":"google","icon":"fa-google"}
+    ];
+
+    //List item transform
+    var transform = {"<>":"li","html":[
+                        {"<>":"i","class":"fa ${icon}"},
+                        {"<>":"span","text":" ${name}"}
+                    ]};
+    $(function(){
+        
+        //Create the list
+        $('#list').json2html(data,transform);
+    });
+</script>
+
+</html>

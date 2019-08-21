@@ -1,27 +1,39 @@
 
 (function() {
     
-	//Test the handling of quoted strings 
-    var test_data = [
-		{"text":"<script>alert(0);</script> no alert"},
-		{"text":"<strong>non highlighted</strong>"},
-		{"text":"& (ampersand) : ' (single quote) : \" (double quote) "}
+	var text_data = [
+		{"text":"some text","number":1.5,"bool":true}
 	];
 
     var transform = [
-        {"<>":"div", "text":"${text}"},
-        {"<>":"div","text":[
-            {"<>":"span","text":"this shouldn't be rendered"}
-        ]},
-        {"<>":"div", "text":function(){
-            return(this.text);
-        }},
-        {"<>":"div", "text":function(){
-            return(["not rendered"]);
-        }}
+
+		//Test the text shorthand
+        {"<>":"ul", "html":[
+			{"<>":"li","text":"${text}"},
+			{"<>":"li","text":"${number}"},
+			{"<>":"li","text":"${bool}"}
+		]},
+
+		{"<>":"div","text":"SHOULD BE THE SAME AS BELOW"},
+
+		//Test the text longhand
+        {"<>":"ul", "html":[
+			{"<>":"li","text":function(){
+				return(this.text);
+			}},
+			{"<>":"li","text":function(){
+				return(this.number);
+			}},
+			{"<>":"li","text":function(){
+				return(this.bool);
+			}}
+		]},
+		
     ];
         
-    var html = json2html.transform(test_data, transform);
+    var html = json2html.transform(text_data, transform);
 
-    document.write('<h1>Text Encoding Test</h1>'+ html);
+    document.write('<h1>Text Transforms Test</h1>'+ html);
+
+	document.write('<hr/>');
 })();

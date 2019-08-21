@@ -1,19 +1,26 @@
-    
+
+(function() {
+
 	//Test nested dynamic children 
 	// calls json2html recusively
-    var nested = {"name":"parent", "children": [{"name": "child1"}, {"name": "child2"}]};
+    var data = {"name":"parent", "list": [{"name": "child1"}, {"name": "child2"}]};
 
 	var transforms = {
-		"parent":[
-			{"<>":"span", "html":"${name}"},
-			{"<>":"ul","html":function(){return(json2html.transform(this.children, transforms.child));}}
+		"list":[
+			{"<>":"h2", "html":"${name}"},
+			{"<>":"ul","html":function(){
+				return(json2html.transform(this.list, transforms.item));
+			}}
 		],
 
-		"child":{"<>":"li", children:[
-				{"<>": "b", "html":"${name}"}
+		"item":{"<>":"li", "html":[
+				{"<>": "b", "text":"${name}"}
 			]}
 	};
 
-    var html = json2html.transform(nested,transforms.parent);
+    var html = json2html.transform(data,transforms.list);
 
     document.write('<h1>Nested Test</h1>'+ html);
+	
+	document.write('<hr/>');
+})();

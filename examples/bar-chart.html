@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>JSON2HTML Bar Chart Example</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes"> 
+    
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+	<!-- Bootstrap & Font Awesome  -->
+    <link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.css" rel="stylesheet">
+    
+    <!-- Json2html -->
+    <script src="../json2html.js"></script>
+    <script src="../jquery.json2html.js"></script>
+    
+    <!-- Simple Styling -->
+    <style>
+        body {padding:20px;}
+        #chart {list-style:none;}
+	    #chart li {display:inline-block;padding:5px;}
+	    #chart .group {}
+	    #chart .label {text-align:center;color:gray;}
+	    #chart .bar {width:50px;background-color:blue;}
+    </style>
+</head>
+
+<body>
+	<h2>Bar Chart Example</h2>
+	
+	<ul id="chart"></ul>
+</body>
+
+<script type="text/javascript">
+
+    //Chart Data 
+    var data = [{'value':10,'label':'Day 1'},{'value':5,'label':'Day 2'},{'value':15,'label':'Day 3'},{'value':4,'label':'Day 4'},{'value':5,'label':'Day 5'}];
+
+	//Transforms
+    var transforms = {
+        
+        //Single bar in the bar chart
+		"bar": [
+				{"<>":"li","class":"group","title":"${label}","html":[
+					{"<>":"div","class":"bar","style":function(){
+					    //Calculate the scale that we want this in
+					    return('height:' + this.value*10 + 'px;');
+					}},
+					{"<>":"div","class":"label","text":"${label}"}
+				]}
+		]
+	};
+	
+    $(function(){
+        $('#chart').json2html(data,transforms.bar);
+    });
+</script>
+
+</html>

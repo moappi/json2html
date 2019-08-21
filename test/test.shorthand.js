@@ -1,4 +1,6 @@
 
+(function() {
+
 	//Test the short hand notation 
 	// as well as the direct reference via this
     var movies = [
@@ -10,19 +12,21 @@
 	];
 
 	var transforms = {
-		"shorthand":{"<>": "li", "children": [
-				{"<>":"b", "html":"${name}"},
-				{"<>":"span", "html":"${year}"}			
+		"shorthand":{"<>": "li", "html": [
+				{"<>":"b", "text":"${name}"},
+				{"<>":"span", "text":"${year}"},
 			]},
 
-		"longhand":{"<>": "li", children: [
-				{"<>": "b", "html": function(){return(this.name);}},
-				{"<>": "span", "html": function(){return(this.year);}}
+		"longhand":{"<>": "li", "html": [
+				{"<>": "b", "text": function(){return(this.name);}},
+				{"<>": "span", "text": function(){return(this.year);}}
 			]}
 	};
         
-    var html1 = json2html.transform(movies,transforms.shorthand);
-    
-    var html2 = json2html.transform(movies,transforms.longhand);
-    
-	document.write('<h1>Shorthand Test</h1>'+ html1 + '<br><br>' + html2);
+	document.write('<h1>Shorthand & Longhand Tests</h1>');
+	
+	document.write('<h2>Shorthand</h2>'+ json2html.transform(movies,transforms.shorthand));
+    document.write('<h2>Longhand</h2>'+ json2html.transform(movies,transforms.longhand));
+
+	document.write('<hr/>');
+})();

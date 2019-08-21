@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>JSON2HTML Event Example</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes"> 
+    
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+
+	<!-- Bootstrap & Font Awesome  -->
+    <link href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.css" rel="stylesheet">
+    
+    <!-- Json2html -->
+    <script src="../json2html.js"></script>
+    <script src="../jquery.json2html.js"></script>
+    
+    <!-- Simple Styling -->
+    <style>
+    
+        #company {
+            list-style:none;
+        }
+        
+        #company .item {
+            height:100px;
+            width:100px;
+            padding:5px;
+            margin:5px;
+            background-color:silver;
+            color:white;
+            text-align:center;
+            cursor:pointer;
+            
+            font-size:15pt;
+            
+            display:inline-block;
+        }
+        
+        #company .item i {
+            font-size:25pt;
+        }
+        
+        #company .item:hover {
+            background-color:gray;
+        }
+        
+        #company .item.selected {
+            background-color:gray;
+        }
+        
+        #description {
+            margin:20px 0 0 40px;
+        }
+    </style>
+</head>
+
+<body>
+	<h2>Events Example</h2>
+	
+	<p>Click on a company to select it</p>
+	
+	<ul id="company"></ul>
+	
+	<div id="description"></div>
+	
+</body>
+
+<script type="text/javascript">
+
+    //List items
+    var data = [
+        {"name":"apple","icon":"fa-apple","desc":"They let you communicate in overpriced style."},
+        {"name":"facebook","icon":"fa-facebook","desc":"They let you creap on your friends."},
+        {"name":"twitter","icon":"fa-twitter","desc":"They let you tell everyone about your favourite meal."},
+        {"name":"reddit","icon":"fa-reddit","desc":"They let you chat online about anything, and I really mean anything."},
+        {"name":"google","icon":"fa-google","desc":"They let you find anything online, and I really mean anything."}
+    ];
+
+    //List item transform
+    var transforms = {
+        
+        "company":{"<>":"li","class":"item","title":"${name}","onclick":function(e){
+            
+            //Clear all other elements
+            $('#company .item').removeClass('selected');
+            
+            //Select this element
+            $(this).addClass('selected');
+            
+            //Create the description
+            // but first clear the existing one out
+            $('#description').empty().json2html(e.obj,transforms.description);
+            
+        },"html":[
+            {"<>":"i","class":"fa ${icon}"},
+            {"<>":"br"},
+            {"<>":"span","text":"${name}"}
+		]},
+		
+		"description":[
+		    {"<>":"h4","text":"${name}"},
+		    {"<>":"p","text":"${desc}"}
+		  ]
+    }
+	
+    $(function(){
+        
+        //Create the company list
+        $('#company').json2html(data,transforms.company);
+    });
+</script>
+
+</html>

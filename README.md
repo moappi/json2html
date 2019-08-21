@@ -1,14 +1,6 @@
 json2html core
 =========
 
-Readme First!
---------------
-Looks like you've found the json2html core library repository.  This repository is used for making changes to the core json2html library.  While you're free to use this core json2html library we recommend that you use the following wrappers instead:
-
-+	<a href='https://github.com/moappi/jquery.json2html'>jQuery wrapper</a>  for extended client side functionality 
-+	<a href='https://github.com/moappi/node-json2html'>node.js wrapper</a> for server side functionality
-
-
 What is json2html?
 ------------------
 json2html is a simple but powerful javascript HTML templating library used to transform JSON objects into HTML. 
@@ -19,7 +11,7 @@ Instead of writing HTML templates json2html relies on JSON transforms to convert
 
 +	One template (we call transform) that can be used on either a client OR server
 +	Short hand notation for mapping data objects to markup ${name}
-+	Event binding to DOM objects (with the jquery plugin)
++	Event binding to DOM objects (with jquery)
 +	Use of inline functions to allow for complex logic during transformation 
 
 Example
@@ -45,10 +37,46 @@ Will render the following html
 </li>	
 ```
 
-Need more Information?
---------------
-Check out our website <a href='http://www.json2html.com'>www.json2html.com</a> for more information including detailed usage notes, interactive examples and more!
+json2html for jQuery
+=========
+Use seemlessly with jQuery, oh did we also mention that you can embed events in your transforms?  Forget attaching your events after you've rendered your templates.
+
+```javascript
+var transform = 
+ {"<>":"li","id":"${id}","html":[
+	{"<>":"span","html":"${name} ${year}"}
+  ],"onclick":funciton(e){
+	alert("You just clicked " + e.obj.name);
+  }};		
+```
+Will render into the following html and will alert when clicked :)
+
+```html
+<li id=1123>
+	<span>Jack and Jill (2001)</span>
+</li>	
+```
+
+json2html for Node.js
+=========
+Use seemlessly with Node.js
+
+Installation
+------------
+
+	npm install node-json2html
 
 
+Usage
+-----
+```javascript
+	var json2html = require('node-json2html');
+
+	var data = [{'male':'Bob','female':'Jane'},{'male':'Rick','female':'Ann'}];
+
+	var transform = {"<>":"div","html":"${male} likes ${female}"};
+        
+	var html = json2html.transform(data,transform);
+```
 
 

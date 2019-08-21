@@ -15,7 +15,11 @@
     var html = json2html.transform(test_data, transform);
     var html2 = json2html.transform(test_data2, transform);
 
-    document.write('<h1>Escape Quotes Test</h1>'+ html);
-    document.write('<h1>Escape HTML Test</h1>'+ html2);
+	document.write('<h1>Escape Tests</h1>');
+
+    document.write('<h2>Escape Quotes Test</h2>'+ html);
+    document.write('<h2>Escape HTML Test</h2>'+ html2);
     
+	document.write('<hr/>');
+
 })();
