@@ -5,6 +5,8 @@ What is json2html?
 ------------------
 json2html is a simple but powerful javascript HTML templating library used to transform JSON objects into HTML. 
 
+Check out our website <a href='http://www.json2html.com'>www.json2html.com</a> for more information including detailed usage notes, interactive examples and more!
+
 Why json2html?
 --------------
 Instead of writing HTML templates json2html relies on JSON transforms to convert a source JSON objects to html.  The benefit of using a JSON transform is that they are already readable by the browser/server and DO NOT require any compilation before use.   In addition, json2html allows the following:
@@ -13,6 +15,7 @@ Instead of writing HTML templates json2html relies on JSON transforms to convert
 +	Short hand notation for mapping data objects to markup ${name}
 +	Event binding to DOM objects (with jquery)
 +	Use of inline functions to allow for complex logic during transformation 
++	No compilation required
 
 Example
 --------------
@@ -78,5 +81,9 @@ Usage
         
 	var html = json2html.transform(data,transform);
 ```
+
+How do I start?
+--------------
+Check out our website <a href='http://www.json2html.com'>www.json2html.com</a> for more information including detailed usage notes, downloadable examples and more!
 
 
