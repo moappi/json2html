@@ -1,6 +1,3 @@
-json2html core
-=========
-
 What is json2html?
 ------------------
 json2html is a simple but powerful javascript HTML templating library used to transform JSON objects into HTML. 
