@@ -18,14 +18,14 @@ Example
 --------------
 Transform (template)
 ```javascript
-var transform = 
+let transform = 
  {"<>": "li", "id":"${id}", "html":[
 	{"<>": "span", "text": "${name} (${year})"}
   ]};		
 ```
 Plus JSON Data
 ```javascript
-var data = 
+let data = 
  {"id": 1123, "name": "Jack and Jill", "year":2001};		
 ```
 
@@ -42,7 +42,6 @@ json2html for jQuery
 Use seemlessly with jQuery, oh did we also mention that you can embed events in your transforms?  Forget attaching your events after you've rendered your templates.
 
 ```javascript
-var transform = 
  {"<>":"li","id":"${id}","html":[
 	{"<>":"span","html":"${name} ${year}"}
   ],"onclick":funciton(e){
@@ -70,13 +69,9 @@ Installation
 Usage
 -----
 ```javascript
-	var json2html = require('node-json2html');
-
-	var data = [{'male':'Bob','female':'Jane'},{'male':'Rick','female':'Ann'}];
-
-	var transform = {"<>":"div","html":"${male} likes ${female}"};
+	const json2html = require('node-json2html');
         
-	var html = json2html.transform(data,transform);
+	let html = json2html.transform([{'male':'Bob','female':'Jane'},{'male':'Rick','female':'Ann'}],{"<>":"div","html":"${male} likes ${female}"});
 ```
 
 How do I start?
