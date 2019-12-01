@@ -20,7 +20,7 @@
     "transforms",
     "json"
   ],
-  "main": "json2html.js",
+  "main": "node.json2html.js",
   "dependencies": {},
   "devDependencies": {},
   "optionalDependencies": {},
