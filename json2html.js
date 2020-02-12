@@ -1,7 +1,7 @@
 //     json2html.js 1.3.0
 //     https://www.json2html.com
-//     (c) 2006-2019 Crystalline Technologies
-//     Json2html may be freely distributed under the MIT license.
+//     (c) 2006-2020 Crystalline Technologies
+//     json2html may be freely distributed under the MIT license.
 
 (function() {
 

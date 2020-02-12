@@ -29,6 +29,8 @@ $(function() {
 			{"title":"Array - Event Transform","data":"array","transform":"event"},
 			{"title":"Array - Data Transform","data":"array","transform":"data"},
 			{"title":"Array - Embed Transform","data":"array","transform":"json2html.html"},
+
+			{"title":"REPLACE OPTION","data":"list","transform":"list"},
 		]
     };
 
@@ -60,8 +62,10 @@ $(function() {
 
 		"json2html.html":{"<>":"div","html":function(obj,index,_data){
 			return($.json2html(data.single,transforms.single,{"output":"html","data":_data}));
-		}}
-    };
+		}},
+
+		"list":{"<>":"li","data-index":"${num}","text":"${num}"}
+	};
     
     //Datasets for tests
     var data = {
@@ -70,13 +74,24 @@ $(function() {
         "array":[
             {"attr":"attr-1","html":"html-1"},
             {"attr":"attr-2","html":"html-2"}
-        ]
+        ],
+
+		"list":[
+			{"num":1},
+			{"num":3},
+			{"num":4}
+		]
     };
 
 	$('body').append("<h1>jQuery Tests</h1>");
 
     //Ok run the tests!
     $('body').json2html(run.tests,run.display,{"data":"DATA"});
+
+	//Run the options tests
+
+	//REPLACE num 1 with num 2
+	$('body li[data-index=1]').json2html({"num":2},transforms.list,{"replace":true});
 
 	//Run last test
 	// insure that jquery object has registered events correctly
