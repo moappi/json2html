@@ -4,7 +4,7 @@
     "email": "info@json2html.com",
     "url": "https://www.json2html.com"
   },
-  "name": "json2html",
+  "name": "node-json2html",
   "description": "json2html - Pure Javascript HTML Templating",
   "version": "1.4.0",
   "homepage": "https://www.json2html.com",
