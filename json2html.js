@@ -22,7 +22,7 @@
 	root.json2html = {
 
 		//Current version
-		'version':'1.4.0',
+		'version':'1.4.1',
 		
 		//Transform json to html
 		'transform': function(json,transform,_options) {
@@ -174,25 +174,35 @@
 						delete options.eventData;
 					}
 					
-					//Insure that we have the events turned (Required)
+					//Insure that we have the events returned (Required)
 					options.events = true;
 
 					//Otherwise we're running $.json2html
 					return this.each(function(){ 
-						
-						//let json2html core do it's magic
-						// and then process any jquery events
-						var $result = _events(json2html.transform(json, transform, options));
 
+						var result = _events(json2html.transform(json, transform, options));
+						
 						//Append it to the appropriate element
-						if (options.replace) $.fn.replaceWith.call($(this),$result);
-						else if (options.prepend) $.fn.prepend.call($(this),$result);
-						else $.fn.append.call($(this),$result);
+						if (options.replace) $.fn.replaceWith.call($(this),result.$);
+						else if (options.prepend) $.fn.prepend.call($(this),result.$);
+						else $.fn.append.call($(this),result.$);
+
+						//Throw the json2html.ready events (if any)
+						_onready(result.ready);
 					});
 				};
 
 				/* ---------------------------------------- Prviate Methods ------------------------------------------------ */
+				
+				//Trigger the on ready events
+				function _onready(events){
+					
+					//Trigger all the json2html.ready events
+					for(var i=0; i < events.length; i++) 
+						events[i].trigger("json2html.ready");
+				}
 
+				//Parse the events
 				function _events(result) {
 
 					//Make sure we have events
@@ -200,6 +210,9 @@
 
 					//Attach the html(string) result to the DOM
 					var dom = $(document.createElement('i')).html(result.html);
+					
+					//Record json2html specific ready events
+					var ready = [];
 
 					//Determine if we have events
 					for(var i = 0; i < result.events.length; i++) {
@@ -215,6 +228,12 @@
 						//remove the attribute
 						$(obj).removeAttr('json2html-event-id-'+event.type);
 						
+						//Check for the ready event
+						// jquery ready event only works for document
+						// we extend that to work for any dom element
+						// replace with json2html.ready
+						if(event.type === "ready") event.type = "json2html.ready";
+						
 						//attach the event
 						$(obj).on(event.type,event.data,function(e){
 							//attach the jquery event
@@ -223,10 +242,13 @@
 							//call the appropriate method
 							e.data.action.call($(this),e.data);
 						});
+
+						//Record what objects we need to trigger ready events
+						ready.push($(obj));
 					}
 					
 					//Get the children to this result
-					return($(dom).children());
+					return({"$":$(dom).children(),"ready":ready});
 				}
 			})(window.jQuery);
 		}
