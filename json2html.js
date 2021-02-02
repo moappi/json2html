@@ -446,6 +446,18 @@
 							}
 						break;
 
+						case "sub":   // This may need a better name?
+							var components = transform.sub.data.split('.');
+
+							var subdata = obj;
+							for(var i = 0; i < components.length; i++) {
+								if(components[i] in subdata) {
+									subdata = subdata[components[i]];
+								}
+							}
+							html = json2html.transform(subdata, transform.sub.template);
+						break;
+
 						default:
 							//Add the property as a attribute if it's not a key one
 							var isEvent = false;
