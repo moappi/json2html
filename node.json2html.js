@@ -1,12 +1,14 @@
-var fs = require('fs'),
-	vm = require('vm'),
-	path = require('path');
+const fs = require("fs"),
+	vm = require("vm"),
+	path = require("path");
 
-var load = function(js) {
-    var filePath = path.join(__dirname, js);
+const load = function(js) {
+    const filePath = path.join(__dirname, js);
     vm.runInThisContext(fs.readFileSync(filePath), js);
 }.bind(this);
 
-load('json2html.js');
+//Load the json2html.js library
+load("json2html.js");
 
+//Use with require
 module.exports = json2html;

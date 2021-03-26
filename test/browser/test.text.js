@@ -5,7 +5,7 @@
 		{"text":"some text","number":1.5,"bool":true}
 	];
 
-    var transform = [
+    var template = [
 
 		//Test the text shorthand
         {"<>":"ul", "html":[
@@ -31,7 +31,7 @@
 		
     ];
         
-    var html = json2html.transform(text_data, transform);
+    var html = json2html.render(text_data, template);
 
     document.write('<h1>Text Transforms Test</h1>'+ html);
 

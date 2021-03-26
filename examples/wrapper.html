@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+ <head>
+	<title>json2html - Wrapper Component Example</title>
+	
+	<!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	
+    <!-- Json2html -->
+    <script src="../json2html.js"></script>
+    
+    <!-- Utility Styles -->
+    <style>
+        .blue {color:blue;}
+        .bold {font-weight:bold;}
+        
+        .inline {display:inline-block;padding:0;margin:0}
+        .inline li {display:inline-block;list-style:none;padding-left:5px;}
+    </style>
+	
+ </head>
+ <body></body>
+ 
+ <script>
+    //In this example we'll show you how you can create a component that we can used as a wrapper
+    // this works well when you want to create re-usable page wrapper etc..
+
+	//Our employee list
+    const employees = [
+    	{"name":"Jenny Brown","role":"CEO","management":true,"access":["hr","finance","technical"],"payments":[{"date":"Today","amount":"$4,500"},{"date":"Last Week","amount":"$4,500"},{"date":"2 Weeks Ago","amount":"$3,500"}]},
+    	{"name":"Ashley White","role":"CFO","management":true,"access":["hr","finance"],"payments":[{"date":"Yesterday","amount":"$3,500"},{"date":"Last Week","amount":"$3,500"},{"date":"2 Weeks Ago","amount":"$2,500"}]},
+    	{"name":"Brandon Green","role":"Graphic Designer","access":["technical"],"payments":[{"date":"Today","amount":"$2,500"},{"date":"Last Week","amount":"$2,500"}]},
+    	{"name":"Sasha Black","role":"Front End Developer","access":["technical"],"payments":[{"date":"Yesterday","amount":"$2,500"}]}
+	];
+    
+    //Regsiter all components with json2html
+    // note we can also register a single component using 
+    // json2html.component.add(name,template)
+    json2html.component.add({
+        
+        //Create a page wrapper with a header and footer and a place for contents
+        "page":[
+            
+            //Page Header
+            {"<>":"section","html":[
+                {"<>":"h1","text":"${title}"},
+                {"<>":"p","text":"${desc}"}
+            ]},
+            
+            //Page Content
+            // note that we're using the last html parameter which is the html for the component (see use below)
+            // other paramters are 
+            //   obj: object that we're transforming (same as this)
+            //   index: index of the object in the array (if we have one, otherwise 0)
+            //   data: data object passed to json2html (see events in documentation)
+            //   html: specific to a component, used to reference the html that this component wraps
+            {"<>":"section","html":function(obj,index,data,html){
+                
+                //Return the inner html that this component will wrap around
+                // note that this is actually the template
+                return(html);
+            }},
+            
+            //Page Footer
+            {"<>":"section","html":[
+                {"<>":"p","text":"${footer}"}
+            ]}
+        ],
+        
+        //We've moved the employee to be a component
+        // allows to access this easily when we create the page
+        "employee":{"<>":"li","html": [
+				
+				//Output the employee name
+				// note that the entire employee object is passed to this component
+				// allowing it to access properties like name and role
+				{"[]":"employee/name"},
+				
+				//Employee Access
+				// note that the entire employee object is passed to this component
+				// allowing it to access the 'access' array
+				{"[]":"employee/access"},
+				
+			    //Employee Payments
+			    {"<>":"div","html":[
+			        
+			        //Add a title so we know what we're looking at
+		            {"<>":"div","text":"Payments Received"},
+		            
+		            // note that we only created a component for the list item
+			        // this requires us to wrap the component in a ul list 
+    				{"<>":"ul","html":[
+    				    
+    				    //Render the employees payments using the employee/payment component
+    				    // note that we need to pass the payment array directly to this component so it can render each payment
+    				    // the data property MUST be a function with the return value being the data used to render this component
+    				    {"[]":"employee/payment","data":function(){
+    				        return(this.payments);
+    				    }}
+    				]}
+    			]}
+			]},
+        
+        //Employee name (and role) Component
+        "employee/name":{"<>":"div","class":function(){if(this.management) return("blue bold"); else return("bold");},"text":"${name} - ${role}"},
+        
+        //Employee access Component (lists all access inline)
+        "employee/access":{"<>":"div","html":[
+            
+                //Let's add a title so we know what we're looking at
+                {"<>":"span","text":"Access:"},
+            
+                //Inline list of access
+                {"<>":"ul","class":"inline","html":function(){
+                
+                //List all the access as an inline list
+                // note that we get the access list from this (employee object)
+                return($.json2html(this.access,{"<>":"li","text":"${value}"}));
+            }}
+        ]},
+        
+        //Employee payment list item
+        // note how we do this differently than access
+        // this list item needs to be passed the payment array
+        "employee/payment":{"<>":"li","text":"${amount} (${date})"}
+    });
+    
+    //Our employee page template
+	const employeePage = [
+	    
+	    //Our generic page component with the header and footer
+	    {"[]":"page","html":[
+	        
+	        //Here we're going to want to put the template that we want
+	        // our generic page to wrap
+	        
+	        //In our case we want this to be an employee list
+	        {"<>":"ul","html":[
+	            
+	            //List all employees
+	            // we do this by specifying that we want to render the 'employees' object 
+	            // with the employee component
+	            {"[]":"employee","data":function(){
+	                return(this.employees);
+	            }}
+	        ]}
+	    ]}
+	];
+	
+	//Note we are now rendering to the root body element
+	// we'll let the page component take care of the header and footer plus rendering the content
+	
+	// The data object we're now using will be passed to the page component
+	// this includes information like title and description of the page as well as the footer
+	// PLUS we'll also add the employees which is specific to this page that we're rendering
+	// this will allow us to access employees within the inner content of the page
+	// rendering them into a list 
+	$("body").json2html({
+	    "title":"Employees",
+        "desc":"List of all active employees, their role, what document access they have, and the payments they have received",
+        "footer":"*Disclaimer: this data was prepared as is and without review",
+        
+        "employees":employees
+	},employeePage);
+	
+</script>
+</html>
+    

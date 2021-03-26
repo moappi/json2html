@@ -1,64 +1,66 @@
-What is json2html?
+
+json2html
 ------------------
-json2html is a simple but powerful javascript HTML templating library used to transform JSON objects into HTML. 
 
-Check out our website <a href='http://www.json2html.com'>www.json2html.com</a> for more information including detailed usage notes, interactive examples and more!
+json2html is an open source javascript library that uses js templates to render JSON objects into HTML.
 
-Why json2html?
+Build lightning fast, interactive client side templates using nothing but javascript.
+
+Free to use under the MIT license.
+
+<a href='http://www.json2html.com'>www.json2html.com</a> for full documentation.
+
+Features
 --------------
-Instead of writing HTML templates json2html relies on JSON transforms to convert a source JSON objects to html.  The benefit of using a JSON transform is that they are already readable by the browser/server and DO NOT require any compilation before use.   In addition, json2html allows the following:
 
-+	One template (we call transform) that can be used on either a client OR server
-+	Short hand notation for mapping data objects to markup ${name}
-+	Event binding to DOM objects (with jquery)
-+	Use of inline functions to allow for complex logic during transformation 
-+	No compilation required
++   Native JS templates that can be read within the browser or node.js and don't require compilation
++   One template for both the client and server
++   Interactive with embedded events directly in your templates
++   100% Javascript so no need to learn any new syntax, use inline js functions for complex logic
 
 Example
 --------------
-Transform (template)
 ```javascript
-let transform = 
- {"<>": "li", "id":"${id}", "html":[
-	{"<>": "span", "text": "${name} (${year})"}
-  ]};		
-```
-Plus JSON Data
-```javascript
-let data = 
- {"id": 1123, "name": "Jack and Jill", "year":2001};		
+json2html.render(
+    [
+        {"name": "Justice League", "year":2021},
+        {"name": "Coming 2 America", "year":2021}
+    ], 
+    {"<>": "li", "html":[
+    	{"<>": "span", "text": "${name} (${year})"}
+      ]});
+    
 ```
 
 Will render the following html
 
 ```html
-<li id="1123">
-	<span>Jack and Jill (2001)</span>
-</li>	
+<li>
+	<span>Justice League (2021)</span>
+</li>
+<li>
+	<span>Coming 2 America (2021)</span>
+</li
 ```
 
-json2html for jQuery
+jQuery
 =========
-Use seemlessly with jQuery, oh did we also mention that you can embed events in your transforms?  Forget attaching your events after you've rendered your templates.
+Use seemlessly with jQuery, oh did we also mention that you can embed events in your template?  Forget attaching your events after you've rendered your templates.
 
 ```javascript
- {"<>":"li","id":"${id}","html":[
-	{"<>":"span","html":"${name} ${year}"}
-  ],"onclick":funciton(e){
-	alert("You just clicked " + e.obj.name);
+ {"<>":"button","text":"Click Me","onclick":funciton(e){
+	alert("You just clicked this");
   }};		
 ```
 Will render into the following html and will alert when clicked :)
 
 ```html
-<li id=1123>
-	<span>Jack and Jill (2001)</span>
-</li>	
+<button>Click Me</button>
 ```
 
-json2html for Node.js
+Node.js
 =========
-Use seemlessly with Node.js
+Use your temlpates seemlessly on Node.js (sorry no events here)
 
 Installation
 ------------
@@ -74,8 +76,4 @@ Usage
 	let html = json2html.transform([{'male':'Bob','female':'Jane'},{'male':'Rick','female':'Ann'}],{"<>":"div","html":"${male} likes ${female}"});
 ```
 
-How do I start?
---------------
-Check out our website <a href='http://www.json2html.com'>www.json2html.com</a> for more information including detailed usage notes, downloadable examples and more!
-
-
+<a href='http://www.json2html.com'>www.json2html.com</a> for full documentation.

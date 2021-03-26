@@ -1,5 +1,4 @@
 
-
 (function() {
 
 	//Test static values Array transform
@@ -9,12 +8,12 @@
 		"string":["test","this","out"]
 	};
 
-	var transforms = {
+	var templates = {
 		"type":[
 			{"<>":"h2", "text":"Array Type (${type})"},
 			{"<>":"ul", "html":function(){
 				//Transform the type array
-				return(json2html.transform(this.values,transforms.item));
+				return(json2html.render(this.values,templates.item));
 			}}
 		],
 			
@@ -30,9 +29,9 @@
 	var out = '';
     
 	//Transform each type
-	out += json2html.transform({"type":"bool","values":types.bool},transforms.type);
-	out += json2html.transform({"type":"number","values":types.number},transforms.type);
-	out += json2html.transform({"type":"string","values":types.string},transforms.type);
+	out += json2html.render({"type":"bool","values":types.bool},templates.type);
+	out += json2html.render({"type":"number","values":types.number},templates.type);
+	out += json2html.render({"type":"string","values":types.string},templates.type);
 
 	//Spit out the result
 	document.write("<h1>Static Value Array Test</h1>"+ out);

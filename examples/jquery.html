@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+ <head>
+	<title>json2html - jQuery Example</title>
+	
+	<!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	
+    <!-- Json2html -->
+    <script src="../json2html.js"></script>
+    
+    <!-- Utility Styles -->
+    <style>
+        .blue {color:blue;}
+        .bold {font-weight:bold;}
+    </style>
+	
+ </head>
+ <body>
+     
+    <h1>jQuery Example</h1>
+    
+    <hr>
+    
+    <ul></ul>
+    
+    <hr>
+ </body>
+ 
+ <script>
+    //In this example we'll use the same list of employees but add a button were can can remove them from the list
+
+	//Data that we want to render
+    const employees = [
+    	{"name":"Jenny Brown","role":"CEO","management":true},
+    	{"name":"Ashley White","role":"CFO","management":true},
+    	{"name":"Brandon Green","role":"Graphic Designer"},
+    	{"name":"Sasha Black","role":"Front End Developer"}
+	];
+    
+    //Template we'll use to render these employees
+	const template = {"<>":"li","html": [
+				
+				//Span element with special logic for the class property
+				{"<>":"span","class":function(){
+				    
+				    //If the user is part of managemnt then put them in blue
+				    if(this.management) return("blue bold");
+				    else return("bold");
+				    
+				},"text":"${name} - ${role}"},
+				
+				//Add a button to remove this employee from the list
+				// not a great idea using an inline style, but shows that we can add any property to the DOM element
+				{"<>":"a","href":"#","text":"remove","style":"margin-left:5px;","onclick":function(e){
+				    //e.event => jquery event
+				    //e.obj => object we're rendering
+				    //e.data => data object we can optional assign during the render call
+				    
+				    //Stop the link from navigating away
+				    // example of how can can acces the jquery event
+				    e.event.preventDefault();
+				    
+				    //Access this element's parent (the top level li element)
+				    // then remove it 
+				    $(this).parent().remove();
+				}}
+				
+			]};
+        
+	$("ul").json2html(employees,template);
+</script>
+</html>
+  

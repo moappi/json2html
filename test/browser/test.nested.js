@@ -5,11 +5,11 @@
 	// calls json2html recusively
     var data = {"name":"parent", "list": [{"name": "child1"}, {"name": "child2"}]};
 
-	var transforms = {
+	var templates = {
 		"list":[
 			{"<>":"h2", "html":"${name}"},
 			{"<>":"ul","html":function(){
-				return(json2html.transform(this.list, transforms.item));
+				return(json2html.render(this.list, templates.item));
 			}}
 		],
 
@@ -18,7 +18,7 @@
 			]}
 	};
 
-    var html = json2html.transform(data,transforms.list);
+    var html = json2html.render(data,templates.list);
 
     document.write('<h1>Nested Test</h1>'+ html);
 	

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+ <head>
+	<title>json2html - Simple Example</title>
+	
+	<!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	
+    <!-- Json2html -->
+    <script src="../json2html.js"></script>
+    
+    <!-- Utility Classes -->
+    <style>
+        .small {font-size:10pt;}
+    </style>
+	
+ </head>
+ <body>
+     
+     <h1>json2html Examples</h1>
+     <p>Note that each example builds on it's self, it's recommended that you start from the top and work your way through each</p>
+     
+     <ul></ul>
+ </body>
+ 
+ <script>
+ 
+    //Render the list of examples
+    $(function(){
+        
+        //Examples that we want to render
+        const examples = [
+        	{"name":"Creating your First Template","url":"simple.html","description":"Understand how to create a simple tempate that maps data using both shorthand and longhand notation along with some simple logic to toggle the class name of an element"},
+        	{"name":"Using with jQuery","url":"jquery.html","description":"Understand how to create templates with embedded events that can be used with jQuery"},
+            {"name":"Working with Arrays","url":"arrays.html","description":"Understand how to work with arrays of literals (instead of objects) plus see how to render sub objects"},
+            {"name":"Creating Re-Usable Components","url":"components.html","description":"Understand how to create and register re-usable components"},
+            {"name":"Using a Wrapper Component","url":"wrapper.html","description":"Understand how to use a component that can wrap around another template (plus why you would want to do this)"}
+    	];
+        
+        //Template we'll use to render these examples
+    	const template = {"<>":"li","html": [
+    				
+    				{"<>":"div","html":[
+    				    {"<>":"a","href":"${url}","text":"${name}"}
+    				]},
+    				
+    				{"<>":"div","class":"small","text":"${description}"}
+    				
+    			]};
+        
+        //Render the list of examples
+    	$("ul").json2html(examples,template);
+    });
+	
+</script>
+</html>

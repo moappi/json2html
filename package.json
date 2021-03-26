@@ -5,8 +5,8 @@
     "url": "https://www.json2html.com"
   },
   "name": "node-json2html",
-  "description": "json2html - Pure Javascript HTML Templating",
-  "version": "1.4.1",
+  "description": "json2html - HTML Templating in Pure Javascript",
+  "version": "2.0.0",
   "homepage": "https://www.json2html.com",
   "repository": {
     "url": "git://github.com/moappi/json2html.git"
@@ -17,7 +17,6 @@
     "html",
     "web",
     "templates",
-    "transforms",
     "json"
   ],
   "main": "node.json2html.js",

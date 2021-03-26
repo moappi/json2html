@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+ <head>
+	<title>json2html - Simple Example</title>
+	
+    <!-- Json2html -->
+    <script src="../json2html.js"></script>
+    
+    <!-- Utility Styles -->
+    <style>
+        .bold {font-weight:bold;}
+        .blue {color:blue;}
+    </style>
+	
+ </head>
+ <body></body>
+ 
+ <script>
+    //In this example we'll use a combination of shorthand and long hand notation
+    // to render a list of employees
+
+	//Data that we want to render
+    const employees = [
+    	{"name":"Jenny Brown","role":"CEO","management":true},
+    	{"name":"Ashley White","role":"CFO","management":true},
+    	{"name":"Brandon Green","role":"Graphic Designer"},
+    	{"name":"Sasha Black","role":"Front End Developer"}
+	];
+    
+    //Template we'll use to render these employees
+	const template = {"<>":"div","html": [
+				
+				{"<>":"span","class":function(){
+				    
+				    //If the user is part of managemnt then put them in blue
+				    if(this.management) return("blue bold");
+				    else return("bold");
+				    
+				},"text":"${name} - ${role}"}
+				
+			]};
+        
+	document.write('<h1>Simple Example</h1>');
+	
+	document.write('<hr/>');
+	
+	document.write(json2html.render(employees,template));
+	
+	document.write('<hr/>');
+</script>
+</html>
+  

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+ <head>
+	<title>json2html - Array Example</title>
+	
+	<!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	
+    <!-- Json2html -->
+    <script src="../json2html.js"></script>
+    
+    <!-- Utility Styles -->
+    <style>
+        .blue {color:blue;}
+        .bold {font-weight:bold;}
+    </style>
+	
+ </head>
+ <body>
+     
+     <h1>Working with Arrays</h1>
+    
+    <hr>
+    
+    <ul></ul>
+    
+    <hr>
+     
+ </body>
+ 
+ <script>
+    //In this example we'll show you how you can work with arrays of literals (rather than objects)
+    // we'll add each employees document access and then display that
+
+	//Data that we want to render
+    const employees = [
+    	{"name":"Jenny Brown","role":"CEO","management":true,"access":["hr","finance","technical"]},
+    	{"name":"Ashley White","role":"CFO","management":true,"access":["hr","finance"]},
+    	{"name":"Brandon Green","role":"Graphic Designer","access":["technical"]},
+    	{"name":"Sasha Black","role":"Front End Developer","access":["technical"]}
+	];
+    
+    //Templates that we want to use
+	const templates = {
+	    
+	    //Template to render an employee
+	    "employee":{"<>":"li","html": [
+				
+				
+				{"<>":"div","class":function(){
+				    
+				    //If the user is part of managemnt then put them in blue
+				    if(this.management) return("blue bold");
+				    else return("bold");
+				    
+				},"text":"${name} - ${role}"},
+				
+				{"<>":"ul","html":function(){
+				    
+				    //Render the list of access we have for this user
+				    // we could also use json2html.render(..) instead here
+				    // we use $.json2html(..) to ensure that events are also added (if we have any) as it returns an iHTML object (interactive html)
+				    // note the use of this to access the object that we were rendering
+				    return($.json2html(this.access,templates.access));
+				}}
+			]},
+		
+		//Template to render an access level
+		// note that use of the keyword 'value', you can access both the 'index' and 'value' of the array using these keywords
+		"access":{"<>":"li","text":"${value}"}
+	};
+	
+    //Render the list of employees using jquery 
+    // note we can also do this using json2html.render as we don't have any events
+	$("ul").json2html(employees,templates.employee);
+	
+</script>
+</html>
+  

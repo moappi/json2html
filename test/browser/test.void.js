@@ -27,8 +27,8 @@ $(function() {
 		"track":""
 	};
 
-	//Void element transforms
-    var transforms = [
+	//Void element templates
+    var templates = [
 
 		//area (INCOMPLETE)
 		{"<>":"area","shape":"rect","coords":"19,28,222,228","href":"${area}","target":"_blank","html":"!IGNORED!"},
@@ -82,7 +82,7 @@ $(function() {
 	$('body').append("<h1>Void Elements Test</h1><p>Requires inspection of HTML</p>");
 
 	//Add the void elements
-	$("body").json2html(data,transforms);
+	$("body").json2html(data,templates);
 	
 	$("body").append("<hr/>");
 });

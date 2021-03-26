@@ -1,7 +1,7 @@
 
 (function() {
     
-    var transform = [
+    var template = [
 
 		//Get the event data (text)
         {"<>":"div", "text":function(obj,index,_data){
@@ -16,7 +16,7 @@
         }}
     ];
         
-    var html = json2html.transform({}, transform,{"data":"EVENT DATA"});
+    var html = json2html.render({}, template,{"data":"EVENT DATA"});
 
     document.write('<h1>Data Options Test</h1>'+ html);
 
