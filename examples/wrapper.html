@@ -54,11 +54,11 @@
             //   index: index of the object in the array (if we have one, otherwise 0)
             //   data: data object passed to json2html (see events in documentation)
             //   html: specific to a component, used to reference the html that this component wraps
-            {"<>":"section","html":function(obj,index,data,html){
+            {"<>":"section","html":function(obj,index,data,ihtml){
                 
                 //Return the inner html that this component will wrap around
                 // note that this is actually the template
-                return(html);
+                return(ihtml);
             }},
             
             //Page Footer
@@ -93,8 +93,8 @@
     				    
     				    //Render the employees payments using the employee/payment component
     				    // note that we need to pass the payment array directly to this component so it can render each payment
-    				    // the data property MUST be a function with the return value being the data used to render this component
-    				    {"[]":"employee/payment","data":function(){
+    				    // the obj property MUST be a function with the return value being the data object used to render this component
+    				    {"[]":"employee/payment","obj":function(){
     				        return(this.payments);
     				    }}
     				]}
@@ -111,12 +111,14 @@
                 {"<>":"span","text":"Access:"},
             
                 //Inline list of access
-                {"<>":"ul","class":"inline","html":function(){
+                {"<>":"ul","class":"inline","html":[
                 
-                //List all the access as an inline list
-                // note that we get the access list from this (employee object)
-                return($.json2html(this.access,{"<>":"li","text":"${value}"}));
-            }}
+                    //List all the access as an inline list
+                    // use the access for each employee
+                    {"<>":"li","obj":function(){
+                        return(this.access);
+                    },"text":"${value}"}
+                ]}
         ]},
         
         //Employee payment list item
@@ -140,7 +142,7 @@
 	            //List all employees
 	            // we do this by specifying that we want to render the 'employees' object 
 	            // with the employee component
-	            {"[]":"employee","data":function(){
+	            {"[]":"employee","obj":function(){
 	                return(this.employees);
 	            }}
 	        ]}

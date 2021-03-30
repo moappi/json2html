@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
  <head>
-	<title>json2html - Array Example</title>
+	<title>json2html - Data Mapping &amp; Array Example</title>
 	
 	<!-- jQuery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -18,7 +18,7 @@
  </head>
  <body>
      
-     <h1>Working with Arrays</h1>
+     <h1>Working with Data Mapping &amp; Arrays</h1>
     
     <hr>
     
@@ -29,8 +29,8 @@
  </body>
  
  <script>
-    //In this example we'll show you how you can work with arrays of literals (rather than objects)
-    // we'll add each employees document access and then display that
+    //In this example we'll show you how you can map data directly to a template
+    // plus show you how to work with arrays of literals (like strings) instead of objects
 
 	//Data that we want to render
     const employees = [
@@ -41,11 +41,7 @@
 	];
     
     //Templates that we want to use
-	const templates = {
-	    
-	    //Template to render an employee
-	    "employee":{"<>":"li","html": [
-				
+	const template = {"<>":"li","html": [
 				
 				{"<>":"div","class":function(){
 				    
@@ -55,24 +51,22 @@
 				    
 				},"text":"${name} - ${role}"},
 				
-				{"<>":"ul","html":function(){
+				//List the access that each employee has
+				{"<>":"ul","html":[
 				    
-				    //Render the list of access we have for this user
-				    // we could also use json2html.render(..) instead here
-				    // we use $.json2html(..) to ensure that events are also added (if we have any) as it returns an iHTML object (interactive html)
-				    // note the use of this to access the object that we were rendering
-				    return($.json2html(this.access,templates.access));
-				}}
-			]},
-		
-		//Template to render an access level
-		// note that use of the keyword 'value', you can access both the 'index' and 'value' of the array using these keywords
-		"access":{"<>":"li","text":"${value}"}
-	};
+				    //We can list all the access by simply mapping the access array (using the reserved obj attribute) to the li element
+				    // this will repeat an li element for every value in the array
+				    // NOTE the $ reserved attribute needs to be a function that returns the data you wish to map
+				    //  this also works for components! But we'll get to this later
+				    {"<>":"li","obj":function(){
+				        return(this.access);
+				    },"text":"${value}"}
+				]}
+			]};
 	
     //Render the list of employees using jquery 
     // note we can also do this using json2html.render as we don't have any events
-	$("ul").json2html(employees,templates.employee);
+	$("ul").json2html(employees,template);
 	
 </script>
 </html>

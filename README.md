@@ -13,10 +13,9 @@ Free to use under the MIT license.
 Features
 --------------
 
-+   Native JS templates that can be read within the browser or node.js and don't require compilation
-+   One template for both the client and server
++   Native JS templates that work both the client and server
 +   Interactive with embedded events directly in your templates
-+   100% Javascript so no need to learn any new syntax, use inline js functions for complex logic
++   100% Javascript so no need to learn any new syntax: use inline js functions for complex logic
 
 Example
 --------------

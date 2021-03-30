@@ -58,12 +58,14 @@
                 {"<>":"span","text":"Access:"},
             
                 //Inline list of access
-                {"<>":"ul","class":"inline","html":function(){
+                {"<>":"ul","class":"inline","html":[
                 
-                //List all the access as an inline list
-                // note that we get the access list from this (employee object)
-                return($.json2html(this.access,{"<>":"li","text":"${value}"}));
-            }}
+                    //List all the access as an inline list
+                    // use the access for each employee
+                    {"<>":"li","obj":function(){
+                        return(this.access);
+                    },"text":"${value}"}
+                ]}
         ]},
         
         //Employee payment list item
@@ -101,7 +103,7 @@
     				    //Render the employees payments using the employee/payment component
     				    // note that we need to pass the payment array directly to this component so it can render each payment
     				    // the data property MUST be a function with the return value being the data used to render this component
-    				    {"[]":"employee/payment","data":function(){
+    				    {"[]":"employee/payment","obj":function(){
     				        return(this.payments);
     				    }}
     				]}

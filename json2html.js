@@ -1,5 +1,5 @@
 
-//     json2html.js 2.0.1
+//     json2html.js 2.1.0
 //     https://www.json2html.com
 //     (c) 2006-2021 Crystalline Technologies
 //     json2html may be freely distributed under the MIT license.
@@ -18,25 +18,6 @@
 			typeof global == 'object' && global.global === global && global ||
 			this ||
 			{};
-			
-	//Rendering types
-	// function(obj, template, index, options)
-	// returns iHTML object
-	var TYPES = {
-	    
-        //HTML Element
-        "<>":function(obj, template, index, options){
-            return(_html("<>",obj, template, index, options));
-        },
-        
-        //HTML Element (LEGACY Support)
-        "tag":function(obj, template, index, options){
-            return(_html("tag",obj, template, index, options));
-        },
-        
-        //Component
-        "[]":_component
-	};
 	
 	//Components {name:template}
 	var COMPONENTS = {};
@@ -152,7 +133,7 @@
 	root.json2html = {
 
 		//Current version
-		"version":"2.0.0",
+		"version":"2.1.0",
 		
         //Render a json2html template
 		//  obj : json object to render, or json string
@@ -185,10 +166,25 @@
 			}
 			
 			//Allow for a json string of json object
-			obj = typeof obj === "string" ? JSON.parse(obj) : obj;
+			var parsed = obj;
 			
-			//Render if we have a correct template & data object
-			if(typeof(template) === "object" && template !== null && typeof(obj) === "object" && obj !== null) out = _render(obj, template, _options);
+			//Check for a string (JSON string or literal)
+			if(typeof(obj) === "string") {
+			    try {
+			        parsed = JSON.parse(obj);
+			    } catch(e) {
+			        //Assume that this is a literal string
+			        parsed = obj;
+			    }
+			}
+			
+			//Set the object to the parsed value 
+			// allows for JSON object or a string value of a JSON object or literal
+			obj = parsed;
+			
+			//Render if we have a value template (object or array)
+			// and a data object that's not null or undefined
+			if(_typeof(template) === "object" && _typeof(obj) === "object") out = _render(obj, template, _options);
 			
 			//Determine what output we need
 			switch(_options.output) {
@@ -199,19 +195,10 @@
 			    
 			    //Default to html
 			    default:
+			    
 			        return(out.html);
 			    break;
 			}
-		},
-		
-		//Extend json2html with custom template types
-		// eg <> = html element, or [] = component
-		// method = function(obj, template, index, options)
-		//  MUST return an iHTML object
-		"extend":function(type,method){
-		    
-		    //Add the custom template type
-		    TYPES[type] = method;
 		},
 		
 		//json2html component methods
@@ -347,7 +334,10 @@
 					var _options = {
 					    
 					    //Always set the output to ihtml
-					    "output":"ihtml"
+					    "output":"ihtml",
+					    
+					    //Set the default method
+					    "method":"append"
 					};
 					
 					//Parse the user defined options
@@ -355,6 +345,9 @@
 					    
                         // LEGACY support for eventData, now data
                         if(options.eventData) _options.data = _options.eventData;
+                        
+                        //Set the method
+                        if(options.method) _options.method = options.method;
                         
                         // LEGACY support for append,prepend,replace, now method
                         if(options.prepend) _options.method = "prepend";
@@ -482,10 +475,9 @@
 		
 	/* ---------------------------------------- Private Methods ------------------------------------------------ */
 	
-    //Render object
-    // returns interactive html object (ihtml)
-	function _render(obj, template, options) {
-		
+    //Render these object(s) using these temlpate(s)
+	function _render(obj, template, options, index, pobj) {
+
 		var ihtml = new iHTML();
 		
 		//Check to see what type of object we're rending
@@ -493,59 +485,75 @@
             
             case "array":
                 
-                //Itterrate through the array and add it to the ihtml object
+                //Itterrate through the array and render each
                 var len=obj.length;
                 for(var j=0;j<len;++j) {	
-                    //_apply the template to this object and append it to the results
-                    ihtml.append( _apply(obj[j], template, j, options) );
+                
+                    //Render the object using this template depending on the type of object
+                    ihtml.append( _renderObj(obj[j], template, options, j, pobj) );
                 }
             break;
             
-            case "object":
-                //_apply the template to this object and append it to the results
-				ihtml.append( _apply(obj, template, undefined, options) );
+            //Don't render for undefined or null objects
+            case "undefined":
+            case "null":
             break;
             
-            //IGNORE all other object types
+            //Make sure to allow for literals as well
+            default:
+                
+                //Render the object using this template depending on the type of object
+                ihtml.append( _renderObj(obj, template, options, index, pobj) );
+            break;
 		}
-        
-		//Return the resulting ihtml object
-		return(ihtml);		
+		
+		return(ihtml);
 	}
-
-	//Apply the template to this object
-	// returns interactive html object (ihtml)
-	function _apply(obj, template, index, options) {
-
+	
+	//Render an object using this template(s)
+	function _renderObj(obj, template, options, index, pobj) {
+		
 		var ihtml = new iHTML();
 		
-		//Check the object type of this template
+		//Check the type of template we want to apply
 		switch(_typeof(template,true)) {
 		    
-		    //Array of templates
-		    case "array":
-		        
-                //Then itterate through each object
+            //Array of templates
+            case "array":
+            
+                //Itterate through each template
                 var t_len = template.length;
                 for(var t=0; t < t_len; ++t) {
-                	//template the object and append it to the output
-                	ihtml.append( _apply(obj, template[t], index, options) );
+                	
+                	//Render the template and append
+                	ihtml.append( _renderObj(obj, template[t], options, index) );
                 }
+                
             break;
             
-            //Single template
+            //single template & single object
             case "object":
                 
-                //Check what type of template this is
-                for(var type in TYPES) {
+                //Check to see if this template uses it's own data object
+                // allows us to run the template under a different data object
+                // AND we haven't already got the parent before (in the case of an array)
+                if( _typeof(template.obj) === "function" && !pobj) {
                     
-                    //If this type is present as an attribute of the template
-                    // then process it and return the element
-                    if(template[type] !== undefined) ihtml.append(TYPES[type](obj, template, index, options));
+                    //Set the parent object
+                    pobj = obj;
+                    
+                    //Get the new object
+                    obj = template.obj.call(obj,obj,index);
+                    
+                    //Render the object (might be an array)
+                    ihtml.append( _render(obj, template, options, index, pobj) );
+                } else {
+                    
+                    //Render the component
+                    // or html
+                    if(template["[]"]) ihtml.append( _component(pobj, obj, template, options, index) );
+                    else ihtml.append( _html(pobj, obj, template, options, index) );
                 }
-            break;
-            
-            default:
             break;
 		}
 		
@@ -583,7 +591,7 @@
 	}
 	
 	//Get the html value of the object
-	function _getValue(obj, template, key, index, options) {
+	function _getValue(obj, template, key, options, index) {
 		
 		var out = "";
 		
@@ -591,7 +599,7 @@
 		var prop = template[key];
 		
 		//Check the type of this template property
-		switch(_typeof(prop)) {
+		switch(_typeof(prop,true)) {
 			
 			//Get the value from the function
 			case "function":
@@ -644,20 +652,25 @@
 							return("");
 						break;
 						
+						//For literal arrays (and single objects) of type
 						//BOOLEAN, NUMBER, BIGINT, STRING, SYMBOL
 						default:
 							
 							//Check the path of the shorthand
 							switch(path) {
 
-								//RESERVED word for static array value
+								//RESERVED word for literal array value
 								case "value":
 									return(obj);
 								break;
 								
-								//RESERVED word for static array value index
+								//RESERVED word for literal array value index
 								case "index":
-									return(index);
+								    
+								    //Return empty string if we don't have an index
+								    // for objects
+								    if(index === undefined || index === null) return("");
+								    else return(index);
 								break;
 							}
 						break;
@@ -665,12 +678,14 @@
 				});
 			break;
 			
-			//Spit out blank for undefined or null
+			//Spit out blank
 		    case "null":
 			case "undefined":
+			case "object":
 			    out = "";
 			break;
 			
+			//Arrays, and other literals
 			default:
 			    
 			    //Get the string representation for this property
@@ -781,28 +796,16 @@
 	/* ---------------------------------------- Template Types ------------------------------------------------ */
 	
 	//default html type
-	// supports <> and legacy tag type
+	// supports <> and legacy tag
 	// returns iHTML
-	function _html(type, obj, template, index, options){
+	function _html(pobj, obj, template, options, index){
     
-        //Create a new ihtml object for the parent
-        var parent = new iHTML();
+        //Create a new ihtml object for the parent and it's children
+        var parent = new iHTML(),
+            children = new iHTML();
         
-        //Get the element name (this can be tokenized)
-		var name = _getValue(obj,template,type,index,options);
-		
-		//Determine if this is a void element
-		// shouldn't have any contents, if it does then ignore
-		var isVoid = _isVoidElement(name);
-		
-		//Create a new element
-		parent.appendHTML("<" + name);
-		
-		//Create a new ihtml object for the children
-		var children = new iHTML();
-		
-		//innerHTML
-		var html;
+        //Set the default html element key
+		var ele = "<>";
 		
 		//Look into the properties of this template
 		for (var prop in template) {
@@ -812,66 +815,80 @@
 				//DEPRECATED (use <> instead)
 				case "tag":
 				    
-				//HTML element to render
+				    //Signal we're using a deprecated property
+				    //TODO output warning??
+				    ele = "tag";
+				    
+				//HTML element
 				case "<>":
-					//Do nothing as we have already created the element
+					
+					//Get the element name (this can be tokenized)
+            		parent.name = _getValue(pobj || obj, template, ele, options, index);
+            		
+            		//Create a new element
+		            parent.appendHTML("<" + parent.name);
 				break;
 				
-				//Encode as text
+				//Data object
+		        case "obj":
+				break;
+				
+				//Encode text
 				case "text":
-					
-					//Ignore for void elements
-					if(isVoid) continue;
 					
 					//Determine what kind of object this is
 					// array => NOT SUPPORTED
 					// other => text
-					if(!_isArray(template[prop])) {	
-						//Get the encoded text associated with this element
-						html = json2html.toText( _getValue(obj,template,prop,index,options) );
-					}
+					// Encode the value as text and add it to the children
+					if(!_isArray(template[prop])) children.appendHTML( json2html.toText( _getValue(obj,template,prop,options,index) ) );
 					 
 				break;
 				
 				//DEPRECATED (use HTML instead)
 				case "children":
 				    
+				//TODO output warning??
+				    
 				//Encode as HTML
 				// accepts array of children, functions, string, number, boolean
 				case "html":
 				    
-					//Ignore for void elements
-					if(isVoid) continue;
-					
-					//Determine what kind of object this is
+					//Determine if we have more than one template
 					// array & function => children
 					// other => html
 					switch(_typeof(template[prop],true)) {
                         
                         case "array":
                             
-                            //_apply the template to the children
-				            children.append( _apply(obj, template[prop], index, options) );
+                            //render the children
+				            children.append( _render(obj, template[prop], options, index) );
                         break;
                         
                         case "function":
                             
                             //Get the result from the function
-                            var temp = template[prop].call(obj, obj, index, options.data, options.$html);
+                            var temp = template[prop].call(obj, obj, index, options.data, options.$ihtml);
                             
-                            //Determine what type of object this is
+                            //Determine what type of result we have
                             switch(_typeof(temp,true)) {
-                                
-                                //This is a template and we need to template it
-                                case "array":
-                                    //Add this object to the children
-                                    children.append( _apply(obj, temp, index, options) );
-                                break;
                                 
                                 //Only returned by json2html.render or $.json2html calls
                                 case "object":
-                                    //Add this object to the children
-                                    if(temp.type === "iHTML") children.append(temp);
+                                    
+                                    //Check the type of object
+                                    switch(temp.type) {
+                                        
+                                        //Add the object as a template
+                                        case "iHTML":
+                                            children.append(temp);
+                                        break;
+                                        
+                                        //Otherwise don't render
+                                        default:
+                                            
+                                        break;
+                                    }
+                                    
                                 break;
                                 
                                 //Not supported
@@ -880,8 +897,14 @@
                                 case "null":
                                 break; 
                                 
-                                //Append to html
-                                // string, number, boolean
+                                //Render the array as a string
+                                // append to html
+                                case "array":
+                                    children.appendHTML(temp.toString());
+                                break;
+                                
+                                //string, number, boolean, etc..
+                                // append to html
                                 default:
                                 	children.appendHTML(temp);
                                 break;
@@ -890,7 +913,7 @@
                         
                         default:
                             //Get the HTML associated with this element
-                            html = _getValue(obj,template,prop,index,options);
+                            children.appendHTML( _getValue(obj,template,prop,options,index) );
                         break;
 					}
 				break;
@@ -930,7 +953,7 @@
 					//If this wasn't an event AND we actually have a value then add it as a property
 					if(!isEvent){
 						//Get the value
-						var val = _getValue(obj, template, prop, index, options);
+						var val = _getValue(obj, template, prop, options, index);
 						
 						//Make sure we have a value
 						if(val !== undefined) {
@@ -948,24 +971,29 @@
 			}
 		}
 		
-		//For non void elements
-		if(!isVoid) {
-			
-			//Close the opening tag
-			parent.appendHTML(">");
-			
-			//add the innerHTML (if we have some)
-			if(html) parent.appendHTML(html);
-			
-			//add the children (if we have any)
-			parent.append(children);
-			
-			//add the closing tag
-			parent.appendHTML("</" + name + ">");
+		//Check to see if the parent is an html element
+		// or just a container
+		if(parent.name) {
+		    
+		    //Determine if this is a void element
+            // shouldn't have any contents
+            if(_isVoidElement(parent.name)) parent.appendHTML("/>");
+            else {
+                
+            	//Close the opening tag
+            	parent.appendHTML(">");
+            	
+            	//add the children
+            	parent.append(children);
+            	
+            	//add the closing tag
+            	parent.appendHTML("</" + parent.name + ">");
+            }
 		} else {
-			
-			//For void elements just close the opening tag
-			parent.appendHTML("/>");
+		    
+		    //Otherwise we don't have a parent html element
+		    // so just add the children to the empty parent
+        	parent.append(children);
 		}
 		
 		return(parent);
@@ -974,7 +1002,7 @@
     //component type
     // supports []
     // returns iHTML
-    function _component(obj, template, index, options) {
+    function _component(pobj, obj, template, options, index) {
         
         //Create a new ihtml object for the parent
         var ihtml = new iHTML();
@@ -984,9 +1012,6 @@
             "name":undefined
         };
         
-        //Use the source object by default
-        var data = obj;
-        
         for(var prop in template) {
             
             //Check the property
@@ -995,8 +1020,8 @@
                 //REQUIRED
                 case "[]":
                     
-                    //Get the component name
-                    var name = _getValue(obj, template, prop, index, options);
+                    //Get the component name (from the parent if we have one)
+                    var name = _getValue(pobj || obj, template, prop, options, index);
                     
                     //Check for a local component first
                     if(options.components) component.template = options.components[name];
@@ -1012,40 +1037,16 @@
                 case "html":
                     
                     //Check what object type of template we allow
-                    switch(_typeof(template.html,true)) {
+                    switch(_typeof(template.html)) {
                         
-                        //Set the html embed
-                        case "array":
-                            options.$html = template.html;
-                        break;
-                        
-                        //Make sure this is a template
-                        // AND it's always in an array form
+                        //Make sure we have an object or array
                         case "object":
-                            options.$html = [template.html];
-                        break;
-                        
-                        default:
-                        break;
-                    }
-                    
-                break;
-                
-                //OPTIONAL
-                //Custom data object
-                // MUST be a function
-                case "data":
-                    
-                    //Get the data (if required)
-                    switch(_typeof(template.data)) {
-                        
-                        case "function":
                             
-                            //Call the data function to get the data for this template
-                            data = template.data.call(obj, obj, index, options.data); 
+                            //Render the children
+                            // make sure to clear the parent
+                            // children don't have access to the parent
+                            options.$ihtml = _render(obj, template.html, options, index);
                         break;
-                        
-                        //OTHERWISE NOT IMPLEMENTED
                     }
                     
                 break;
@@ -1056,11 +1057,11 @@
         // template can be an object or array
         if(_typeof(component.template) !== "object") return(ihtml);
         
-        //template and assign to the output
-        ihtml.append(_render(data, component.template, options));
+        //render the template and assign to the output
+        // this template is considered a child to it won't have access to the parent
+        ihtml.append(_render(obj, component.template, options));
         
         return(ihtml);
     }
 }()); 
-
 
