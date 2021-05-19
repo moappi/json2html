@@ -1,5 +1,5 @@
 
-//     json2html.js 2.1.0
+//     json2html.js 2.1.1
 //     https://www.json2html.com
 //     (c) 2006-2021 Crystalline Technologies
 //     json2html may be freely distributed under the MIT license.
@@ -384,7 +384,7 @@
 						    break;
 						}
 						
-						//Throw the json2html.ready events (if any)
+						//Throw the j2h.ready events (if any)
 						_onready(dom.ready);
 					});
 				};
@@ -407,7 +407,7 @@
 				    
 					//Trigger all the json2html.ready events
 					for(var i=0; i < events.length; i++) 
-						events[i].trigger("j2h.ready");
+						events[i].trigger("j2h-ready");
 				}
 				
 				//Add the ihtml object to the dom
@@ -448,13 +448,19 @@
 						// jquery ready event only works for document
 						// we extend that to work for any dom element
 						// replace with json2html.ready
-						if(event.type === "ready") event.type = "j2h.ready";
+						if(event.type === "ready") event.type = "j2h-ready";
 						
 						//Add the action to the data object
 						event.data.action = event.action;
+						event.data.type = event.type;
+						event.data.id = event.id;
 						
 						//attach the events to the dom
 						$(obj).on(event.type,event.data,function(e){
+						    
+						    //Don't let the j2h-ready event bubble
+						    // prevents parent j2h-ready events from triggering when a child dom object is created
+						    if(e.data.type === "j2h-ready") e.stopPropagation();
 							
 							//attach the jquery event
 							e.data.event = e;
@@ -464,7 +470,7 @@
 						});
 
 						//Add to ready event list (if needed)
-						if(event.type === "j2h.ready") ready.push($(obj));
+						if(event.type === "j2h-ready") ready.push($(obj));
 					}
 					
 					//Return the ready events
