@@ -94,7 +94,7 @@
     				    //Render the employees payments using the employee/payment component
     				    // note that we need to pass the payment array directly to this component so it can render each payment
     				    // the obj property MUST be a function with the return value being the data object used to render this component
-    				    {"[]":"employee/payment","obj":function(){
+    				    {"[]":"employee/payment","{}":function(){
     				        return(this.payments);
     				    }}
     				]}
@@ -115,7 +115,7 @@
                 
                     //List all the access as an inline list
                     // use the access for each employee
-                    {"<>":"li","obj":function(){
+                    {"<>":"li","{}":function(){
                         return(this.access);
                     },"text":"${value}"}
                 ]}
@@ -142,7 +142,7 @@
 	            //List all employees
 	            // we do this by specifying that we want to render the 'employees' object 
 	            // with the employee component
-	            {"[]":"employee","obj":function(){
+	            {"[]":"employee","{}":function(){
 	                return(this.employees);
 	            }}
 	        ]}
