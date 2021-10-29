@@ -64,6 +64,22 @@ describe("jquery", function() {
         chai.assert.equal( $("#jquery-event-ready > div ").html(), "ready");
     });
     
+    //Multiple Events (ready and click)
+    $("body").append("<div id='jquery-event-multiple'></div>");
+    it("EVENTS - multiple", function() {
+        
+        //Create object
+        $("#jquery-event-multiple").json2html({},{"<>":"div","onclick":function(e){$(this).find(">i").text("clicked");},"onready":function(){$(this).find(">span").text("ready");},"html":[{"<>":"span"},{"<>":"i"}]});
+        
+        //Trigger click
+        $("#jquery-event-multiple > div").click();
+        
+        var output = $("#jquery-event-multiple > div > span ").text() + " " + $("#jquery-event-multiple > div > i ").text();
+        
+        //Test
+        chai.assert.equal( output, "ready clicked");
+    });
+    
     //=================== $.json2html METHOD =====================
     
     //$.json2html with events

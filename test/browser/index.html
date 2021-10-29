@@ -2,34 +2,14 @@
 <html>
  <head>
 	<title>json2html Tests</title>
-
-    <!-- jQuery -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-
-    <!-- json2html -->
-    <script src="../../json2html.js"></script>
-    
-    <!-- mocha -->
-	<link rel="stylesheet" href="https://unpkg.com/mocha/mocha.css" />
-	<script src="https://unpkg.com/chai/chai.js"></script>
-    <script src="https://unpkg.com/mocha/mocha.js"></script>
  </head>
  <body>
-     
-    <div id="mocha"></div>
     
-    <div id="output"></div>
-     
-    <script class="mocha-init">
-        mocha.setup("bdd");
-        mocha.checkLeaks();
-    </script>
-    
-    <script src="./test.jquery.js"></script>
-    
-    <script class="mocha-exec">
-        mocha.run();
-    </script>
+    <h1>json2html Tests</h1>
+    <ul>
+        <li><a href="./es5.html">ES5 Support Tests (Default)</a></li>
+        <li><a href="./es6.html">ES6 Support Tests</a></li>
+    </ul>
 	
  </body>
 </html>

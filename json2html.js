@@ -1,5 +1,5 @@
 
-//     json2html.js 2.1.1
+//     json2html.js 2.2.0
 //     https://www.json2html.com
 //     (c) 2006-2021 Crystalline Technologies
 //     json2html may be freely distributed under the MIT license.
@@ -33,7 +33,7 @@
         this.html = html || "";
         
         //associated events
-        this.events = [];
+        this.events = {};
 	}
 	
 	//Append an ihtml object
@@ -47,7 +47,7 @@
                 this.html += obj.html;
                 
                 //Append the events
-                this.events = this.events.concat(obj.events);
+                Object.assign(this.events, obj.events);
             } 
         
         //Added for chaining
@@ -130,129 +130,129 @@
     };
 
 	/* ---------------------------------------- Public Methods ------------------------------------------------ */
-	root.json2html = {
-
-		//Current version
-		"version":"2.1.0",
-		
-        //Render a json2html template
-		//  obj : json object to render, or json string
-		//  template: json2html template (array or json object)
-		//  options : {}
-		//      components : {name:template,...}
-		//      output : ihtml | html
-		"render": function(obj,template,options) {
+	
+	if(!root.json2html) root.json2html = {};
+	
+	//Current Version
+	root.json2html.version = "2.2.0";
+	
+	//Render a json2html template
+	//  obj : json object to render, or json string
+	//  template: json2html template (array or json object)
+	//  options : {}
+	//      components : {name:template,...}
+	//      output : ihtml | html
+    root.json2html.render = function(obj,template,options) {
 		    
-			//create the default object
-			var out = new iHTML();
-			
-			//Default options
-			var _options = {
-			    "output":"html"
-			};
-			
-			//Parse the user defined options
-			if(options) {
-			    
-                // LEGACY support for events, now output
-                if(options.events) _options.output = "ihtml";
-                
-                //Add the other allowed options
-                _options.components = options.components;
-                _options.data = options.data;
-                
-                //Make sure we don't overwrite the default value
-                if(options.output) _options.output = options.output;
-			}
-			
-			//Allow for a json string of json object
-			var parsed = obj;
-			
-			//Check for a string (JSON string or literal)
-			if(typeof(obj) === "string") {
-			    try {
-			        parsed = JSON.parse(obj);
-			    } catch(e) {
-			        //Assume that this is a literal string
-			        parsed = obj;
-			    }
-			}
-			
-			//Set the object to the parsed value 
-			// allows for JSON object or a string value of a JSON object or literal
-			obj = parsed;
-			
-			//Render if we have a value template (object or array)
-			// and a data object that's not null or undefined
-			if(_typeof(template) === "object" && _typeof(obj) === "object") out = _render(obj, template, _options);
-			
-			//Determine what output we need
-			switch(_options.output) {
-			    
-			    case "ihtml":
-			        return(out);
-			    break;
-			    
-			    //Default to html
-			    default:
-			    
-			        return(out.html);
-			    break;
-			}
-		},
+		//create the default object
+		var out = new iHTML();
 		
-		//json2html component methods
-        "component":{
+		//Default options
+		var _options = {
+		    "output":"html"
+		};
+		
+		//Parse the user defined options
+		if(options) {
+		    
+            // LEGACY support for events, now output
+            if(options.events) _options.output = "ihtml";
             
-            //Add a component (name = string, template = json2html template)
-            //OR function(components) where component is obj with name:template property eg {"name":template,...}
-            "add":function(name,template){
-                
-                //Determine what we're adding
-                switch(typeof(name)) {
-                
-                    //Multiple components
-                    case "object":
-                        
-                        //Components
-                        COMPONENTS = _extend(COMPONENTS,name);
-                    break;
-                    
-                    //One component
-                    case "string":
-                        COMPONENTS[name] = template;
-                    break;
-                    
-                    //Not supported
-                    default:
-                    break;
-                }
-            },
+            //Add the other allowed options
+            _options.components = options.components;
+            _options.data = options.data;
             
-            //Get a component
-            "get":function(name) {
-                return(COMPONENTS[name]);   
-            }
-		},
-		
-		//Allow access to the iHTML object
-		"iHTML":iHTML,
-		
-		//Encode the html string to text
-		"toText":function(html) {
-			
-			//Check for undefined or null
-			if(html === undefined || html === null) return("");
-			
-			//Otherwise convert to a string and encode HTML components
-			return html.toString()
-				.replace(/&/g, "&amp;")
-				.replace(/</g, "&lt;")
-				.replace(/>/g, "&gt;")
-				.replace(/\"/g, "&quot;")
-				.replace(/\'/g, "&#39;")
-				.replace(/\//g, "&#x2F;");
+            //Make sure we don't overwrite the default value
+            if(options.output) _options.output = options.output;
 		}
+		
+		//Allow for a json string of json object
+		var parsed = obj;
+		
+		//Check for a string (JSON string or literal)
+		if(typeof(obj) === "string") {
+		    try {
+		        parsed = JSON.parse(obj);
+		    } catch(e) {
+		        //Assume that this is a literal string
+		        parsed = obj;
+		    }
+		}
+		
+		//Set the object to the parsed value 
+		// allows for JSON object or a string value of a JSON object or literal
+		obj = parsed;
+		
+		//Render if we have a value template (object or array)
+		// and a data object that's not null or undefined
+		if(_typeof(template) === "object" && _typeof(obj) === "object") out = _render(obj, template, _options);
+		
+		//Determine what output we need
+		switch(_options.output) {
+		    
+		    case "ihtml":
+		        return(out);
+		    break;
+		    
+		    //Default to html
+		    default:
+		    
+		        return(out.html);
+		    break;
+		}
+	};
+	
+    //json2html component methods
+    root.json2html.component = {
+            
+        //Add a component (name = string, template = json2html template)
+        //OR function(components) where component is obj with name:template property eg {"name":template,...}
+        "add":function(name,template){
+            
+            //Determine what we're adding
+            switch(typeof(name)) {
+            
+                //Multiple components
+                case "object":
+                    
+                    //Components
+                    COMPONENTS = _extend(COMPONENTS,name);
+                break;
+                
+                //One component
+                case "string":
+                    COMPONENTS[name] = template;
+                break;
+                
+                //Not supported
+                default:
+                break;
+            }
+        },
+        
+        //Get a component
+        "get":function(name) {
+            return(COMPONENTS[name]);   
+        }
+	};
+	
+	//Allow access to the iHTML object
+	root.json2html.iHTML = iHTML;
+		
+	//Encode the html string to text
+	root.json2html.toText = function(html) {
+		
+		//Check for undefined or null
+		if(html === undefined || html === null) return("");
+		
+		//Otherwise convert to a string and encode HTML components
+		return html.toString()
+			.replace(/&/g, "&amp;")
+			.replace(/</g, "&lt;")
+			.replace(/>/g, "&gt;")
+			.replace(/\"/g, "&quot;")
+			.replace(/\'/g, "&#39;")
+			.replace(/\//g, "&#x2F;");
 	};
 	
 	//DEPRECATED (use json2html.render instead)
@@ -384,7 +384,7 @@
 						    break;
 						}
 						
-						//Throw the j2h.ready events (if any)
+						//Throw the json2html.ready events (if any)
 						_onready(dom.ready);
 					});
 				};
@@ -407,7 +407,7 @@
 				    
 					//Trigger all the json2html.ready events
 					for(var i=0; i < events.length; i++) 
-						events[i].trigger("j2h-ready");
+						events[i].trigger("j2h.ready");
 				}
 				
 				//Add the ihtml object to the dom
@@ -430,48 +430,62 @@
 					//Record json2html specific ready events
 					var ready = [];
 					
-					//Determine if we have events
-					for(var i = 0; i < events.length; i++) {
-						
-						var event = events[i];
-						
-						//find the associated DOM object with this event
-						var obj = $parent.find("[-j2h-e='" + event.id + "']");
-						
-						//Check to see if we found this element or not
-						if(obj.length === 0) throw "jquery.json2html was unable to attach event " + event.id + " to DOM";
-						
-						//remove the attribute
-						$(obj).removeAttr("-j2h-e");
-						
-						//Check for the ready event
-						// jquery ready event only works for document
-						// we extend that to work for any dom element
-						// replace with json2html.ready
-						if(event.type === "ready") event.type = "j2h-ready";
-						
-						//Add the action to the data object
-						event.data.action = event.action;
-						event.data.type = event.type;
-						event.data.id = event.id;
-						
-						//attach the events to the dom
-						$(obj).on(event.type,event.data,function(e){
-						    
-						    //Don't let the j2h-ready event bubble
-						    // prevents parent j2h-ready events from triggering when a child dom object is created
-						    if(e.data.type === "j2h-ready") e.stopPropagation();
-							
-							//attach the jquery event
-							e.data.event = e;
-							
-							//call the appropriate method
-							if(_typeof(e.data.action) === "function") e.data.action.call($(this),e.data);
-						});
-
-						//Add to ready event list (if needed)
-						if(event.type === "j2h-ready") ready.push($(obj));
-					}
+					//Check the $parent for all j2h events
+					$parent.find("[-j2h-e]").each(function(){
+                        
+                        //Get the events we should attach to this element
+                        var attach = $(this).attr("-j2h-e");
+                        
+                        //Make sure we have some events to attach
+                        if(attach) {
+                        
+                            //split by " " (can contain multiple events per element)
+                            var _events = attach.split(" ");
+                            
+                            //Add each event
+                            for(var i = 0; i < _events.length; i++) {
+                                
+                                var event = events[_events[i]];
+                                
+                                //Don't have this event then just skip
+                                if(!event) continue;
+                                
+                                //Add the action to the data object
+                                event.data.action = event.action;
+                                
+                                //Add to ready 
+                                switch(event.type) {
+                                    
+                                    //json2html specific event
+                                    case "ready":
+                                        
+                                        //Sepcify that we'll need to trigger these later
+                                        ready.push($(this));
+                                        
+                                        //rename the event to j2h.ready
+                                        event.type = "j2h.ready";
+                                    break;
+                                    
+                                    //All other jquery events
+                                    default:
+                                    break;
+                                }
+                                
+                                //otherwise attach the events to the element
+                                $(this).on(event.type,event.data,function(e){
+                                	
+                                	//attach the jquery event
+                                	e.data.event = e;
+                                	
+                                	//call the appropriate method
+                                	if(_typeof(e.data.action) === "function") e.data.action.call($(this),e.data);
+                                });
+                            }
+                        }
+                        
+                        //remove the event attribute
+						$(this).removeAttr("-j2h-e");
+					});
 					
 					//Return the ready events
 					return(ready);
@@ -491,7 +505,7 @@
             
             case "array":
                 
-                //Itterrate through the array and render each
+                //Itterrate through the array and render each object
                 var len=obj.length;
                 for(var j=0;j<len;++j) {	
                 
@@ -540,16 +554,19 @@
             //single template & single object
             case "object":
                 
+                //Support for DEPRECATED obj
+                var fobj = template["{}"] || template.obj;
+                
                 //Check to see if this template uses it's own data object
                 // allows us to run the template under a different data object
                 // AND we haven't already got the parent before (in the case of an array)
-                if( _typeof(template.obj) === "function" && !pobj) {
+                if( _typeof(fobj) === "function" && !pobj) {
                     
                     //Set the parent object
                     pobj = obj;
                     
                     //Get the new object
-                    obj = template.obj.call(obj,obj,index);
+                    obj = fobj.call(obj,obj,index);
                     
                     //Render the object (might be an array)
                     ihtml.append( _render(obj, template, options, index, pobj) );
@@ -604,103 +621,141 @@
 		//Get the template property
 		var prop = template[key];
 		
-		//Check the type of this template property
-		switch(_typeof(prop,true)) {
-			
-			//Get the value from the function
-			case "function":
-			    
-				//Check what typeof value is for the object we're rendering
-				switch(_typeof(obj)) {
-					
-					//If this is a json object or array then get the component that we want
-					case "object":
-					    
-					    //Otherwise get the value
-						return( prop.call(obj,obj,index,options.data) );
-					break;
-					
-					//NOT SUPPORTED
-					case "function":
-					case "undefined":
-					case "null":
-						return("");
-					break;
-							
-					//BOOLEAN, NUMBER, BIGINT, STRING, SYMBOL
-					default:
-
-						//Create a new object with the properties (value & index)
-						var _obj = {"value":obj,"index":index,"data":options.data};
-						return(prop.call(_obj,_obj,index,options.data));
-					break;
-				}
-			break;
-			
-			//Check for short hand ${..}
-			case "string":
-				
-				//Parse the property string and fill in any tokens
-				out = _parse(prop,function(all,path){
-				    
-				    //Check what typeof value is for the object we're rendering
-					switch(_typeof(obj)) {
-						
-						//If this is an json object then get the value we're looking for
-						case "object":
-							return(_get(obj,path));
-						break;
-						
-						//NOT SUPPORTED
-						case "function":
-						case "undefined":
-						case "null":
-							return("");
-						break;
-						
-						//For literal arrays (and single objects) of type
-						//BOOLEAN, NUMBER, BIGINT, STRING, SYMBOL
-						default:
-							
-							//Check the path of the shorthand
-							switch(path) {
-
-								//RESERVED word for literal array value
-								case "value":
-									return(obj);
-								break;
-								
-								//RESERVED word for literal array value index
-								case "index":
-								    
-								    //Return empty string if we don't have an index
-								    // for objects
-								    if(index === undefined || index === null) return("");
-								    else return(index);
-								break;
-							}
-						break;
-					}
-				});
-			break;
-			
-			//Spit out blank
-		    case "null":
-			case "undefined":
-			case "object":
-			    out = "";
-			break;
-			
-			//Arrays, and other literals
-			default:
-			    
-			    //Get the string representation for this property
-			    out = prop.toString();
-			break;
-		}
+        //Check the type of this template property
+        switch(_typeof(prop,true)) {
+        	
+        	//Get the value from the function
+        	case "function":
+        	    
+        		//Check what typeof value is for the object we're rendering
+        		switch(_typeof(obj)) {
+        			
+        			//If this is a json object or array then get the component that we want
+        			case "object":
+        			    
+        			    //Otherwise get the value
+        				return( prop.call(obj,obj,index,options.data) );
+        			break;
+        			
+        			//NOT SUPPORTED
+        			case "function":
+        			case "undefined":
+        			case "null":
+        				return("");
+        			break;
+        					
+        			//BOOLEAN, NUMBER, BIGINT, STRING, SYMBOL
+        			default:
+        
+        				//Create a new object with the properties (value & index)
+        				var _obj = {"value":obj,"index":index,"data":options.data};
+        				return(prop.call(_obj,_obj,index,options.data));
+        			break;
+        		}
+        	break;
+        	
+        	//Check for short hand ${..}
+        	// NOTE that with es6 support short hand is parsed as a template literal
+        	//  otherwise parsed internally with simple variable replacement
+        	case "string":
+        	    
+        	    //Check to see if we have es6 support with this browser
+        	    if(json2html.es6) {
+        	        
+                    //Use template literals to parse strings
+                    
+                    //Check what typeof value is for the object we're rendering
+                    switch(_typeof(obj)) {
+                        //If this is an json object then get the value we're looking for
+                        case "object":
+                        	out = json2html.es6.interpolate.call(prop,obj);
+                        break;
+                        
+                        //NOT SUPPORTED
+                        case "function":
+                        case "undefined":
+                        case "null":
+                        	return("");
+                        break;
+                        
+                        //For literal arrays (and single objects) of type
+                        //BOOLEAN, NUMBER, BIGINT, STRING, SYMBOL
+                        default:
+                        
+                            out = json2html.es6.interpolate.call(prop,{
+                            	    "value":obj,
+                            	    "index":index
+                            	});
+                        
+                        break;
+                    }
+                } else {
+                
+                    //Parse the property string and fill in any tokens using simple variable replacement
+                    out = _parse(prop,function(all,path){
+                        
+                        //Check what typeof value is for the object we're rendering
+                        switch(_typeof(obj)) {
+                        	
+                        	//If this is an json object then get the value we're looking for
+                        	case "object":
+                        		return(_get(obj,path));
+                        	break;
+                        	
+                        	//NOT SUPPORTED
+                        	case "function":
+                        	case "undefined":
+                        	case "null":
+                        		return("");
+                        	break;
+                        	
+                        	//For literal arrays (and single objects) of type
+                        	//BOOLEAN, NUMBER, BIGINT, STRING, SYMBOL
+                        	default:
+                        		
+                                //Check the path of the shorthand
+                                switch(path) {
+                                
+                                    //RESERVED word for literal array value
+                                    case "value":
+                                    	return(obj);
+                                    break;
+                                    
+                                    //RESERVED word for literal array value index
+                                    case "index":
+                                	    
+                                        //Return empty string if we don't have an index
+                                        // for objects
+                                        if(index === undefined || index === null) return("");
+                                        else return(index);
+                                	break;
+                                }
+                        	break;
+                        }
+                    });
+        	    }
+        	break;
+        	
+        	//Spit out blank
+            case "null":
+        	case "undefined":
+        	case "object":
+        	    out = "";
+        	break;
+        	
+        	//Arrays, and other literals
+        	default:
+        	    
+        	    //Get the string representation for this property
+        	    out = prop.toString();
+        	break;
+        }
+		
 		
 		return(out);
 	}
+	
+	/* ---------------------------------------- Interpolate (Template Literals) -------------------------------------------- */
 	
     //Extend object
     // (obj1,obj2,...)
@@ -811,7 +866,9 @@
             children = new iHTML();
         
         //Set the default html element key
-		var ele = "<>";
+        // and initialize the events arrau
+		var ele = "<>",
+		    events = [];
 		
 		//Look into the properties of this template
 		for (var prop in template) {
@@ -835,8 +892,10 @@
 		            parent.appendHTML("<" + parent.name);
 				break;
 				
-				//Data object
+				//DEPRECATED (use {} instead)
 		        case "obj":
+				
+				case "{}":
 				break;
 				
 				//Encode text
@@ -852,8 +911,6 @@
 				
 				//DEPRECATED (use HTML instead)
 				case "children":
-				    
-				//TODO output warning??
 				    
 				//Encode as HTML
 				// accepts array of children, functions, string, number, boolean
@@ -944,18 +1001,19 @@
 								
 								//create a new id for this event
 								var id = _id();
-
-								//append the new event
-								parent.events.push( {"id":id,"type":prop.substring(2),"data":data,"action":template[prop]} );
-
-								//Insert temporary event property -j2h-e
-								parent.appendHTML(" -j2h-e='" + id + "'");
+								
+								//Add to the events for this element
+								// we'll add these later using jquery
+								parent.events[id] = {"type":prop.substring(2),"data":data,"action":template[prop]};
+								
+								//Add the event to the list of events for this element
+								events.push(id);
 							}
 							
 							//this is an event
 							isEvent = true;
 						}
-
+						
 					//If this wasn't an event AND we actually have a value then add it as a property
 					if(!isEvent){
 						//Get the value
@@ -976,6 +1034,11 @@
 				break;
 			}
 		}
+		
+        //Insert temporary event property -j2h-e
+        // with events seperated by a space
+        // if needed
+		if(events.length) parent.appendHTML(" -j2h-e='" + events.join(" ") + "'");
 		
 		//Check to see if the parent is an html element
 		// or just a container

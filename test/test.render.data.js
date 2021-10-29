@@ -97,7 +97,7 @@ module.exports =
     {
         "name":"Block (Sub Data Object)",
         "data":{"employee":{"name":"dorian"}},
-        "template":{"obj":function(){return(this.employee);},"html":"<p>${name}</p>"},
+        "template":{"{}":function(){return(this.employee);},"html":"<p>${name}</p>"},
         "html":"<p>dorian</p>"
     },
     
@@ -125,7 +125,7 @@ module.exports =
     {
         "name":"<> Attribute (Dynamic)",
         "data":{"element":"div","employee":{"name":"dorian"}},
-        "template":{"<>":"${element}","obj":function(){return(this.employee);},"text":"${name}"},
+        "template":{"<>":"${element}","{}":function(){return(this.employee);},"text":"${name}"},
         "html":"<div>dorian</div>"
     },
     
@@ -312,70 +312,77 @@ module.exports =
         "html":"<div data-attr=\"undefined-data\"></div>"
     },
     
-    //Obj Attribute
+    //{} Attribute
     {
-        "name":"Obj Attribute (Literal Object)",
+        "name":"{} Attribute (Literal Object NOT SUPPORTED)",
         "data":{"employee":{"name":"dorian"}},
-        "template":{"<>":"div","obj":"employee","html":"${name}"},
+        "template":{"<>":"div","{}":"employee","html":"${name}"},
         "html":"<div></div>"
     },
     
     {
-        "name":"Obj Attribute (Undefined)",
+        "name":"{} Attribute (Undefined)",
         "data":{"employee":{"name":"dorian"}},
-        "template":{"<>":"div","obj":function(){return}},
+        "template":{"<>":"div","{}":function(){return}},
         "html":""
     },
     
     {
-        "name":"Obj Attribute (Inline Function Object - this)",
+        "name":"{} Attribute (Inline Function Object - this)",
         "data":{"employee":{"name":"dorian"}},
-        "template":{"<>":"div","obj":function(){return(this.employee);},"html":"${name}"},
+        "template":{"<>":"div","{}":function(){return(this.employee);},"html":"${name}"},
         "html":"<div>dorian</div>"
     },
     
     {
-        "name":"Obj Attribute (Inline Function Object - (obj))",
+        "name":"{} Attribute (Inline Function Object - (obj))",
         "data":{"employee":{"name":"dorian"}},
-        "template":{"<>":"div","obj":function(obj){return(obj.employee);},"html":"${name}"},
+        "template":{"<>":"div","{}":function(obj){return(obj.employee);},"html":"${name}"},
         "html":"<div>dorian</div>"
     },
     
     {
-        "name":"Obj Attribute (Inline Function Array - this)",
+        "name":"{} Attribute (Inline Function Array - this)",
         "data":{"employees":[{"name":"dorian"},{"name":"monica"}]},
-        "template":{"<>":"div","obj":function(){return(this.employees);},"html":"${name}"},
+        "template":{"<>":"div","{}":function(){return(this.employees);},"html":"${name}"},
         "html":"<div>dorian</div><div>monica</div>"
     },
     
     {
-        "name":"Obj Attribute (Inline Function Array - (obj))",
+        "name":"{} Attribute (Inline Function Array - (obj))",
         "data":{"employees":[{"name":"dorian"},{"name":"monica"}]},
-        "template":{"<>":"div","obj":function(obj){return(obj.employees);},"html":"${name}"},
+        "template":{"<>":"div","{}":function(obj){return(obj.employees);},"html":"${name}"},
         "html":"<div>dorian</div><div>monica</div>"
     },
     
     {
-        "name":"Obj Attribute Embedded (Inline Function Array)",
+        "name":"{} Attribute Embedded (Inline Function Array)",
         "data":{"employees":[{"name":"dorian"},{"name":"monica"}]},
         "template":{"<>":"ul","html":[
-            {"<>":"li","obj":function(){return(this.employees);},"html":"${name}"}
+            {"<>":"li","{}":function(){return(this.employees);},"html":"${name}"}
         ]},
         "html":"<ul><li>dorian</li><li>monica</li></ul>"
     },
     
     {
-        "name":"Obj Attribute Embedded Children x2 (Inline Function Array)",
+        "name":"{} Attribute Embedded Children x2 (Inline Function Array)",
         "data":{"departments":[{"name":"catering","employees":["dorian","monica"]},{"name":"finance","employees":["monica"]}]},
         "template":{"<>":"ul","html":[
-            {"<>":"li","obj":function(){return(this.departments);},"html":[
+            {"<>":"li","{}":function(){return(this.departments);},"html":[
                 {"<>":"h1","html":"${name}"},
-            {"<>":"div","obj":function(){return(this.employees);},"html":[
+            {"<>":"div","{}":function(){return(this.employees);},"html":[
                     {"<>":"span","html":"${value}"}
                 ]}
             ]}
         ]},
         "html":"<ul><li><h1>catering</h1><div><span>dorian</span></div><div><span>monica</span></div></li><li><h1>finance</h1><div><span>monica</span></div></li></ul>"
+    },
+    
+    {
+        "name":"obj DEPRECATED Attribute (Inline Function Object - this)",
+        "data":{"employee":{"name":"dorian"}},
+        "template":{"<>":"div","{}":function(){return(this.employee);},"html":"${name}"},
+        "html":"<div>dorian</div>"
     },
     
     //Void Elements
@@ -533,7 +540,7 @@ module.exports =
         },
         "data":{"employees":[{"name":"dorian"},{"name":"monica"}]},
         "template":{"<>":"ul","html":[
-            {"[]":"B/item","obj":function(obj){return(obj.employees);}}
+            {"[]":"B/item","{}":function(o){return(o.employees);}}
         ]},
         "html":"<ul><li><span>dorian</span></li><li><span>monica</span></li></ul>"
     },
@@ -546,7 +553,7 @@ module.exports =
 	           ]}
         },
         "data":{"employee":{"name":"dorian"}},
-        "template":{"[]":"C/wrapper","obj":function(){return(this.employee);},"html":[
+        "template":{"[]":"C/wrapper","{}":function(){return(this.employee);},"html":[
                 {"<>":"span","html":"${name}"}
             ]},
         "html":"<section><span>dorian</span></section>"
@@ -558,7 +565,7 @@ module.exports =
             "D/name":{"<>":"span","html":"${name}"}
         },
         "data":{"component":"D/name","employee":{"name":"dorian"}},
-        "template":{"[]":"${component}","obj":function(){return(this.employee);}},
+        "template":{"[]":"${component}","{}":function(){return(this.employee);}},
         "html":"<span>dorian</span>"
     },
     
@@ -578,7 +585,7 @@ module.exports =
             "F/name":{"<>":"span","html":"${name}"}
         },
         "data":{},
-        "template":{"[]":"F/name","obj":function(){return}},
+        "template":{"[]":"F/name","{}":function(){return}},
         "html":""
     },
     
