@@ -17,6 +17,14 @@ module.exports =
         "template":{"<>":"div","html":"${name}"},
         "html":""
     },
+
+	//Special characters in variable name $ _
+    {
+        "name":"Render Data Special Characters ($_)",
+        "data":{"$var":"$","_var":"_"},
+        "template":{"<>":"div","html":"${$var} ${_var}"},
+        "html":"<div>$ _</div>"
+    },
     
     //Object Array
     {

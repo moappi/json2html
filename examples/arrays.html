@@ -54,11 +54,11 @@
 				//List the access that each employee has
 				{"<>":"ul","html":[
 				    
-				    //We can list all the access by simply mapping the access array (using the reserved obj attribute) to the li element
+				    //We can list all the access by simply mapping the access array (using the reserved {} attribute) to the li element
 				    // this will repeat an li element for every value in the array
-				    // NOTE the $ reserved attribute needs to be a function that returns the data you wish to map
+				    // NOTE the {} reserved attribute needs to be a function that returns the data you wish to map
 				    //  this also works for components! But we'll get to this later
-				    {"<>":"li","obj":function(){
+				    {"<>":"li","{}":function(){
 				        return(this.access);
 				    },"text":"${value}"}
 				]}

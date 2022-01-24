@@ -47,7 +47,7 @@ jQuery
 Use seemlessly with jQuery, oh did we also mention that you can embed events in your template?  Forget attaching your events after you've rendered your templates.
 
 ```javascript
- {"<>":"button","text":"Click Me","onclick":funciton(e){
+ {"<>":"button","text":"Click Me","onclick":(e)=>{
 	alert("You just clicked this");
   }};		
 ```
@@ -59,7 +59,7 @@ Will render into the following html and will alert when clicked :)
 
 Node.js
 =========
-Use your temlpates seemlessly on Node.js (sorry no events here)
+Use your temlpates seemlessly on Node.js
 
 Installation
 ------------
