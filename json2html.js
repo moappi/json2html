@@ -134,7 +134,7 @@
 	if(!root.json2html) root.json2html = {};
 	
 	//Current Version
-	root.json2html.version = "2.2.1";
+	root.json2html.version = "2.2.2";
 	
 	//Render a json2html template
 	//  obj : json object to render, or json string
@@ -407,7 +407,7 @@
 				    
 					//Trigger all the json2html.ready events
 					for(var i=0; i < events.length; i++) 
-						events[i].trigger("j2h.ready");
+						events[i].trigger("j2h-ready");
 				}
 				
 				//Add the ihtml object to the dom
@@ -438,7 +438,7 @@
                         
                         //Make sure we have some events to attach
                         if(attach) {
-                        
+                            
                             //split by " " (can contain multiple events per element)
                             var _events = attach.split(" ");
                             
@@ -462,8 +462,8 @@
                                         //Sepcify that we'll need to trigger these later
                                         ready.push($(this));
                                         
-                                        //rename the event to j2h.ready
-                                        event.type = "j2h.ready";
+                                        //rename the event to j2h-ready
+                                        event.type = "j2h-ready";
                                     break;
                                     
                                     //All other jquery events
@@ -471,9 +471,12 @@
                                     break;
                                 }
                                 
-                                //otherwise attach the events to the element
+                                //Attach the events to the element
                                 $(this).on(event.type,event.data,function(e){
-                                	
+                                    
+                                    //Disable j2h-ready events from being propagated
+                                    if(e.type === "j2h-ready") e.stopPropagation();
+                                    
                                 	//attach the jquery event
                                 	e.data.event = e;
                                 	
@@ -484,7 +487,7 @@
                         }
                         
                         //remove the event attribute
-						$(this).removeAttr("-j2h-e");
+						//$(this).removeAttr("-j2h-e");
 					});
 					
 					//Return the ready events
