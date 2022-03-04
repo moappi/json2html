@@ -1,5 +1,5 @@
 
-//     json2html.js 2.2.1
+//     json2html.js 2.2.2
 //     https://www.json2html.com
 //     (c) 2006-2022 Crystalline Technologies
 //     json2html may be freely distributed under the MIT license.
@@ -845,7 +845,7 @@
     function _parse(str, method) {	
     	
     	let tokenizer = new Tokenizer([
-    		/\${([\w\.\,\$]+)}/  
+    		/\${([\w\.\,\$\s]+)}/  
     	 ],function( src, real, re ){
     		return real ? src.replace(re,method) : src;
     	  }

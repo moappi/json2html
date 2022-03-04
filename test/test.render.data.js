@@ -18,12 +18,12 @@ module.exports =
         "html":""
     },
 
-	//Special characters in variable name $ _
+	//Special characters in variable name $ _ space
     {
         "name":"Render Data Special Characters ($_)",
-        "data":{"$var":"$","_var":"_"},
-        "template":{"<>":"div","html":"${$var} ${_var}"},
-        "html":"<div>$ _</div>"
+        "data":{"$var":"$","_var":"_"," var":"space"},
+        "template":{"<>":"div","html":"${$var} ${_var} ${ var}"},
+        "html":"<div>$ _ space</div>"
     },
     
     //Object Array

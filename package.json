@@ -6,7 +6,7 @@
   },
   "name": "node-json2html",
   "description": "json2html - HTML Templating in Pure Javascript",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "homepage": "https://www.json2html.com",
   "repository": {
     "url": "git://github.com/moappi/json2html.git"
