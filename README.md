@@ -75,4 +75,10 @@ Usage
 	let html = json2html.transform([{'male':'Bob','female':'Jane'},{'male':'Rick','female':'Ann'}],{"<>":"div","html":"${male} likes ${female}"});
 ```
 
+TypeScript:
+```javascript
+  import json2html from 'node-json2html'; //Import module
+  const { render, component } = json2html; // Import methods from Json2html
+```
+
 <a href='http://www.json2html.com'>www.json2html.com</a> for full documentation.
