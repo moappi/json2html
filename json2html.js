@@ -487,7 +487,7 @@
                         }
                         
                         //remove the event attribute
-						//$(this).removeAttr("-j2h-e");
+						$(this).removeAttr("-j2h-e");
 					});
 					
 					//Return the ready events
