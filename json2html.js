@@ -1,7 +1,7 @@
 
-//     json2html.js 2.2.2
+//     json2html.js 2.2.3
 //     https://www.json2html.com
-//     (c) 2006-2022 Crystalline Technologies
+//     (c) 2006-2023 Crystalline Technologies
 //     json2html may be freely distributed under the MIT license.
 
 (function() {
@@ -134,7 +134,7 @@
 	if(!root.json2html) root.json2html = {};
 	
 	//Current Version
-	root.json2html.version = "2.2.2";
+	root.json2html.version = "2.2.3";
 	
 	//Render a json2html template
 	//  obj : json object to render, or json string
@@ -848,7 +848,7 @@
     function _parse(str, method) {	
     	
     	let tokenizer = new Tokenizer([
-    		/\${([\w\.\,\$\s]+)}/  
+    		/\${([\w\-\.\,\$\s]+)}/  
     	 ],function( src, real, re ){
     		return real ? src.replace(re,method) : src;
     	  }
