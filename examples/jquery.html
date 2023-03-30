@@ -1,30 +1,37 @@
 <!DOCTYPE html>
 <html>
  <head>
-	<title>json2html - jQuery Example</title>
+	<title>json2html - jquery Tutorial</title>
 	
 	<!-- jQuery -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+
+	<!-- Tailwind CSS -->
+	<script src="https://cdn.tailwindcss.com"></script>
 	
-    <!-- Json2html -->
+    <!-- json2html -->
     <script src="../json2html.js"></script>
-    
-    <!-- Utility Styles -->
-    <style>
-        .blue {color:blue;}
-        .bold {font-weight:bold;}
-    </style>
 	
  </head>
  <body>
      
-    <h1>jQuery Example</h1>
-    
-    <hr>
-    
-    <ul></ul>
-    
-    <hr>
+	<div class="px-6 py-24 sm:px-6 sm:py-32 lg:px-8">
+
+		<!-- Header -->
+		<div class="mx-auto max-w-2xl text-center">
+		  <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Using with jQuery</h2>
+		  <p class="mx-auto mt-6 max-w-xl text-lg leading-8 text-gray-600">Understand how to create templates with embedded events that can be used with jQuery.</p>
+		  <p class="mx-auto mt-6 max-w-xl text-base leading-8 text-gray-400">Right click and 'View page source' to see how this page was rendered.</p>
+		</div>
+
+		<!-- Tutorials -->
+		<div id="body" class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl border rounded p-10">
+			<ul></ul>
+		</div>
+		
+	  </div>
+	</div>
+
  </body>
  
  <script>
@@ -39,20 +46,20 @@
 	];
     
     //Template we'll use to render these employees
-	const template = {"<>":"li","html": [
+	const template = {"<>":"li","class":"group ","html": [
 				
 				//Span element with special logic for the class property
-				{"<>":"span","class":function(){
+				{"<>":"span","class":o=>{
 				    
 				    //If the user is part of managemnt then put them in blue
-				    if(this.management) return("blue bold");
-				    else return("bold");
+				    if(o.management) return("text-red-600");
+					else return("text-pink-600");
 				    
 				},"text":"${name} - ${role}"},
 				
 				//Add a button to remove this employee from the list
 				// not a great idea using an inline style, but shows that we can add any property to the DOM element
-				{"<>":"a","href":"#","text":"remove","style":"margin-left:5px;","onclick":function(e){
+				{"<>":"a","class":"ml-5 text-indigo-100 group-hover:text-indigo-800","href":"#","html":"&times;","title":"remove","onclick":function(e){
 				    //e.event => jquery event
 				    //e.obj => object we're rendering
 				    //e.data => data object we can optional assign during the render call
@@ -68,7 +75,7 @@
 				
 			]};
         
-	$("ul").json2html(employees,template);
+	$("#body ul").json2html(employees,template);
 </script>
 </html>
   

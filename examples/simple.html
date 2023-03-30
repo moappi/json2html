@@ -1,19 +1,36 @@
 <!DOCTYPE html>
 <html>
  <head>
-	<title>json2html - Simple Example</title>
+	<title>json2html - Tutorial</title>
 	
-    <!-- Json2html -->
+	<!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+
+	<!-- Tailwind CSS -->
+	<script src="https://cdn.tailwindcss.com"></script>
+	
+    <!-- json2html -->
     <script src="../json2html.js"></script>
-    
-    <!-- Utility Styles -->
-    <style>
-        .bold {font-weight:bold;}
-        .blue {color:blue;}
-    </style>
 	
  </head>
- <body></body>
+ <body>
+	
+	<div class="px-6 py-24 sm:px-6 sm:py-32 lg:px-8">
+
+		<!-- Header -->
+		<div class="mx-auto max-w-2xl text-center">
+		  <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Creating your First Template</h2>
+		  <p class="mx-auto mt-6 max-w-xl text-lg leading-8 text-gray-600">Understand how to create a simple tempate that maps data using both shorthand and longhand notation along with some simple logic to toggle the class name of an element.</p>
+		  <p class="mx-auto mt-6 max-w-xl text-base leading-8 text-gray-400">Right click and 'View page source' to see how this page was rendered.</p>
+		</div>
+
+		<!-- Tutorials -->
+		<div id="body" class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl border rounded p-10"></div>
+		
+	  </div>
+	</div>
+
+ </body>
  
  <script>
     //In this example we'll use a combination of shorthand and long hand notation
@@ -30,23 +47,18 @@
     //Template we'll use to render these employees
 	const template = {"<>":"div","html": [
 				
-				{"<>":"span","class":function(){
+				{"<>":"span","class":o=>{
 				    
 				    //If the user is part of managemnt then put them in blue
-				    if(this.management) return("blue bold");
-				    else return("bold");
-				    
+				    if(o.management) return("text-red-600");
+				    else return("text-pink-600");
+
 				},"text":"${name} - ${role}"}
 				
 			]};
-        
-	document.write('<h1>Simple Example</h1>');
-	
-	document.write('<hr/>');
-	
-	document.write(json2html.render(employees,template));
-	
-	document.write('<hr/>');
+    
+	//Render the template and attach to the body element
+	$("#body").html( json2html.render(employees,template) );
 </script>
 </html>
   
