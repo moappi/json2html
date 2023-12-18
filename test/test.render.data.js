@@ -557,7 +557,7 @@ module.exports =
         "name":"Components [C] (Block Wrapper)",
         "components":{
             "C/wrapper":{"<>":"section","html":[
-	                {"html":function(obj,index,data,ihtml){return(ihtml);}}
+	                {"html":function(obj,index,data,html){return(html);}}
 	           ]}
         },
         "data":{"employee":{"name":"dorian"}},

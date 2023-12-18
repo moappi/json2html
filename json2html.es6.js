@@ -1,4 +1,4 @@
-//     json2html.es6.js 2.2.2
+//     json2html.es6.js 3.0.0
 //     https://www.json2html.com
 //     (c) 2006-2022 Crystalline Technologies
 //     json2html may be freely distributed under the MIT license.

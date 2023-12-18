@@ -10,7 +10,7 @@ describe("jquery", function() {
         chai.assert.equal($("#method-append").json2html({"name":"dorian"},{"<>":"li","html":"${name}"}).html(), "<li>monica</li><li>dorian</li>");
     });
     
-    //Test Method Append
+    //Test Method Prepend
     $("body").append("<div id='method-prepend'><li>monica</li></div>");
     it("OPTIONS - Prepend", function() {
         chai.assert.equal($("#method-prepend").json2html({"name":"dorian"},{"<>":"li","html":"${name}"},{"method":"prepend"}).html(), "<li>dorian</li><li>monica</li>");
@@ -79,42 +79,6 @@ describe("jquery", function() {
         //Test
         chai.assert.equal( output, "ready clicked");
     });
-    
-    //=================== $.json2html METHOD =====================
-    
-    //$.json2html with events
-    $("body").append("<div id='json2html-render-ithml'></div>");
-    it("$.json2html - Render (iHTML)", function() {
-        
-        //Render using $.json2html with events
-        $("#json2html-render-ithml").json2html({},[
-            {"<>":"div","html":function(){
-                return($.json2html({},{"<>":"span","onclick":function(){$(this).html("clicked");}}));
-            }}
-        ]);
-        
-        //Trigger the event
-        $("#json2html-render-ithml > div > span").click();
-        
-        //Test
-        chai.assert.equal( $("#json2html-render-ithml > div > span").html(), "clicked");
-    });
-    
-    //Return with HTML
-    $("body").append("<div id='json2html-render-html'></div>");
-    it("json2html.render - Render (HTML)", function() {
-        
-        //Render using json2html.render
-        $("#json2html-render-html").json2html({},[
-            {"<>":"div","html":function(){
-                return(json2html.render({},{"<>":"span","html":"working"}));
-            }}
-        ]);
-        
-        //Test
-        chai.assert.equal( $("#json2html-render-html > div > span").html(), "working");
-    });
-    
     
   });
 });  

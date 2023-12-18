@@ -1,7 +1,7 @@
 
-//     json2html.js 2.2.3
+//     json2html.js 3.0.0
 //     https://www.json2html.com
-//     (c) 2006-2023 Crystalline Technologies
+//     (c) 2006-2024 JSON2HTML. https://www.json2html.com/
 //     json2html may be freely distributed under the MIT license.
 
 (function() {
@@ -14,13 +14,13 @@
 	// Establish the root object, `window` (`self`) in the browser, `global`
 	// on the server, or `this` in some virtual machines. We use `self`
 	// instead of `window` for `WebWorker` support.
-	var root = typeof self == 'object' && self.self === self && self ||
+	let root = typeof self == 'object' && self.self === self && self ||
 			typeof global == 'object' && global.global === global && global ||
 			this ||
 			{};
 	
 	//Components {name:template}
-	var COMPONENTS = {};
+	let COMPONENTS = {};
 	
     /* ---------------------------------------- Interactive HTML Object (iHTML) ------------------------------------------------ */
     
@@ -96,7 +96,7 @@
     };
     
     Tokenizer.prototype.next = function(){
-    	var self = this,
+    	let self = this,
     		plain;
     		
     	self.findMin();
@@ -114,7 +114,7 @@
     };
     
     Tokenizer.prototype.findMin = function(){
-    	var self = this, i=0, tkn, idx;
+    	let self = this, i=0, tkn, idx;
     	self.min = -1;
     	self.tkn = '';
     	
@@ -134,40 +134,20 @@
 	if(!root.json2html) root.json2html = {};
 	
 	//Current Version
-	root.json2html.version = "2.2.3";
+	root.json2html.version = "3.0.0";
 	
-	//Render a json2html template
+	//Render a json2html template to html string
 	//  obj : json object to render, or json string
-	//  template: json2html template (array or json object)
-	//  options : {}
+	//  template: json2html template (array / json object / json string)
+	//  options : {
 	//      components : {name:template,...}
-	//      output : ihtml | html
+	//      data : passed to event.data
+	//      output : ihtml / html (default)
+	//  }
     root.json2html.render = function(obj,template,options) {
-		    
-		//create the default object
-		var out = new iHTML();
-		
-		//Default options
-		var _options = {
-		    "output":"html"
-		};
-		
-		//Parse the user defined options
-		if(options) {
-		    
-            // LEGACY support for events, now output
-            if(options.events) _options.output = "ihtml";
-            
-            //Add the other allowed options
-            _options.components = options.components;
-            _options.data = options.data;
-            
-            //Make sure we don't overwrite the default value
-            if(options.output) _options.output = options.output;
-		}
-		
-		//Allow for a json string of json object
-		var parsed = obj;
+        
+        //Allow for a json string of json object
+		let parsed = obj;
 		
 		//Check for a string (JSON string or literal)
 		if(typeof(obj) === "string") {
@@ -183,23 +163,38 @@
 		// allows for JSON object or a string value of a JSON object or literal
 		obj = parsed;
 		
-		//Render if we have a value template (object or array)
-		// and a data object that's not null or undefined
-		if(_typeof(template) === "object" && _typeof(obj) === "object") out = _render(obj, template, _options);
+		if(!options) options = {};
+        
+        //Set the default to html output
+        if(!options.output) options.output = "html";
 		
-		//Determine what output we need
-		switch(_options.output) {
+		//Check to make sure we have a template and object
+		if(_typeof(template) !== "object" || _typeof(obj) !== "object") {
 		    
-		    case "ihtml":
-		        return(out);
-		    break;
-		    
-		    //Default to html
-		    default:
-		    
-		        return(out.html);
-		    break;
+		    //Check what type of output we're looking for
+    	    switch(options.output) {
+    	        
+    	        case "ihtml":
+    	            return(new iHTML());
+    	        break;
+    	        
+    	        default:
+    	            return("");
+    	        break;
+    	    }
 		}
+		
+	    //Check what type of output we're looking for
+	    switch(options.output) {
+	        
+	        case "ihtml":
+	            return(_render(obj, template, options));
+	        break;
+	        
+	        default:
+	            return(_render(obj, template, options).html);
+	        break;
+	    }
 	};
 	
     //json2html component methods
@@ -210,13 +205,13 @@
         "add":function(name,template){
             
             //Determine what we're adding
-            switch(typeof(name)) {
+            switch(_typeof(name,true)) {
             
                 //Multiple components
                 case "object":
                     
                     //Components
-                    COMPONENTS = _extend(COMPONENTS,name);
+                    COMPONENTS = Object.assign(COMPONENTS,name);
                 break;
                 
                 //One component
@@ -236,9 +231,6 @@
         }
 	};
 	
-	//Allow access to the iHTML object
-	root.json2html.iHTML = iHTML;
-		
 	//Encode the html string to text
 	root.json2html.toText = function(html) {
 		
@@ -255,253 +247,243 @@
 			.replace(/\//g, "&#x2F;");
 	};
 	
-	//DEPRECATED (use json2html.render instead)
-	root.json2html.transform = root.json2html.render;
+	//Hydrate elements with their events
+	root.json2html.hydrate = function(element,events) {
+	    
+	    //Attach events and get the elements that need ready to be triggered
+	    let ready = _attachEvents(element,events);
+	    
+	    //Trigger all the json2html.ready events
+		for(let i=0; i < ready.length; i++) 
+			_triggerEvent(ready[i],"j2h-ready");
+        
+        return(this);
+	};
+	
+	/* ---------------------------------------- JS DOM Methods --------------------------------------------------- */
+	
+	//ONLY for the browser
+	// and we have Element defined
+	if(typeof(window) === "object" && typeof(Element) === "function") {
+        
+        //Render a json2html template & append to dom element
+        //  obj : json object to render, or json string
+        //  template: json2html template (array / object / json string)
+        //  options : {}
+        //      components : {name:template,...}
+        //      data : passed to event.data
+        //      method : prepend, replace, append (default)
+        Element.prototype.json2html = function(obj,template,options) {
+        
+            //Create the optional options if required
+            if(!options) options = {};
+            
+            //Default to ihtml output
+            options.output = "ihtml";
+            
+            //Render using the master render function
+            let ihtml = json2html.render(obj,template,options);
+        
+            //Convert the html into a dom object using innerHTML
+            // return the childNodes (Node List)
+            let dom = document.createElement("div");
+            dom.innerHTML = ihtml.html;
+            
+            //Determine how we should add the new content
+            switch(options.method) {
+            
+                //Replace
+                case "replace":
+                    this.replaceWith(...dom.childNodes);
+                break;
+                
+                //Prepend
+                case "prepend":
+                    this.prepend(...dom.childNodes);
+                break;
+                
+                //Default to append
+                default:
+                    this.append(...dom.childNodes);
+                break;
+            }
+        	
+        	//Rehydrate the object 
+        	// this will add the events and trigger ready events
+        	json2html.hydrate(this,ihtml.events);
+        	
+            //Return this for chaining
+            return(this);
+    	};
+	}
+	
+    /* ---------------------------------------- jQuery Methods (if jquery is present) --------------------------------------------------- */
 
-	/* ---------------------------------------- jQuery Plugin ------------------------------------------------ */
-
-	//If jQuery is defined add plugin
-	if(typeof(window) === "object")
-		if(window.jQuery) {
-			(function($){	
-			    
-				/* ---------------------------------------- Public Methods ------------------------------------------------ */
-				
-				//jQuery render template
+	//ONLY for the browser
+	// and we have jQuery defined
+    if(typeof(window) === "object")
+        if(window.jQuery) {
+            (function($){	
+                
+                //jQuery render template via chaining
                 //  obj : json object to render or json string
-                //  template: json2html template (array or json object)
+                //  template: json2html template (array / object / json string)
                 //  options : {}
                 //      components : {name:template,...}
-                //      data: object passed to jquery events
-                //      output : ihtml | html
-				$.json2html = function(obj, template, options) {
-					
-					//Make sure we have the json2html base loaded
-					if(typeof json2html === "undefined") return(undefined);
-					
-					//Default options
-					var _options = {
-					    "output":"ihtml"
-					};
-					
-					//Parse the user defined options
-					if(options) {
-					    
-                        // LEGACY support for eventData, now data
-                        if(options.eventData) _options.data = _options.eventData;
+                //      data : passed to event.data
+                //      method : prepend, replace, append (default)
+                $.fn.json2html = function(obj, template, options) {
+                
+                    //Set the options
+                    if(!options) options = {};
+                    
+                    //Make sure we set the output to ihtml
+                    options.output = "ihtml";
+                    
+                    //Render each object
+                    return($(this).each(function(){ 
+                    
+                        //Render the template
+                        // use the render function with iHTML output
+                        // then we'll hydrate with events after it's added to the dom
+                        let ihtml = json2html.render(obj,template,options);
+        			    
+                        //Determine how we should add the new content
+                        switch(options.method) {
                         
-                        //Add the other allowed options
-                        _options.components = options.components;
-                        _options.data = options.data;
-                        
-                        //Make sure we don't overwrite the default value
-                        if(options.output) _options.output = options.output;
-					}
-					
-					//Determine what type of object we want as the output
-					switch(_options.output){
-						
-						//LEGACY
-						case "json2html":
-						
-						//iHTML object
-						case "ihtml":
-						    
-							//set the output as ihtml
-							_options.output = "ihtml";
-						break;
-						
-						//Return raw html (same as calling json2html.render)
-						default:
-					    break;
-					}
-					
-					return(json2html.render(obj, template, _options));
-				};
-				
-				//jQuery render template via chaining
-                //  obj : json object to render or json string
-                //  template: json2html template (array or json object)
-				//  options : {}
-				//      components : {name:template,...}
-				//      method: "append" | "replace" | "prepend"
-				//      data: object passed to jquery events
-				$.fn.json2html = function(obj, template, options) {
-				    
-					//Make sure we have the json2html base loaded
-					if(typeof json2html === "undefined") return(undefined);
-					
-					var _options = {
-					    
-					    //Always set the output to ihtml
-					    "output":"ihtml",
-					    
-					    //Set the default method
-					    "method":"append"
-					};
-					
-					//Parse the user defined options
-					if(options) {
-					    
-                        // LEGACY support for eventData, now data
-                        if(options.eventData) _options.data = _options.eventData;
-                        
-                        //Set the method
-                        if(options.method) _options.method = options.method;
-                        
-                        // LEGACY support for append,prepend,replace, now method
-                        if(options.prepend) _options.method = "prepend";
-                        if(options.replace) _options.method = "replace";
-                        if(options.append) _options.method = "append";
-                        
-                        //Add the other allowed options
-                        _options.components = options.components;
-                        _options.data = options.data;
-					}
-					
-					//Render each object
-					return this.each(function(){ 
-					    
-					    //Render the template and attach to the dom
-						var dom = _dom(json2html.render(obj, template, _options));
-						
-						//Determine how we should add the new content
-						switch(_options.method) {
-						    
-						    //Replace
-						    case "replace":
-						        $.fn.replaceWith.call($(this),dom.parent);
-						    break;
-						    
-						    //Prepend
-						    case "prepend":
-						        $.fn.prepend.call($(this),dom.parent);
-						    break;
-						    
-						    //Default to append
-						    default:
-						        $.fn.append.call($(this),dom.parent);
-						    break;
-						}
-						
-						//Throw the json2html.ready events (if any)
-						_onready(dom.ready);
-					});
-				};
-				
-				//Hydrate the json2html elements with these events
-				$.fn.j2hHydrate = function(events) {
-					
-					//Attach the events for each element
-					return this.each(function(){ 
-					    
-					    //Attach the events and trigger the onready for this element
-                        _onready( _attachEvents($(this),events) );
-					});
-				};
-				
-				/* ---------------------------------------- Prviate Methods ------------------------------------------------ */
-				
-				//Trigger the on ready events
-				function _onready(events){
-				    
-					//Trigger all the json2html.ready events
-					for(var i=0; i < events.length; i++) 
-						events[i].trigger("j2h-ready");
-				}
-				
-				//Add the ihtml object to the dom
-				// returns the parent and ready event object
-				function _dom(ihtml) {
-				    
-					//Attach the html(string)
-					var parent = $(document.createElement("i")).html(ihtml.html);
-					
-					//Attach the events to the parent object in the dom
-					var ready = _attachEvents($(parent),ihtml.events);
-					
-					//Get the children to this result
-					return({"parent":$(parent).children(),"ready":ready});
-				}
-				
-				//Attach the events to the children of this element
-				function _attachEvents($parent,events) {
-					
-					//Record json2html specific ready events
-					var ready = [];
-					
-					//Check the $parent for all j2h events
-					$parent.find("[-j2h-e]").each(function(){
-                        
-                        //Get the events we should attach to this element
-                        var attach = $(this).attr("-j2h-e");
-                        
-                        //Make sure we have some events to attach
-                        if(attach) {
+                            //Replace
+                            case "replace":
+                                $.fn.replaceWith.call($(this),ihtml.html);
+                            break;
                             
-                            //split by " " (can contain multiple events per element)
-                            var _events = attach.split(" ");
+                            //Prepend
+                            case "prepend":
+                                $.fn.prepend.call($(this),ihtml.html);
+                            break;
                             
-                            //Add each event
-                            for(var i = 0; i < _events.length; i++) {
-                                
-                                var event = events[_events[i]];
-                                
-                                //Don't have this event then just skip
-                                if(!event) continue;
-                                
-                                //Add the action to the data object
-                                event.data.action = event.action;
-                                
-                                //Add to ready 
-                                switch(event.type) {
-                                    
-                                    //json2html specific event
-                                    case "ready":
-                                        
-                                        //Sepcify that we'll need to trigger these later
-                                        ready.push($(this));
-                                        
-                                        //rename the event to j2h-ready
-                                        event.type = "j2h-ready";
-                                    break;
-                                    
-                                    //All other jquery events
-                                    default:
-                                    break;
-                                }
-                                
-                                //Attach the events to the element
-                                $(this).on(event.type,event.data,function(e){
-                                    
-                                    //Disable j2h-ready events from being propagated
-                                    if(e.type === "j2h-ready") e.stopPropagation();
-                                    
-                                	//attach the jquery event
-                                	e.data.event = e;
-                                	
-                                	//call the appropriate method
-                                	if(_typeof(e.data.action) === "function") e.data.action.call($(this),e.data);
-                                });
-                            }
+                            //Default to append
+                            default:
+                                $.fn.append.call($(this),ihtml.html);
+                            break;
                         }
+                            
+                        //Hydrate with events
+                        $(this).j2hHydrate(ihtml.events);
+                    }));
+                };
+            	
+                //Hydrate the json2html elements with these events
+                $.fn.j2hHydrate = function(events) {
+                
+                    //Attach the events for each element
+                    return($(this).each(function(){ 
                         
-                        //remove the event attribute
-						$(this).removeAttr("-j2h-e");
-					});
-					
-					//Return the ready events
-					return(ready);
-				}
-			})(window.jQuery);
+                        //Hydrate this element with these events
+                        json2html.hydrate(this,events);
+                    }));
+                };
+            	
+            })(window.jQuery);
+        }
+	
+	/* ---------------------------------------- Prviate Methods ------------------------------------------------ */
+	
+	//Trigger the event type for this element
+	function _triggerEvent(element,type) {
+	    
+	    let event; // The custom event that will be created
+	    
+	    //Check to see if we have the createEvent function
+        if(document.createEvent){
+            event = document.createEvent("HTMLEvents");
+            event.initEvent(type, true, true);
+            event.eventName = type;
+            element.dispatchEvent(event);
+        } else {
+            event = document.createEventObject();
+            event.eventName = type;
+            event.eventType = type;
+            element.fireEvent("on" + event.eventType, event);
+        }
+	}
+	
+	//Attach the events to the children of this element
+	function _attachEvents(parent,events) {
+		
+		//Record json2html specific ready events
+		let ready = [];
+		
+		//Check the parent for all j2h events
+		let elements = parent.querySelectorAll("[-j2h-e]"); 
+		
+		//Itterate over the elements with events
+		for(let e=0; e < elements.length; e++) {
+		    
+		    let element = elements[e];
+            
+            //Get the events we should attach to this element
+            let attach = element.getAttribute("-j2h-e");
+            
+            //Make sure we have some events to attach
+            if(attach) {
+            
+                //split by " " (can contain multiple events per element)
+                let _events = attach.split(" ");
+                
+                //Add each event
+                for(let i = 0; i < _events.length; i++) {
+                    
+                    let event = events[_events[i]];
+                    
+                    //Don't have this event then just skip
+                    if(!event) continue;
+                    
+                    //Add the ready event 
+                    //  json2html specific event
+                    if(event.type === "ready") {
+                        
+                        //Sepcify that we'll need to trigger these later
+                        ready.push(element);
+                        
+                        //rename the event to j2h-ready
+                        event.type = "j2h-ready";
+                    }
+                    
+                    //Attach the events to the element
+                    element.addEventListener(event.type,function(e){
+                        
+                        //Disable j2h-ready events from being propagated
+                        if(event.type === "j2h-ready") e.stopPropagation();
+                        
+                    	//attach the javascript event
+                    	event.data.event = e;
+                    	
+                    	//call the appropriate method
+                    	if(_typeof(event.action) === "function") event.action.call(this,event.data);
+                    });
+                }
+            }
+            
+            //remove the event attribute
+			element.removeAttribute("-j2h-e");
 		}
 		
-	/* ---------------------------------------- Private Methods ------------------------------------------------ */
+		//Return the ready events
+		return(ready);
+	}
 	
-    //Render these object(s) using these temlpate(s)
+    //Render the object using the template to ihtml (html + events)
+    //  obj : json object 
+	//  template: json2html template (array / object / json string)
+    //  options : {}
+    //      components : {name:template,...}
+    //      data : passed to event.data
+    //      method : prepend, replace, append (default)
+    //      output : html / ihtml (although we always output iHTML needed to determine if we bother with events)
 	function _render(obj, template, options, index, pobj) {
-
-		var ihtml = new iHTML();
+        
+        //Create a new ihtml object
+		let ihtml = new iHTML();
 		
 		//Check to see what type of object we're rending
 		switch(_typeof(obj,true)) {
@@ -509,8 +491,8 @@
             case "array":
                 
                 //Itterrate through the array and render each object
-                var len=obj.length;
-                for(var j=0;j<len;++j) {	
+                let len=obj.length;
+                for(let j=0;j<len;++j) {	
                 
                     //Render the object using this template depending on the type of object
                     ihtml.append( _renderObj(obj[j], template, options, j, pobj) );
@@ -533,10 +515,10 @@
 		return(ihtml);
 	}
 	
-	//Render an object using this template(s)
+	//Render an object using this template to ithml
 	function _renderObj(obj, template, options, index, pobj) {
 		
-		var ihtml = new iHTML();
+		let ihtml = new iHTML();
 		
 		//Check the type of template we want to apply
 		switch(_typeof(template,true)) {
@@ -545,8 +527,8 @@
             case "array":
             
                 //Itterate through each template
-                var t_len = template.length;
-                for(var t=0; t < t_len; ++t) {
+                let t_len = template.length;
+                for(let t=0; t < t_len; ++t) {
                 	
                 	//Render the template and append
                 	ihtml.append( _renderObj(obj, template[t], options, index) );
@@ -557,8 +539,7 @@
             //single template & single object
             case "object":
                 
-                //Support for DEPRECATED obj
-                var fobj = template["{}"] || template.obj;
+                let fobj = template["{}"];
                 
                 //Check to see if this template uses it's own data object
                 // allows us to run the template under a different data object
@@ -590,14 +571,14 @@
 	function _get(obj,path){
 	    
 	    //Split the path into it's seperate components
-		var _path = path.split(".");
+		let _path = path.split(".");
 		
 		//Set the object we use to query for this name to be the original object
-		var subObj = obj;
+		let subObj = obj;
 	    
 		//Parse the object properties
-		var c_len = _path.length;
-		for (var i=0;i<c_len;++i) {
+		let c_len = _path.length;
+		for(let i=0;i<c_len;++i) {
             
             //Skip if we don't have this part of the path
 			if( _path[i].length > 0 ) {
@@ -619,10 +600,10 @@
 	//Get the html value of the object
 	function _getValue(obj, template, key, options, index) {
 		
-		var out = "";
+		let out = "";
 		
 		//Get the template property
-		var prop = template[key];
+		let prop = template[key];
 		
         //Check the type of this template property
         switch(_typeof(prop,true)) {
@@ -651,7 +632,7 @@
         			default:
         
         				//Create a new object with the properties (value & index)
-        				var _obj = {"value":obj,"index":index,"data":options.data};
+        				let _obj = {"value":obj,"index":index,"data":options.data};
         				return(prop.call(_obj,_obj,index,options.data));
         			break;
         		}
@@ -760,32 +741,10 @@
 	
 	/* ---------------------------------------- Interpolate (Template Literals) -------------------------------------------- */
 	
-    //Extend object
-    // (obj1,obj2,...)
-    // creates a new object with properties of all objects
-    // shallow copy only
-	function _extend(){
-	    
-		var out = {};
-		
-		//Itterate over all objects and copy each property
-		// shallow copy only 
-		var len = arguments.length;
-		for(var i=0; i < len;i++)
-		    for (var prop in arguments[i]) { out[prop] = arguments[i][prop]; }
-		    
-		return(out);
-	}
-    
-	//isArray (fix for IE prior to 9)
-	function _isArray(obj) {
-		return Object.prototype.toString.call(obj) === "[object Array]";
-	}
-	
 	//Typeof helper
 	function _typeof(obj,checkArray) {
 	    
-	    var type = typeof obj;
+	    const type = typeof obj;
 	    
 	    //Check what kind of object this is
 	    if(type === "object") {
@@ -795,7 +754,7 @@
 	        
 	        //Check for array
 	        if(checkArray)
-	            if(_isArray(obj)) return("array");
+	            if(Array.isArray(obj)) return("array");
 	    }
 	    
 	    return(type);
@@ -803,10 +762,12 @@
 
 	//Get a new random id 
 	function _id() {
-		var S4 = function() {
-		   return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
-		};
-		return (S4()+S4());
+		return (_random()+_random());
+	}
+	
+	//Random string (4 characters)
+	function _random() {
+	   return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
 	}
 	
 	//Determines if we have a void element
@@ -847,7 +808,7 @@
     //Use the tokenizer to parse the str
     function _parse(str, method) {	
     	
-    	let tokenizer = new Tokenizer([
+    	const tokenizer = new Tokenizer([
     		/\${([\w\-\.\,\$\s]+)}/  
     	 ],function( src, real, re ){
     		return real ? src.replace(re,method) : src;
@@ -865,26 +826,19 @@
 	function _html(pobj, obj, template, options, index){
     
         //Create a new ihtml object for the parent and it's children
-        var parent = new iHTML(),
+        let parent = new iHTML(),
             children = new iHTML();
         
         //Set the default html element key
         // and initialize the events arrau
-		var ele = "<>",
+		let ele = "<>",
 		    events = [];
 		
 		//Look into the properties of this template
-		for (var prop in template) {
+		for(let prop in template) {
 		    
 			switch(prop) {
 				
-				//DEPRECATED (use <> instead)
-				case "tag":
-				    
-				    //Signal we're using a deprecated property
-				    //TODO output warning??
-				    ele = "tag";
-				    
 				//HTML element
 				case "<>":
 					
@@ -894,9 +848,6 @@
             		//Create a new element
 		            parent.appendHTML("<" + parent.name);
 				break;
-				
-				//DEPRECATED (use {} instead)
-		        case "obj":
 				
 				case "{}":
 				break;
@@ -908,13 +859,10 @@
 					// array => NOT SUPPORTED
 					// other => text
 					// Encode the value as text and add it to the children
-					if(!_isArray(template[prop])) children.appendHTML( json2html.toText( _getValue(obj,template,prop,options,index) ) );
+					if(!Array.isArray(template[prop])) children.appendHTML( json2html.toText( _getValue(obj,template,prop,options,index) ) );
 					 
 				break;
 				
-				//DEPRECATED (use HTML instead)
-				case "children":
-				    
 				//Encode as HTML
 				// accepts array of children, functions, string, number, boolean
 				case "html":
@@ -933,12 +881,13 @@
                         case "function":
                             
                             //Get the result from the function
-                            var temp = template[prop].call(obj, obj, index, options.data, options.$ihtml);
+                            // HTML is the inner html of the component (if it had any)
+                            let temp = template[prop].call(obj, obj, index, options.data, options.html);
                             
                             //Determine what type of result we have
                             switch(_typeof(temp,true)) {
                                 
-                                //Only returned by json2html.render or $.json2html calls
+                                //Only returned by json2html.render ()
                                 case "object":
                                     
                                     //Check the type of object
@@ -986,7 +935,7 @@
 
 				default:
 					//Add the property as a attribute if it's not a key one
-					var isEvent = false;
+					let isEvent = false;
 					
 					//Check if the first two characters are 'on' then this is an event
 					if( prop.length > 2 )
@@ -996,14 +945,14 @@
 							if(options.output === "ihtml") {
 							    
 								//if so then setup the event data
-								var data = {
+								let data = {
 									"obj":obj,
 									"data":options.data,
 									"index":index
 								};
 								
 								//create a new id for this event
-								var id = _id();
+								let id = _id();
 								
 								//Add to the events for this element
 								// we'll add these later using jquery
@@ -1020,11 +969,11 @@
 					//If this wasn't an event AND we actually have a value then add it as a property
 					if(!isEvent){
 						//Get the value
-						var val = _getValue(obj, template, prop, options, index);
+						let val = _getValue(obj, template, prop, options, index);
 						
 						//Make sure we have a value
 						if(val !== undefined) {
-							var out;
+							let out;
 							
 							//Determine the output type of this value (wrap with quotes)
 							if(typeof val === "string") out = '"' + val.replace(/"/g, '&quot;') + '"';
@@ -1077,14 +1026,14 @@
     function _component(pobj, obj, template, options, index) {
         
         //Create a new ihtml object for the parent
-        var ihtml = new iHTML();
+        let ihtml = new iHTML();
         
-        var component = {
+        let component = {
             "template":undefined,
             "name":undefined
         };
         
-        for(var prop in template) {
+        for(let prop in template) {
             
             //Check the property
             switch(prop) {
@@ -1093,7 +1042,7 @@
                 case "[]":
                     
                     //Get the component name (from the parent if we have one)
-                    var name = _getValue(pobj || obj, template, prop, options, index);
+                    let name = _getValue(pobj || obj, template, prop, options, index);
                     
                     //Check for a local component first
                     if(options.components) component.template = options.components[name];
@@ -1117,7 +1066,7 @@
                             //Render the children
                             // make sure to clear the parent
                             // children don't have access to the parent
-                            options.$ihtml = _render(obj, template.html, options, index);
+                            options.html = _render(obj, template.html, options, index);
                         break;
                     }
                     
@@ -1137,3 +1086,4 @@
     }
 }()); 
 
+  

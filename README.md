@@ -2,7 +2,7 @@
 json2html
 ------------------
 
-json2html is an open source javascript library that uses js templates to render JSON objects into HTML.
+json2html is an open source javascript library that uses json templates to render JSON objects into HTML.
 
 Build lightning fast, interactive client side templates using nothing but javascript.
 
@@ -22,11 +22,11 @@ Example
 ```javascript
 json2html.render(
     [
-        {"name": "Justice League", "year":2021},
-        {"name": "Coming 2 America", "year":2021}
+        {"name": "Sasha", "age":27},
+        {"name": "Bobby", "age":45}
     ], 
     {"<>": "li", "html":[
-    	{"<>": "span", "text": "${name} (${year})"}
+    	{"<>": "span", "text": "${name} (${age} years old)"}
       ]});
     
 ```
@@ -35,11 +35,11 @@ Will render the following html
 
 ```html
 <li>
-	<span>Justice League (2021)</span>
+	<span>Sasha (27 years old)</span>
 </li>
 <li>
-	<span>Coming 2 America (2021)</span>
-</li
+	<span>Bobby (45 years old)</span>
+</li>
 ```
 
 jQuery
@@ -72,7 +72,7 @@ Usage
 ```javascript
 	const json2html = require('node-json2html');
         
-	let html = json2html.transform([{'male':'Bob','female':'Jane'},{'male':'Rick','female':'Ann'}],{"<>":"div","html":"${male} likes ${female}"});
+	let html = json2html.transform([{'name':'Bob','fruit':'Bananas'},{'name':'Rick','fruit':'Apples'}],{"<>":"div","text":"${name} likes ${fruit}"});
 ```
 
 TypeScript:

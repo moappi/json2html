@@ -3,9 +3,6 @@
  <head>
 	<title>json2html - Wrapper Component Tutorial</title>
 	
-	<!-- jQuery -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
-
 	<!-- Tailwind CSS -->
 	<script src="https://cdn.tailwindcss.com"></script>
 	
@@ -40,8 +37,9 @@
 			{"<>":"div","class":"px-6 py-24 sm:px-6 sm:py-32 lg:px-8","html":[
 				{"<>":"div","class":"mx-auto max-w-2xl text-center","html":[
 					{"<>":"h2","class":"text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl","text":"${title}"},
-					{"<>":"p","class":"mx-auto mt-6 max-w-xl text-lg leading-8 text-gray-600","text":"${desc}"},
-					{"<>":"p","class":"mx-auto mt-6 max-w-xl text-base leading-8 text-gray-400","text":"Right click and 'View page source' to see how this page was rendered."}
+					{"<>":"p","class":"mt-6 max-w-xl text-lg leading-8 text-gray-600","text":"${desc}"},
+                    {"<>":"p","class":"mt-6 italic","html":"For a more comprehensive framework for application using json2html check out the <a class='text-indigo-600 hover:text-indigo-800' href='https://github.com/moappi/j2h-framework'>j2h framework</a>,  it helps manage your json2html pages and components and is similar to react, plus it works with node.js and on the browser."},
+				    {"<>":"p","class":"mt-6 max-w-xl text-base leading-8 text-gray-400","text":"Right click and 'View page source' to see how this page was rendered."}
 				  ]},
 				{"<>":"div","class":"mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl border rounded p-10","html":[
 
@@ -52,19 +50,9 @@
 					//   index: index of the object in the array (if we have one, otherwise 0)
 					//   data: data object passed to json2html (see events in documentation)
 					//   html: specific to a component, used to reference the html that this component wraps
-					{"html":(o,index,data,ihtml)=>{
-						
-						//Return the inner html that this component will wrap around
-						// note that this is actually the template
-						return(ihtml);
-					}}
+					{"html":(o,index,data,html)=>html}
 				  ]}
-			  ]},
-            
-            //Page Footer
-            {"<>":"div","class":"mx-auto max-w-2xl text-center mb-20","html":[
-				{"<>":"p","html":"This is the end of our tutorials, check out the <a class='text-indigo-600 hover:text-indigo-800' href='https://github.com/moappi/j2h-framework'>j2h framework</a> which helps manage your json2html pages and components and is similar to react, it works with node.js and on the browser"}
-			]}
+			  ]}
 			
         ],
         
@@ -160,7 +148,7 @@
 	// PLUS we'll also add the employees which is specific to this page that we're rendering
 	// this will allow us to access employees within the inner content of the page
 	// rendering them into a list 
-	$("body").json2html({
+	document.body.json2html({
 	    "title":"Using a Wrapper Component",
         "desc":"Understand how to use a component that can wrap around another template, plus how this can be used to generate a page wrapper",
         "employees":employees

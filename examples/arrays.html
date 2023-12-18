@@ -3,9 +3,6 @@
  <head>
 	<title>json2html - Data Mapping &amp; Array Tutorial</title>
 	
-	<!-- jQuery -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
-
 	<!-- Tailwind CSS -->
 	<script src="https://cdn.tailwindcss.com"></script>
 	
@@ -25,8 +22,8 @@
 		</div>
 
 		<!-- Tutorials -->
-		<div id="body" class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl border rounded p-10">
-			<ul class="space-y-5"></ul>
+		<div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl border rounded p-10">
+			<ul id="list" class="space-y-5"></ul>
 		</div>
 		
 	  </div>
@@ -71,7 +68,7 @@
 	
     //Render the list of employees using jquery 
     // note we can also do this using json2html.render as we don't have any events
-	$("#body ul").json2html(employees,template);
+	document.getElementById("list").json2html(employees,template);
 	
 </script>
 </html>
