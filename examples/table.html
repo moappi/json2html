@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+ <head>
+	<title>json2html - Simple Table</title>
+	
+	<!-- Tailwind CSS -->
+	<script src="https://cdn.tailwindcss.com"></script>
+	
+    <!-- json2html -->
+    <script src="../json2html.js"></script>
+	
+ </head>
+ <body>
+     
+	<div class="px-6 py-24 sm:px-6 sm:py-32 lg:px-8">
+
+		<!-- Header -->
+		<div class="mx-auto max-w-2xl text-center">
+		  <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Working with Arrays and Tables</h2>
+		  <p class="mx-auto mt-6 max-w-xl text-lg leading-8 text-gray-600">Understand how to map data to your tables.</p>
+		  <p class="mx-auto mt-6 max-w-xl text-base leading-8 text-gray-400">Right click and 'View page source' to see how this page was rendered.</p>
+		</div>
+
+		<div class="px-4 sm:px-6 lg:px-8">
+		  <div class="mt-8 flow-root">
+			<div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+			  <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+				<table id="table" class="min-w-full divide-y divide-gray-300">
+				  <thead>
+					<tr>
+					  <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-0">Name</th>
+					  <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Title</th>
+					  <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
+					  <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Role</th>
+					</tr>
+				  </thead>
+				  <tbody id="tbody" class="divide-y divide-gray-200 bg-white"></tbody>
+				</table>
+			  </div>
+			</div>
+		  </div>
+		</div>
+
+		
+	  </div>
+	</div>
+
+ </body>
+ 
+ <script>
+    //In this example we'll show you how you can map data directly to a template
+    // plus show you how to work with arrays of literals (like strings) instead of objects
+
+	//Data that we want to render
+    const employees = [
+		{"name":"Lindsay Walton","photo":"https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80","email":"lindsay.walton@example.com","job":"Front-end Developer","area":"Optimization","active":"Active","member":"Member"},
+    	{"name":"Courtney Henry","photo":"https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80","email":"courtney.henry@example.com","job":"Designer","area":"Intranet","active":"Active","member":"Admin"},
+    	{"name":"Tom Cook","photo":"https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80","email":"tom.cook@example.com","job":"Director of Product","area":"Directives","active":"Active","member":"Member"},
+    	{"name":"Whitney Francis","photo":"https://images.unsplash.com/photo-1517365830460-955ce3ccd263?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80","email":"whitney.francis@example.com","job":"Copywriter","area":"Program","active":"Active","member":"Admin"},
+		{"name":"Leonard Krasner","photo":"https://images.unsplash.com/photo-1519345182560-3f2917c472ef?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80","email":"leonard.krasner@example.com","job":"Senior Designer","area":"Mobility","active":"Active","member":"Owner"},
+	];
+    
+    //Templates that we want to use
+	const row = {"<>":"tr","html":[
+
+		{"<>":"td","class":"whitespace-nowrap py-5 pl-4 pr-3 text-sm sm:pl-0","html":[
+			{"<>":"div","class":"flex items-center","html":[
+			  {"<>":"div","class":"h-11 w-11 flex-shrink-0","html":[
+				  {"<>":"img","class":"h-11 w-11 rounded-full","src":"${photo}","alt":""}
+				]},
+			  {"<>":"div","class":"ml-4","html":[
+				  {"<>":"div","class":"font-medium text-gray-900","text":"${name}"},
+				  {"<>":"div","class":"mt-1 text-gray-500","text":"${email}"}
+				]}
+			]}
+		]},
+
+		{"<>":"td","class":"whitespace-nowrap px-3 py-5 text-sm text-gray-500","html":[
+			{"<>":"div","class":"text-gray-900","text":"${job}"},
+			{"<>":"div","class":"mt-1 text-gray-500","text":"${area}"}
+		]},
+
+		{"<>":"td","class":"whitespace-nowrap px-3 py-5 text-sm text-gray-500","html":[
+			{"<>":"span","class":"inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20","text":"${active}"}
+		]},
+
+		{"<>":"td","class":"whitespace-nowrap px-3 py-5 text-sm text-gray-500","text":"${member}"}
+	]};
+
+    //Render the list of employees using jquery 
+    // note we can also do this using json2html.render as we don't have any events
+	document.getElementById("tbody").json2html(employees,row);
+</script>
+</html>
+  

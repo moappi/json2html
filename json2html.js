@@ -1,7 +1,7 @@
 
-//     json2html.js 3.0.0
+//     json2html.js 3.1.1
 //     https://www.json2html.com
-//     (c) 2006-2024 JSON2HTML. https://www.json2html.com/
+//     (c) 2006-2024 Crystalline Technologies
 //     json2html may be freely distributed under the MIT license.
 
 (function() {
@@ -22,6 +22,9 @@
 	//Components {name:template}
 	let COMPONENTS = {};
 	
+	//Triggers {name:[{obj,template,ele}]} for updates
+	let TRIGGERS = {};
+	
     /* ---------------------------------------- Interactive HTML Object (iHTML) ------------------------------------------------ */
     
     function iHTML(html){
@@ -34,6 +37,9 @@
         
         //associated events
         this.events = {};
+        
+        //associated update triggers
+        this.triggers = {};
 	}
 	
 	//Append an ihtml object
@@ -48,6 +54,9 @@
                 
                 //Append the events
                 Object.assign(this.events, obj.events);
+                
+                //Append the update triggers
+                Object.assign(this.triggers, obj.triggers);
             } 
         
         //Added for chaining
@@ -63,7 +72,8 @@
 	iHTML.prototype.toJSON = function(){
 	    return({
 	        "html":this.html,
-	        "events":this.events
+	        "events":this.events,
+	        "triggers":this.triggers
 	    });
 	};
 	
@@ -134,12 +144,12 @@
 	if(!root.json2html) root.json2html = {};
 	
 	//Current Version
-	root.json2html.version = "3.0.0";
+	root.json2html.version = "3.1.0";
 	
 	//Render a json2html template to html string
-	//  obj : json object to render, or json string
-	//  template: json2html template (array / json object / json string)
-	//  options : {
+	//  obj (requried) : json object to render, or json string
+	//  template (required): json2html template (array / json object / json string)
+	//  options (optional) : {
 	//      components : {name:template,...}
 	//      data : passed to event.data
 	//      output : ihtml / html (default)
@@ -163,26 +173,13 @@
 		// allows for JSON object or a string value of a JSON object or literal
 		obj = parsed;
 		
-		if(!options) options = {};
+		//Check to make sure we have a template and object
+		if(_typeof(template) !== "object" || _typeof(obj) !== "object") return(ihtml);
+        
+        if(!options) options = {};
         
         //Set the default to html output
         if(!options.output) options.output = "html";
-		
-		//Check to make sure we have a template and object
-		if(_typeof(template) !== "object" || _typeof(obj) !== "object") {
-		    
-		    //Check what type of output we're looking for
-    	    switch(options.output) {
-    	        
-    	        case "ihtml":
-    	            return(new iHTML());
-    	        break;
-    	        
-    	        default:
-    	            return("");
-    	        break;
-    	    }
-		}
 		
 	    //Check what type of output we're looking for
 	    switch(options.output) {
@@ -231,6 +228,61 @@
         }
 	};
 	
+	//Tigger and update
+	//  name (required) : name of the update trigger
+	//  obj  (optional) : object we want to use, will overwrite the original object used for this rendering
+	root.json2html.trigger = function(name,obj) {
+	    
+        //Make sure we have a name
+        if(!name) return;
+        
+        //Get the triggers (always an array)
+        let arry = TRIGGERS[name];
+        if(!arry) return;
+        
+        //Create a list of all triggers that we need to render
+        let all = [];
+        
+        //Itterate over all elements to trigger an update for
+        for(let i=0; i < arry.length; i++) {
+            
+            //Get the trigger
+            let trigger = arry[i];
+            
+	        //Get the object
+	        // default to the original trigger object
+	        let _obj = trigger.obj;
+	        if(obj) _obj = obj;
+	        
+	        //Add the trigger object
+	        all.push({
+	            "index":i,
+	            "obj":_obj,
+	            "trigger":trigger
+	        });
+        }
+        
+        //Perform all the updates 
+        // this needs to be done AFTER triggers are read otherwise we'll have an infinite loop
+        // render() is called which adds triggers 
+        for(let a=0; a < all.length; a++) {
+            
+            //Get the trigger object
+            let o = all[a];
+            
+            //Render the update if we can find the element in the dom
+            if( document.contains(o.trigger.ele) ) o.trigger.ele.json2html(o.obj,o.trigger.template,{"method":"replace"});
+	        else {
+	            //Otherwise remove the trigger as it's stale
+	            arry.splice(o.trigger.index,1);
+	        }
+        }
+        
+        //Finally save the trigger
+        // as we might have removed some
+        TRIGGERS[name] = arry;
+    };
+	
 	//Encode the html string to text
 	root.json2html.toText = function(html) {
 		
@@ -247,15 +299,32 @@
 			.replace(/\//g, "&#x2F;");
 	};
 	
-	//Hydrate elements with their events
-	root.json2html.hydrate = function(element,events) {
+	//Set object value
+	root.json2html.set = _set;
+	
+	//Hydrate elements with their events & update triggers
+	root.json2html.hydrate = function(parent,events,triggers) {
 	    
-	    //Attach events and get the elements that need ready to be triggered
-	    let ready = _attachEvents(element,events);
-	    
-	    //Trigger all the json2html.ready events
-		for(let i=0; i < ready.length; i++) 
-			_triggerEvent(ready[i],"j2h-ready");
+        let arry = parent;
+        
+        //Convert the parent to an array of elements
+        if(!Array.isArray(parent)) arry = [parent];
+        
+        //For each parent complete the following
+        for(let i=0; i < arry.length; i++) {
+            
+            let element = arry[i];
+            
+            //Attach events and get the elements that need ready to be triggered
+            let ready = _attachEvents(element,events);
+            
+            //Trigger all the json2html.ready events
+            for(let i=0; i < ready.length; i++) 
+            	_triggerEvent(ready[i],"j2h-ready");
+            	
+            //Set the upgrade triggers
+            if(triggers) _setTriggers(element,triggers);
+        }
         
         return(this);
 	};
@@ -274,7 +343,7 @@
         //      data : passed to event.data
         //      method : prepend, replace, append (default)
         Element.prototype.json2html = function(obj,template,options) {
-        
+            
             //Create the optional options if required
             if(!options) options = {};
             
@@ -283,17 +352,26 @@
             
             //Render using the master render function
             let ihtml = json2html.render(obj,template,options);
-        
+            
             //Convert the html into a dom object using innerHTML
             // return the childNodes (Node List)
-            let dom = document.createElement("div");
+            let dom = document.createElement("tbody");
             dom.innerHTML = ihtml.html;
+            
+            //Set the element that we want to hydrate with
+            let ele = this;
             
             //Determine how we should add the new content
             switch(options.method) {
             
                 //Replace
                 case "replace":
+                    
+                    //Convert to an array 
+                    // we'll use this for hydration
+                    ele = Array.from(dom.childNodes);
+                    
+                    //Replace
                     this.replaceWith(...dom.childNodes);
                 break;
                 
@@ -307,11 +385,11 @@
                     this.append(...dom.childNodes);
                 break;
             }
-        	
-        	//Rehydrate the object 
-        	// this will add the events and trigger ready events
-        	json2html.hydrate(this,ihtml.events);
-        	
+            
+            //Rehydrate the object 
+            // this will add the events, trigger ready events and setup trigger updates
+            json2html.hydrate(ele, ihtml.events, ihtml.triggers);
+            
             //Return this for chaining
             return(this);
     	};
@@ -347,13 +425,26 @@
                         // use the render function with iHTML output
                         // then we'll hydrate with events after it's added to the dom
                         let ihtml = json2html.render(obj,template,options);
+                        
+                        //Set the element that we want to hydrate with
+                        let $ele = $(this);
         			    
                         //Determine how we should add the new content
                         switch(options.method) {
                         
                             //Replace
                             case "replace":
-                                $.fn.replaceWith.call($(this),ihtml.html);
+                                
+                                //Convert the html into a dom object using innerHTML
+                                // return the childNodes (Node List)
+                                let $dom = $("div");
+                                $dom.innerHTML = ihtml.html;
+                                
+                                //Get the elements we want to replace with
+                                $ele = $dom.children();
+                                
+                                //Repace with these dom children
+                                $.fn.replaceWith.call($(this),$ele);
                             break;
                             
                             //Prepend
@@ -368,18 +459,18 @@
                         }
                             
                         //Hydrate with events
-                        $(this).j2hHydrate(ihtml.events);
+                        $ele.j2hHydrate(ihtml.events,ihtml.triggers);
                     }));
                 };
             	
                 //Hydrate the json2html elements with these events
-                $.fn.j2hHydrate = function(events) {
+                $.fn.j2hHydrate = function(events,triggers) {
                 
                     //Attach the events for each element
                     return($(this).each(function(){ 
                         
                         //Hydrate this element with these events
-                        json2html.hydrate(this,events);
+                        json2html.hydrate(this,events,triggers);
                     }));
                 };
             	
@@ -407,14 +498,18 @@
         }
 	}
 	
-	//Attach the events to the children of this element
+	//Attach the events to the parent & children of this element
+	// we need to check the parent as well to ensure that events get added after a trigger event
 	function _attachEvents(parent,events) {
 		
 		//Record json2html specific ready events
 		let ready = [];
 		
-		//Check the parent for all j2h events
-		let elements = parent.querySelectorAll("[-j2h-e]"); 
+		//Get the elements that need to be triggered
+		let elements = Array.from( parent.querySelectorAll("[-j2h-e]") );
+		
+		//Also check to see if the parent element has any triggers
+		if(parent.getAttribute("-j2h-e")) elements.push(parent);
 		
 		//Itterate over the elements with events
 		for(let e=0; e < elements.length; e++) {
@@ -423,6 +518,9 @@
             
             //Get the events we should attach to this element
             let attach = element.getAttribute("-j2h-e");
+            
+            //remove the event attribute
+			element.removeAttribute("-j2h-e");
             
             //Make sure we have some events to attach
             if(attach) {
@@ -433,45 +531,92 @@
                 //Add each event
                 for(let i = 0; i < _events.length; i++) {
                     
-                    let event = events[_events[i]];
+                    //Process each event and keep the context for the event listener
+                    ((event)=>{
+                        
+                        //Don't have this event then just skip
+                        if(!event) return;
+                        
+                        //Add the ready event 
+                        //  json2html specific event
+                        if(event.type === "ready") {
+                            
+                            //Sepcify that we'll need to trigger these later
+                            ready.push(element);
+                            
+                            //rename the event to j2h-ready
+                            event.type = "j2h-ready";
+                        }
+                        
+                        //Attach the events to the element
+                        element.addEventListener(event.type,function(e){
+                            
+                            //Disable j2h-ready events from being propagated
+                            if(event.type === "j2h-ready") e.stopPropagation();
+                            
+                        	//attach the javascript event
+                        	event.data.event = e;
+                        	
+                        	//call the appropriate method
+                        	if(_typeof(event.action) === "function") event.action.call(this,event.data);
+                        });
+                    })(events[_events[i]]);
                     
-                    //Don't have this event then just skip
-                    if(!event) continue;
-                    
-                    //Add the ready event 
-                    //  json2html specific event
-                    if(event.type === "ready") {
-                        
-                        //Sepcify that we'll need to trigger these later
-                        ready.push(element);
-                        
-                        //rename the event to j2h-ready
-                        event.type = "j2h-ready";
-                    }
-                    
-                    //Attach the events to the element
-                    element.addEventListener(event.type,function(e){
-                        
-                        //Disable j2h-ready events from being propagated
-                        if(event.type === "j2h-ready") e.stopPropagation();
-                        
-                    	//attach the javascript event
-                    	event.data.event = e;
-                    	
-                    	//call the appropriate method
-                    	if(_typeof(event.action) === "function") event.action.call(this,event.data);
-                    });
                 }
             }
-            
-            //remove the event attribute
-			element.removeAttribute("-j2h-e");
 		}
 		
 		//Return the ready events
 		return(ready);
 	}
 	
+	//Set the update triggers
+	function _setTriggers(parent,triggers) {
+		
+		//Get the elements that need to be triggered
+		let elements = Array.from( parent.querySelectorAll("[-j2h-t]") );
+		
+		//Also check to see if the parent element has any triggers
+		if(parent.getAttribute("-j2h-t")) elements.push(parent);
+		
+		//Itterate over the elements with triggers
+		for(let e=0; e < elements.length; e++) {
+		    
+		    let element = elements[e];
+            
+            //Get the triggers that we need to listen to
+            let id = element.getAttribute("-j2h-t");
+            
+            //Make sure we have some triggers
+            if(!id) return;
+            
+            //split by " " (can contain multiple triggers per element)
+            let _triggers = id.split(" ");
+            
+            //Add each trigger
+            for(let i = 0; i < _triggers.length; i++) {
+                
+                let trigger = triggers[_triggers[i]];
+                
+                //Don't have a trigger then just skip
+                if(!trigger) continue;
+                
+                //Add the element to the trigger
+                // we need this later to make sure we update the right element
+                trigger.ele = element;
+                
+                //Create a new array of triggers for this trigger name
+                if(!TRIGGERS[trigger.name]) TRIGGERS[trigger.name] = [];
+                
+                //Add the trigger
+                TRIGGERS[trigger.name].push(trigger);
+            }
+            
+            //remove the event attribute
+			element.removeAttribute("-j2h-t");
+		}
+	}
+
     //Render the object using the template to ihtml (html + events)
     //  obj : json object 
 	//  template: json2html template (array / object / json string)
@@ -565,36 +710,6 @@
 		}
 		
 		return(ihtml);
-	}
-	
-	//Get the property from the object
-	function _get(obj,path){
-	    
-	    //Split the path into it's seperate components
-		let _path = path.split(".");
-		
-		//Set the object we use to query for this name to be the original object
-		let subObj = obj;
-	    
-		//Parse the object properties
-		let c_len = _path.length;
-		for(let i=0;i<c_len;++i) {
-            
-            //Skip if we don't have this part of the path
-			if( _path[i].length > 0 ) {
-			    
-			    //Get the sub object using the path
-				subObj = subObj[_path[i]];
-				
-				//Break if we don't have this sub object
-				if(subObj === null || subObj === undefined) break;
-			}
-		}
-		
-		//Return an empty string if we don't have a value
-		if(subObj === null || subObj === undefined) return("");
-		
-		return(subObj);
 	}
 	
 	//Get the html value of the object
@@ -739,6 +854,49 @@
 		return(out);
 	}
 	
+	/* ---------------------------------------- Safe Object Methods -------------------------------------------- */
+	
+	//Get the property from the object
+	function _get(obj,path){
+	    
+	    //Split the path into it's seperate components
+		let _path = path.split(".");
+		
+		//Set the object we use to query for this name to be the original object
+		let subObj = obj;
+	    
+		//Parse the object properties
+		let c_len = _path.length;
+		for(let i=0;i<c_len;++i) {
+            
+            //Skip if we don't have this part of the path
+			if( _path[i].length > 0 ) {
+			    
+			    //Get the sub object using the path
+				subObj = subObj[_path[i]];
+				
+				//Break if we don't have this sub object
+				if(subObj === null || subObj === undefined) break;
+			}
+		}
+		
+		//Return an empty string if we don't have a value
+		if(subObj === null || subObj === undefined) return("");
+		
+		return(subObj);
+	}
+	
+	//Set object value 
+	function _set(obj, path, val) {
+    	path.split && (path=path.split('.'));
+    	var i=0, l=path.length, t=obj, x, k;
+    	while (i < l) {
+    		k = path[i++];
+    		if (k === '__proto__' || k === 'constructor' || k === 'prototype') break;
+    		t = t[k] = (i === l) ? val : (typeof(x=t[k])===typeof(path)) ? x : (path[i]*0 !== 0 || !!~(''+path[i]).indexOf('.')) ? {} : [];
+    	}
+    }
+	
 	/* ---------------------------------------- Interpolate (Template Literals) -------------------------------------------- */
 	
 	//Typeof helper
@@ -821,7 +979,7 @@
 	/* ---------------------------------------- Template Types ------------------------------------------------ */
 	
 	//default html type
-	// supports <> and legacy tag
+	// supports <> 
 	// returns iHTML
 	function _html(pobj, obj, template, options, index){
     
@@ -832,7 +990,8 @@
         //Set the default html element key
         // and initialize the events arrau
 		let ele = "<>",
-		    events = [];
+		    events = [],
+		    triggers = [];
 		
 		//Look into the properties of this template
 		for(let prop in template) {
@@ -849,7 +1008,86 @@
 		            parent.appendHTML("<" + parent.name);
 				break;
 				
+				//Object
 				case "{}":
+				break;
+				
+				//Assign
+				case ">>":
+                    
+                    //Add in onchange event
+                    //if so then setup the event data
+					let aData = {
+						"obj":obj,
+						"data":options.data,
+						"index":index,
+						
+						//Unique for assign
+						"var":template[prop]
+					};
+					
+					//create a new id for this event
+					let aId = _id();
+					
+					//Check for the type of element this is
+					switch(template["<>"]) {
+					    
+                        //Partial Support
+                        case "input":
+                        
+                            //Check the type of input
+                            switch(template["type"]) {
+                                
+                                //These types of inputs aren't supported
+                                case "button":
+                                case "submit":
+                                case "reset":
+                                case "image":
+                                    continue;
+                                break;
+                                
+                                //All others are supported
+                                default:
+                                break;
+    		                }
+                        break;
+                        
+                        //Supported
+                        case "select":
+                        case "textarea":
+                        break;
+                        
+                        //All others not supported
+                        default:
+                            continue;
+                        break;
+                        
+					}
+					
+					//Add to the events for this element
+					// we'll add these later into the DOM
+					parent.events[aId] = {"type":"change","data":aData,"action":function(e){
+					    
+					    //Set the value
+					    json2html.set( e.obj, e.var, e.event.target.value);
+					}};
+					
+					//Add the event to the list of events for this element
+					events.push(aId);
+				break;
+				
+				//Update trigger
+				case "#":
+				    
+				    //create a new trigger id for this event
+					let tid = _id();
+					
+					//Add to the triggers for this element
+					// we'll add these later in the DOM
+					parent.triggers[tid] = {"name":_getValue(obj,template,prop,options,index),"obj":obj,"template":template};
+					
+					//Add the trigger to the list of triggers for this element
+					triggers.push(tid);
 				break;
 				
 				//Encode text
@@ -940,7 +1178,7 @@
 					//Check if the first two characters are 'on' then this is an event
 					if( prop.length > 2 )
 						if( prop.substring(0,2).toLowerCase() === "on" ) {
-							
+						    
 							//Determine if we should add events
 							if(options.output === "ihtml") {
 							    
@@ -955,7 +1193,7 @@
 								let id = _id();
 								
 								//Add to the events for this element
-								// we'll add these later using jquery
+								// we'll add these later into the DOM
 								parent.events[id] = {"type":prop.substring(2),"data":data,"action":template[prop]};
 								
 								//Add the event to the list of events for this element
@@ -991,6 +1229,11 @@
         // with events seperated by a space
         // if needed
 		if(events.length) parent.appendHTML(" -j2h-e='" + events.join(" ") + "'");
+
+        //Insert temporary event property -j2h-t
+        // with events seperated by a space
+        // if needed
+		if(triggers.length) parent.appendHTML(" -j2h-t='" + triggers.join(" ") + "'");
 		
 		//Check to see if the parent is an html element
 		// or just a container
@@ -1086,4 +1329,4 @@
     }
 }()); 
 
-  
+   
