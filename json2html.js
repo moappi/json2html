@@ -1,5 +1,5 @@
 
-//     json2html.js 3.1.1
+//     json2html.js 3.1.2
 //     https://www.json2html.com
 //     (c) 2006-2024 Crystalline Technologies
 //     json2html may be freely distributed under the MIT license.
@@ -228,16 +228,17 @@
         }
 	};
 	
-	//Tigger and update
-	//  name (required) : name of the update trigger
+	//Trigger a component to be updated
+	//  DEPRECATED, use refresh instead
+	//  id (required) : id of the component that needs to be updated
 	//  obj  (optional) : object we want to use, will overwrite the original object used for this rendering
-	root.json2html.trigger = function(name,obj) {
+	root.json2html.trigger = function(id,obj) {
 	    
-        //Make sure we have a name
-        if(!name) return;
+        //Make sure we have a id
+        if(!id) return;
         
         //Get the triggers (always an array)
-        let arry = TRIGGERS[name];
+        let arry = TRIGGERS[id];
         if(!arry) return;
         
         //Create a list of all triggers that we need to render
@@ -280,8 +281,13 @@
         
         //Finally save the trigger
         // as we might have removed some
-        TRIGGERS[name] = arry;
+        TRIGGERS[id] = arry;
     };
+	
+	//Refresh a component with id
+	//  id (required) : id of the component that needs to be updated
+	//  obj  (optional) : object we want to use, will overwrite the original object used for this rendering
+	root.json2html.refresh = root.json2html.trigger;
 	
 	//Encode the html string to text
 	root.json2html.toText = function(html) {
@@ -1076,10 +1082,10 @@
 					events.push(aId);
 				break;
 				
-				//Update trigger
+				//Refresh Id
 				case "#":
 				    
-				    //create a new trigger id for this event
+				    //create a new refresh id for this event
 					let tid = _id();
 					
 					//Add to the triggers for this element
