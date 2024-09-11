@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
  <head>
-	<title>json2html - Triggers</title>
+	<title>json2html - Refresh Triggers</title>
 	
 	<!-- Tailwind CSS -->
 	<script src="https://cdn.tailwindcss.com"></script>
@@ -16,8 +16,8 @@
 
 		<!-- Header -->
 		<div class="mx-auto max-w-2xl text-center">
-		  <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Working with Triggers</h2>
-		  <p class="mx-auto mt-6 max-w-xl text-lg leading-8 text-gray-600">Understand how to trigger parts of your page to update when changes need to be applied.  Allows a only part of a tempalte to be updated without having to render the entire template again.</p>
+		  <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Working with Refresh Triggers</h2>
+		  <p class="mx-auto mt-6 max-w-xl text-lg leading-8 text-gray-600">Understand how to trigger parts of your page to refresh when changes need to be applied.  Allows a part of a tempalte to be refreshed without having to render the entire template again.</p>
 		  <p class="mx-auto mt-6 max-w-xl text-base leading-8 text-gray-400">Right click and 'View page source' to see how this page was rendered.</p>
 		</div>
 	
@@ -53,27 +53,25 @@
           
         {"<>":"div","class":"mt-8 flex w-full","html":[
             {"<>":"button","type":"button","class":"flex-auto items-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600","text":"Increment","onclick":e=>{
+				
 				//Increment the number
 				e.obj.number++;
 
-				//Trigger an update (should match the event with the # above)
-				// this can be any trigger name you want
-				json2html.trigger("number");
+				//Trigger an refresh (should match the event with the # above)
+				json2html.refresh("number");
 
 				//Increment the multiplier
 				e.obj.multiplier*=10;
 
 				//Trigger an update (should match the event with the # above)
-				// this can be any trigger name you want
-				json2html.trigger("multiplier");
+				json2html.refresh("multiplier");
 
 				//Increment the percentage
 				e.obj.percentage*=1.1;
 				e.obj.percentage = Math.round(e.obj.percentage,2);
 
 				//Trigger an update (should match the event with the # above)
-				// this can be any trigger name you want
-				json2html.trigger("percentage");
+				json2html.refresh("percentage");
 				
             }},
             {"<>":"button","type":"button","class":"ml-3 flex-auto items-center rounded-md bg-pink-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-pink-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600","text":"Decrement","onclick":e=>{
@@ -81,24 +79,21 @@
 				//Increment the number
 				e.obj.number--;
 
-				//Trigger an update (should match the event with the # above)
-				// this can be any trigger name you want
-				json2html.trigger("number");
+				//Trigger an refresh (should match the event with the # above)
+				json2html.refresh("number");
 
 				//Increment the multiplier
 				e.obj.multiplier/=10;
 
-				//Trigger an update (should match the event with the # above)
-				// this can be any trigger name you want
-				json2html.trigger("multiplier");
+				//Trigger an refresh (should match the event with the # above)
+				json2html.refresh("multiplier");
 
 				//Increment the percentage
 				e.obj.percentage/=1.1;
 				e.obj.percentage = Math.round(e.obj.percentage,2);
 
-				//Trigger an update (should match the event with the # above)
-				// this can be any trigger name you want
-				json2html.trigger("percentage");
+				//Trigger an refresh (should match the event with the # above)
+				json2html.refresh("percentage");
             }}
         ]}
         
