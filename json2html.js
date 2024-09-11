@@ -1,5 +1,5 @@
 
-//     json2html.js 3.1.2
+//     json2html.js 3.2.0
 //     https://www.json2html.com
 //     (c) 2006-2024 Crystalline Technologies
 //     json2html may be freely distributed under the MIT license.
@@ -144,7 +144,7 @@
 	if(!root.json2html) root.json2html = {};
 	
 	//Current Version
-	root.json2html.version = "3.1.2";
+	root.json2html.version = "3.2.0";
 	
 	//Render a json2html template to html string
 	//  obj (requried) : json object to render, or json string
