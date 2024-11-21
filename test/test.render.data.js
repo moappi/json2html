@@ -4,15 +4,15 @@ module.exports =
     
     //Object
     {
-        "name":"Render Data Object",
-        "data":{"name":"dorian"},
+        "name":"Render Data - Object",
+        "data":{"name":"ashley"},
         "template":{"<>":"div","html":"${name}"},
-        "html":"<div>dorian</div>"
+        "html":"<div>ashley</div>"
     },
     
     //Undefined
     {
-        "name":"Render Data Undefined",
+        "name":"Render Data - Undefined",
         "data":undefined,
         "template":{"<>":"div","html":"${name}"},
         "html":""
@@ -20,7 +20,7 @@ module.exports =
 
 	//Special characters in variable name $ _ - space
     {
-        "name":"Render Data Special Characters ($_-)",
+        "name":"Render Data - Special Characters ($_-)",
         "data":{"$var":"$","_var":"_"," var":"space","-var":"-"},
         "template":{"<>":"div","html":"${$var} ${_var} ${ var} ${-var}"},
         "html":"<div>$ _ space -</div>"
@@ -28,38 +28,38 @@ module.exports =
     
     //Object Array
     {
-        "name":"Render Data Array",
-        "data":[{"name":"dorian"},{"name":"monica"}],
+        "name":"Render Data - Array",
+        "data":[{"name":"ashley"},{"name":"monica"}],
         "template":{"<>":"div","html":"${name}"},
-        "html":"<div>dorian</div><div>monica</div>"
+        "html":"<div>ashley</div><div>monica</div>"
     },
     
     //Literal Array
     {
-        "name":"Render Data Literal Array (Short Hand Literal)",
-        "data":["dorian","monica"],
+        "name":"Render Data - Literal Array (Short Hand Literal)",
+        "data":["ashley","monica"],
         "template":{"<>":"div","html":"${index}-${value}"},
-        "html":"<div>0-dorian</div><div>1-monica</div>"
+        "html":"<div>0-ashley</div><div>1-monica</div>"
     },
     
     {
-        "name":"Render Data Literal Array (Inline Function - this)",
-        "data":["dorian","monica"],
-        "template":{"<>":"div","html":function(obj,index){return(index + "-" + this)}},
-        "html":"<div>0-dorian</div><div>1-monica</div>"
+        "name":"Render Data - Literal Array (Inline Function - this)",
+        "data":["ashley","monica"],
+        "template":{"<>":"div","html":function(obj,index){return(index + "-" + this);}},
+        "html":"<div>0-ashley</div><div>1-monica</div>"
     },
     
     {
-        "name":"Render Data Literal Array (Inline Function - (obj,index))",
-        "data":["dorian","monica"],
-        "template":{"<>":"div","html":function(obj,index){return(index + "-" + obj)}},
-        "html":"<div>0-dorian</div><div>1-monica</div>"
+        "name":"Render Data - Literal Array (Inline Function - (obj,index))",
+        "data":["ashley","monica"],
+        "template":{"<>":"div","html":(obj,index)=>(index + "-" + obj)},
+        "html":"<div>0-ashley</div><div>1-monica</div>"
     },
     
     //Data - Literal
     {
         "name":"Data - Literal",
-        "data":"dorian",
+        "data":"ashley",
         "template":{"<>":"div"},
         "html":""
     },
@@ -69,152 +69,164 @@ module.exports =
     {
         "name":"Rendering Options (Data Object)",
         "data":{},
-        "template":{"<>":"environment","html":function(obj,index,data){
-            return(data.env);
-        }},
+        "template":{"<>":"environment","html":(o,index,data)=>data.env},
         "html":"<environment>development</environment>",
         "options":{"data":{"env":"development"}}
     },
     
     // ============================== Non HTML Element (Block) ===========================
     {
-        "name":"Block (Literal HTML)",
-        "data":{"name":"dorian"},
+        "name":"Block - Literal HTML",
+        "data":{"name":"ashley"},
         "template":{"html":"<p>${name}</p>"},
-        "html":"<p>dorian</p>"
+        "html":"<p>ashley</p>"
     },
     
     {
-        "name":"Block(Inline Function HTML)",
-        "data":{"name":"dorian"},
+        "name":"Block - Inline Function HTML (this)",
+        "data":{"name":"ashley"},
         "template":{"html":function(){
             return("<p>" + this.name +"</p>");
         }},
-        "html":"<p>dorian</p>"
+        "html":"<p>ashley</p>"
     },
     
     {
-        "name":"Block (Array Templates)",
-        "data":{"name":"dorian"},
+        "name":"Block - Inline Function HTML (obj)",
+        "data":{"name":"ashley"},
+        "template":{"html":(o)=>("<p>" + o.name +"</p>")},
+        "html":"<p>ashley</p>"
+    },
+    
+    {
+        "name":"Block - Array Templates",
+        "data":{"name":"ashley"},
         "template":{"html":[
             {"<>":"p","html":"${name}"}
         ]},
-        "html":"<p>dorian</p>"
+        "html":"<p>ashley</p>"
     },
     
     {
-        "name":"Block (Sub Data Object)",
-        "data":{"employee":{"name":"dorian"}},
+        "name":"Block - Sub Data (this)",
+        "data":{"employee":{"name":"ashley"}},
         "template":{"{}":function(){return(this.employee);},"html":"<p>${name}</p>"},
-        "html":"<p>dorian</p>"
+        "html":"<p>ashley</p>"
     },
     
     {
-        "name":"Block (Literal Text)",
-        "data":{"name":"dorian"},
+        "name":"Block - Sub Data (obj)",
+        "data":{"employee":{"name":"ashley"}},
+        "template":{"{}":o=>o.employee,"html":"<p>${name}</p>"},
+        "html":"<p>ashley</p>"
+    },
+    
+    {
+        "name":"Block - Literal Text",
+        "data":{"name":"ashley"},
         "template":{"text":"${name}"},
-        "html":"dorian"
+        "html":"ashley"
     },
     
     // ============================== Reserved Attributes ===========================
     //<> Attribute
     {
-        "name":"<> Attribute (Literal)",
+        "name":"<> Attribute - Literal",
         "data":{},
         "template":{"<>":"div"},
         "html":"<div></div>"
     },
     {
-        "name":"<> Attribute (Function)",
+        "name":"<> Attribute - Function",
         "data":{},
-        "template":{"<>":function(){return("div");}},
+        "template":{"<>":o=>"div"},
         "html":"<div></div>"
     },
     {
-        "name":"<> Attribute (Dynamic)",
-        "data":{"element":"div","employee":{"name":"dorian"}},
-        "template":{"<>":"${element}","{}":function(){return(this.employee);},"text":"${name}"},
-        "html":"<div>dorian</div>"
+        "name":"<> Attribute - Dynamic",
+        "data":{"element":"div","employee":{"name":"ashley"}},
+        "template":{"<>":"${element}","{}":o=>o.employee,"text":"${name}"},
+        "html":"<div>ashley</div>"
     },
     
     //HTML Attribute
     {
-        "name":"HTML Attribute (Nested Elements)",
-        "data":[{"name":"dorian"},{"name":"monica"}],
+        "name":"HTML Attribute - Nested Elements",
+        "data":[{"name":"ashley"},{"name":"monica"}],
         "template":{"<>":"div","html":[{"<>":"span","html":"-"},{"<>":"strong","html":"${name}"}]},
-        "html":"<div><span>-</span><strong>dorian</strong></div><div><span>-</span><strong>monica</strong></div>"
+        "html":"<div><span>-</span><strong>ashley</strong></div><div><span>-</span><strong>monica</strong></div>"
     },
     {
-        "name":"HTML Attribute (Array Template)",
-        "data":[{"name":"dorian"},{"name":"monica"}],
+        "name":"HTML Attribute - Array Template",
+        "data":[{"name":"ashley"},{"name":"monica"}],
         "template":[{"<>":"span","html":"-"},{"<>":"strong","html":"${name}"}],
-        "html":"<span>-</span><strong>dorian</strong><span>-</span><strong>monica</strong>"
+        "html":"<span>-</span><strong>ashley</strong><span>-</span><strong>monica</strong>"
     },
     {
-        "name":"HTML Attribute (Object)",
+        "name":"HTML Attribute - Object",
         "data":{},
-        "template":{"<>":"div","html":{"name":"dorian"}},
+        "template":{"<>":"div","html":{"name":"ashley"}},
         "html":"<div></div>"
     },
     {
-        "name":"HTML Attribute (Inline Function - this - string)",
-        "data":[{"name":"dorian"},{"name":"monica"}],
+        "name":"HTML Attribute - Inline Function (this / string)",
+        "data":[{"name":"ashley"},{"name":"monica"}],
         "template":{"<>":"div","html":function(){return(this.name)}},
-        "html":"<div>dorian</div><div>monica</div>"
+        "html":"<div>ashley</div><div>monica</div>"
     },
     {
-        "name":"HTML Attribute (Inline Function - this - number)",
+        "name":"HTML Attribute - Inline Function (this / number)",
         "data":[{"val":1},{"val":2}],
         "template":{"<>":"div","html":function(){return(this.val)}},
         "html":"<div>1</div><div>2</div>"
     },
     {
-        "name":"HTML Attribute (Inline Function - this - array)",
-        "data":{"array":["dorian","monica"]},
+        "name":"HTML Attribute - Inline Function (this / array)",
+        "data":{"array":["ashley","monica"]},
         "template":{"<>":"div","html":function(){return(this.array)}},
-        "html":"<div>dorian,monica</div>"
+        "html":"<div>ashley,monica</div>"
     },
     {
-        "name":"HTML Attribute (Inline Function - this - object)",
-        "data":{"object":{"name":"dorian"}},
+        "name":"HTML Attribute - Inline Function (this / obj)",
+        "data":{"object":{"name":"ashley"}},
         "template":{"<>":"div","html":function(){return(this.object)}},
         "html":"<div></div>"
     },
     {
-        "name":"HTML Attribute (Inline Function (obj,index) - array)",
-        "data":[{"name":"dorian"},{"name":"monica"}],
-        "template":{"<>":"div","html":function(obj,index){return(index + "-" + obj.name)}},
-        "html":"<div>0-dorian</div><div>1-monica</div>"
+        "name":"HTML Attribute - Inline Function (obj / array)",
+        "data":[{"name":"ashley"},{"name":"monica"}],
+        "template":{"<>":"div","html":(o,index)=>(index + "-" + o.name)},
+        "html":"<div>0-ashley</div><div>1-monica</div>"
     },
     
     {
-        "name":"HTML Attribute (Inline Function (obj,index) - object",
-        "data":{"name":"dorian"},
-        "template":{"<>":"div","html":function(obj,index){return(index + "-" + obj.name)}},
-        "html":"<div>undefined-dorian</div>"
+        "name":"HTML Attribute - Inline Function (obj - object)",
+        "data":{"name":"ashley"},
+        "template":{"<>":"div","html":(o,index)=>(index + "-" + o.name)},
+        "html":"<div>undefined-ashley</div>"
     },
     
     //TEXT Attribute - Literal
     {
-        "name":"Text Attribute (Literal - Non HTML String)",
-        "data":{"text":"dorian"},
+        "name":"Text Attribute - Literal (Non HTML String)",
+        "data":{"text":"ashley"},
         "template":{"<>":"div","text":"${text}"},
-        "html":"<div>dorian</div>"
+        "html":"<div>ashley</div>"
     },
     {
-        "name":"Text Attribute (Literal - HTML String)",
-        "data":{"text":"<div>dorian</div>"},
+        "name":"Text Attribute - Literal (HTML String)",
+        "data":{"text":"<div>ashley</div>"},
         "template":{"<>":"div","text":"${text}"},
-        "html":"<div>&lt;div&gt;dorian&lt;&#x2F;div&gt;</div>"
+        "html":"<div>&lt;div&gt;ashley&lt;&#x2F;div&gt;</div>"
     },
     {
-        "name":"Text Attribute (Literal - Script XSS Attack)",
+        "name":"Text Attribute Literal (Script XSS Attack)",
         "data":{"text":"<script>console.log('xss');</script>"},
         "template":{"<>":"div","text":"${text}"},
         "html":"<div>&lt;script&gt;console.log(&#39;xss&#39;);&lt;&#x2F;script&gt;</div>"
     },
     {
-        "name":"Text Attribute (Literal - All Special Characters)",
+        "name":"Text Attribute - Literal (All Special Characters)",
         "data":{"text":"&<>\"'\/"},
         "template":{"<>":"div","text":"${text}"},
         "html":"<div>&amp;&lt;&gt;&quot;&#39;&#x2F;</div>"
@@ -222,25 +234,25 @@ module.exports =
     
     //TEXT Attribute - Inline Function (this)
     {
-        "name":"Text Attribute (Inline Function (this) - Non HTML String)",
-        "data":{"text":"dorian"},
+        "name":"Text Attribute - Inline Function (this / Non HTML String)",
+        "data":{"text":"ashley"},
         "template":{"<>":"div","text":function(){return(this.text);}},
-        "html":"<div>dorian</div>"
+        "html":"<div>ashley</div>"
     },
     {
-        "name":"Text Attribute (Inline Function (this) - HTML String)",
-        "data":{"text":"<div>dorian</div>"},
+        "name":"Text Attribute - Inline Function (this / HTML String)",
+        "data":{"text":"<div>ashley</div>"},
         "template":{"<>":"div","text":function(){return(this.text);}},
-        "html":"<div>&lt;div&gt;dorian&lt;&#x2F;div&gt;</div>"
+        "html":"<div>&lt;div&gt;ashley&lt;&#x2F;div&gt;</div>"
     },
     {
-        "name":"Text Attribute (Inline Literal (this) - Script XSS Attack)",
+        "name":"Text Attribute - Inline Literal (this / Script XSS Attack)",
         "data":{"text":"<script>console.log('xss');</script>"},
         "template":{"<>":"div","text":function(){return(this.text);}},
         "html":"<div>&lt;script&gt;console.log(&#39;xss&#39;);&lt;&#x2F;script&gt;</div>"
     },
     {
-        "name":"Text Attribute (Inline Literal (this) - All Special Characters)",
+        "name":"Text Attribute - Inline Literal (this / All Special Characters)",
         "data":{"text":"&<>\"'\/"},
         "template":{"<>":"div","text":function(){return(this.text);}},
         "html":"<div>&amp;&lt;&gt;&quot;&#39;&#x2F;</div>"
@@ -248,266 +260,259 @@ module.exports =
     
     //TEXT Attribute - Inline Function (obj)
     {
-        "name":"Text Attribute (Inline Function (obj) - Non HTML String)",
-        "data":{"text":"dorian"},
-        "template":{"<>":"div","text":function(obj){return(obj.text);}},
-        "html":"<div>dorian</div>"
+        "name":"Text Attribute - Inline Function (obj / Non HTML String)",
+        "data":{"text":"ashley"},
+        "template":{"<>":"div","text":o=>o.text},
+        "html":"<div>ashley</div>"
     },
     {
-        "name":"Text Attribute (Inline Function (obj) - HTML String)",
-        "data":{"text":"<div>dorian</div>"},
-        "template":{"<>":"div","text":function(obj){return(obj.text);}},
-        "html":"<div>&lt;div&gt;dorian&lt;&#x2F;div&gt;</div>"
+        "name":"Text Attribute - Inline Function (obj / HTML String)",
+        "data":{"text":"<div>ashley</div>"},
+        "template":{"<>":"div","text":o=>o.text},
+        "html":"<div>&lt;div&gt;ashley&lt;&#x2F;div&gt;</div>"
     },
     {
-        "name":"Text Attribute (Inline Literal (obj) - Script XSS Attack)",
+        "name":"Text Attribute - Inline Literal (obj / Script XSS Attack)",
         "data":{"text":"<script>console.log('xss');</script>"},
-        "template":{"<>":"div","text":function(obj){return(obj.text);}},
+        "template":{"<>":"div","text":o=>o.text},
         "html":"<div>&lt;script&gt;console.log(&#39;xss&#39;);&lt;&#x2F;script&gt;</div>"
     },
     {
-        "name":"Text Attribute (Inline Literal (obj) - All Special Characters)",
+        "name":"Text Attribute - Inline Literal (obj / All Special Characters)",
         "data":{"text":"&<>\"'\/"},
-        "template":{"<>":"div","text":function(obj){return(obj.text);}},
+        "template":{"<>":"div","text":o=>o.text},
         "html":"<div>&amp;&lt;&gt;&quot;&#39;&#x2F;</div>"
     },
     
     //TEXT Attribute - Inline Function (obj,index)
     {
-        "name":"Text Attribute (Inline Function Array - obj,index)",
-        "data":[{"name":"dorian"},{"name":"monica"}],
-        "template":{"<>":"div","text":function(obj,index){return(index + "-" + obj.name)}},
-        "html":"<div>0-dorian</div><div>1-monica</div>"
+        "name":"Text Attribute - Inline Function (Array / obj,index)",
+        "data":[{"name":"ashley"},{"name":"monica"}],
+        "template":{"<>":"div","text":(o,i)=>(i + "-" + o.name)},
+        "html":"<div>0-ashley</div><div>1-monica</div>"
     },
     
     {
-        "name":"Text Attribute (Inline Function Object - obj,index)",
-        "data":{"name":"dorian"},
-        "template":{"<>":"div","text":function(obj,index){return(index + "-" + obj.name)}},
-        "html":"<div>undefined-dorian</div>"
+        "name":"Text Attribute - Inline Function (Object / obj,index)",
+        "data":{"name":"ashley"},
+        "template":{"<>":"div","text":(o,i)=>(i + "-" + o.name)},
+        "html":"<div>undefined-ashley</div>"
     },
     
     //DOM Attribute
     {
-        "name":"DOM Attribute (Literal)",
+        "name":"DOM Attribute - Literal",
         "data":{},
         "template":{"<>":"div","class":"bold"},
         "html":"<div class=\"bold\"></div>"
     },
     {
-        "name":"DOM Attribute (Short Hand Literal)",
+        "name":"DOM Attribute - Short Hand Literal",
         "data":{"class":"bold"},
         "template":{"<>":"div","class":"${class}"},
         "html":"<div class=\"bold\"></div>"
     },
     {
-        "name":"DOM Attribute (Inline Function - this)",
+        "name":"DOM Attribute - Inline Function (this)",
         "data":{"class":"bold"},
         "template":{"<>":"div","class":function(){return(this.class);}},
         "html":"<div class=\"bold\"></div>"
     },
     {
-        "name":"DOM Attribute (Inline Function Array - (obj,index))",
+        "name":"DOM Attribute - Inline Function (Array / (obj,index))",
         "data":[{"attr":"data"}],
-        "template":{"<>":"div","data-attr":function(obj,index){return(index + "-" + obj.attr);}},
+        "template":{"<>":"div","data-attr":(o,i)=>(i + "-" + o.attr)},
         "html":"<div data-attr=\"0-data\"></div>"
     },
     
     {
-        "name":"DOM Attribute (Inline Function Object - (obj,index))",
+        "name":"DOM Attribute - Inline Function (Object - (obj,index))",
         "data":{"attr":"data"},
-        "template":{"<>":"div","data-attr":function(obj,index){return(index + "-" + obj.attr);}},
+        "template":{"<>":"div","data-attr":(o,i)=>(i + "-" + o.attr)},
         "html":"<div data-attr=\"undefined-data\"></div>"
     },
     
     //{} Attribute
     {
-        "name":"{} Attribute (Literal Object NOT SUPPORTED)",
-        "data":{"employee":{"name":"dorian"}},
+        "name":"{} Attribute - Literal Object (NOT SUPPORTED)",
+        "data":{"employee":{"name":"ashley"}},
         "template":{"<>":"div","{}":"employee","html":"${name}"},
         "html":"<div></div>"
     },
     
     {
-        "name":"{} Attribute (Undefined)",
-        "data":{"employee":{"name":"dorian"}},
-        "template":{"<>":"div","{}":function(){return}},
+        "name":"{} Attribute - Undefined",
+        "data":{"employee":{"name":"ashley"}},
+        "template":{"<>":"div","{}":o=>undefined},
         "html":""
     },
     
     {
-        "name":"{} Attribute (Inline Function Object - this)",
-        "data":{"employee":{"name":"dorian"}},
+        "name":"{} Attribute - Inline Function (Object / this)",
+        "data":{"employee":{"name":"ashley"}},
         "template":{"<>":"div","{}":function(){return(this.employee);},"html":"${name}"},
-        "html":"<div>dorian</div>"
+        "html":"<div>ashley</div>"
     },
     
     {
-        "name":"{} Attribute (Inline Function Object - (obj))",
-        "data":{"employee":{"name":"dorian"}},
-        "template":{"<>":"div","{}":function(obj){return(obj.employee);},"html":"${name}"},
-        "html":"<div>dorian</div>"
+        "name":"{} Attribute - Inline Function (Object / obj)",
+        "data":{"employee":{"name":"ashley"}},
+        "template":{"<>":"div","{}":o=>o.employee,"html":"${name}"},
+        "html":"<div>ashley</div>"
     },
     
     {
-        "name":"{} Attribute (Inline Function Array - this)",
-        "data":{"employees":[{"name":"dorian"},{"name":"monica"}]},
+        "name":"{} Attribute - Inline Function (Array / this)",
+        "data":{"employees":[{"name":"ashley"},{"name":"monica"}]},
         "template":{"<>":"div","{}":function(){return(this.employees);},"html":"${name}"},
-        "html":"<div>dorian</div><div>monica</div>"
+        "html":"<div>ashley</div><div>monica</div>"
     },
     
     {
-        "name":"{} Attribute (Inline Function Array - (obj))",
-        "data":{"employees":[{"name":"dorian"},{"name":"monica"}]},
-        "template":{"<>":"div","{}":function(obj){return(obj.employees);},"html":"${name}"},
-        "html":"<div>dorian</div><div>monica</div>"
+        "name":"{} Attribute - Inline Function (Array / obj)",
+        "data":{"employees":[{"name":"ashley"},{"name":"monica"}]},
+        "template":{"<>":"div","{}":o=>o.employees,"html":"${name}"},
+        "html":"<div>ashley</div><div>monica</div>"
     },
     
     {
-        "name":"{} Attribute Embedded (Inline Function Array)",
-        "data":{"employees":[{"name":"dorian"},{"name":"monica"}]},
+        "name":"{} Attribute - Embedded (Inline Function Array)",
+        "data":{"employees":[{"name":"ashley"},{"name":"monica"}]},
         "template":{"<>":"ul","html":[
-            {"<>":"li","{}":function(){return(this.employees);},"html":"${name}"}
+            {"<>":"li","{}":o=>o.employees,"html":"${name}"}
         ]},
-        "html":"<ul><li>dorian</li><li>monica</li></ul>"
+        "html":"<ul><li>ashley</li><li>monica</li></ul>"
     },
     
     {
-        "name":"{} Attribute Embedded Children x2 (Inline Function Array)",
-        "data":{"departments":[{"name":"catering","employees":["dorian","monica"]},{"name":"finance","employees":["monica"]}]},
+        "name":"{} Attribute - Embedded Children x2 (Inline Function Array)",
+        "data":{"departments":[{"name":"catering","employees":["ashley","monica"]},{"name":"finance","employees":["monica"]}]},
         "template":{"<>":"ul","html":[
-            {"<>":"li","{}":function(){return(this.departments);},"html":[
+            {"<>":"li","{}":o=>o.departments,"html":[
                 {"<>":"h1","html":"${name}"},
-            {"<>":"div","{}":function(){return(this.employees);},"html":[
+            {"<>":"div","{}":o=>o.employees,"html":[
                     {"<>":"span","html":"${value}"}
                 ]}
             ]}
         ]},
-        "html":"<ul><li><h1>catering</h1><div><span>dorian</span></div><div><span>monica</span></div></li><li><h1>finance</h1><div><span>monica</span></div></li></ul>"
+        "html":"<ul><li><h1>catering</h1><div><span>ashley</span></div><div><span>monica</span></div></li><li><h1>finance</h1><div><span>monica</span></div></li></ul>"
     },
     
     {
-        "name":"obj DEPRECATED Attribute (Inline Function Object - this)",
-        "data":{"employee":{"name":"dorian"}},
+        "name":"obj DEPRECATED Attribute - Inline Function (Object - this)",
+        "data":{"employee":{"name":"ashley"}},
         "template":{"<>":"div","{}":function(){return(this.employee);},"html":"${name}"},
-        "html":"<div>dorian</div>"
+        "html":"<div>ashley</div>"
     },
     
     //Void Elements
     {
-        "name":"Void Element (area)",
+        "name":"Void Element - area",
         "data":{},
         "template":{"<>":"area","attr":"test","html":"not displayed"},
         "html":"<area attr=\"test\"/>"
     },
     
     {
-        "name":"Void Element (area)",
-        "data":{},
-        "template":{"<>":"area","attr":"test","html":"not displayed"},
-        "html":"<area attr=\"test\"/>"
-    },
-    
-    {
-        "name":"Void Element (base)",
+        "name":"Void Element - base",
         "data":{},
         "template":{"<>":"base","attr":"test","html":"not displayed"},
         "html":"<base attr=\"test\"/>"
     },
     
     {
-        "name":"Void Element (br)",
+        "name":"Void Element - br",
         "data":{},
         "template":{"<>":"br","attr":"test","html":"not displayed"},
         "html":"<br attr=\"test\"/>"
     },
     
     {
-        "name":"Void Element (col)",
+        "name":"Void Element - col",
         "data":{},
         "template":{"<>":"col","attr":"test","html":"not displayed"},
         "html":"<col attr=\"test\"/>"
     },
     
     {
-        "name":"Void Element (command)",
+        "name":"Void Element - command",
         "data":{},
         "template":{"<>":"command","attr":"test","html":"not displayed"},
         "html":"<command attr=\"test\"/>"
     },
     
     {
-        "name":"Void Element (embed)",
+        "name":"Void Element - embed",
         "data":{},
         "template":{"<>":"embed","attr":"test","html":"not displayed"},
         "html":"<embed attr=\"test\"/>"
     },
     
     {
-        "name":"Void Element (hr)",
+        "name":"Void Element - hr",
         "data":{},
         "template":{"<>":"hr","attr":"test","html":"not displayed"},
         "html":"<hr attr=\"test\"/>"
     },
     
     {
-        "name":"Void Element (img)",
+        "name":"Void Element - img",
         "data":{},
         "template":{"<>":"img","attr":"test","html":"not displayed"},
         "html":"<img attr=\"test\"/>"
     },
     
     {
-        "name":"Void Element (input)",
+        "name":"Void Element - input",
         "data":{},
         "template":{"<>":"input","attr":"test","html":"not displayed"},
         "html":"<input attr=\"test\"/>"
     },
     
     {
-        "name":"Void Element (keygen)",
+        "name":"Void Element - keygen",
         "data":{},
         "template":{"<>":"keygen","attr":"test","html":"not displayed"},
         "html":"<keygen attr=\"test\"/>"
     },
     
     {
-        "name":"Void Element (link)",
+        "name":"Void Element - link",
         "data":{},
         "template":{"<>":"link","attr":"test","html":"not displayed"},
         "html":"<link attr=\"test\"/>"
     },
     
     {
-        "name":"Void Element (meta)",
+        "name":"Void Element - meta",
         "data":{},
         "template":{"<>":"meta","attr":"test","html":"not displayed"},
         "html":"<meta attr=\"test\"/>"
     },
     
     {
-        "name":"Void Element (param)",
+        "name":"Void Element - param",
         "data":{},
         "template":{"<>":"param","attr":"test","html":"not displayed"},
         "html":"<param attr=\"test\"/>"
     },
     
     {
-        "name":"Void Element (source)",
+        "name":"Void Element - source",
         "data":{},
         "template":{"<>":"source","attr":"test","html":"not displayed"},
         "html":"<source attr=\"test\"/>"
     },
     
     {
-        "name":"Void Element (track)",
+        "name":"Void Element - track",
         "data":{},
         "template":{"<>":"track","attr":"test","html":"not displayed"},
         "html":"<track attr=\"test\"/>"
     },
     
     {
-        "name":"Void Element (wbr)",
+        "name":"Void Element - wbr",
         "data":{},
         "template":{"<>":"wbr","attr":"test","html":"not displayed"},
         "html":"<wbr attr=\"test\"/>"
@@ -515,14 +520,14 @@ module.exports =
     
     //Undefined / Null
     {
-        "name":"Special Values (undefined)",
+        "name":"Special Values - undefined",
         "data":{"val":undefined},
         "template":{"<>":"div","html":"${val}"},
         "html":"<div></div>"
     },
     
     {
-        "name":"Special Values (null)",
+        "name":"Special Values - null",
         "data":{"val":null},
         "template":{"<>":"div","html":"${val}"},
         "html":"<div></div>"
@@ -530,55 +535,55 @@ module.exports =
     
     //Components
     {
-        "name":"Components [A] (Parent Data Array)",
+        "name":"Components [A] - Parent Data Array",
         "components":{
             "A/item":{"<>":"div","html":"${name}"}
         },
-        "data":[{"name":"dorian"},{"name":"monica"}],
+        "data":[{"name":"ashley"},{"name":"monica"}],
         "template":{"[]":"A/item"},
-        "html":"<div>dorian</div><div>monica</div>"
+        "html":"<div>ashley</div><div>monica</div>"
     },
     
     {
-        "name":"Components [B] (Parent Sub Array)",
+        "name":"Components [B] - Parent Sub Array",
         "components":{
             "B/item":{"<>":"li","html":[
                 {"<>":"span","html":"${name}"}
             ]}
         },
-        "data":{"employees":[{"name":"dorian"},{"name":"monica"}]},
+        "data":{"employees":[{"name":"ashley"},{"name":"monica"}]},
         "template":{"<>":"ul","html":[
-            {"[]":"B/item","{}":function(o){return(o.employees);}}
+            {"[]":"B/item","{}":o=>o.employees}
         ]},
-        "html":"<ul><li><span>dorian</span></li><li><span>monica</span></li></ul>"
+        "html":"<ul><li><span>ashley</span></li><li><span>monica</span></li></ul>"
     },
     
     {
-        "name":"Components [C] (Block Wrapper)",
+        "name":"Components [C] - Block Wrapper",
         "components":{
             "C/wrapper":{"<>":"section","html":[
-	                {"html":function(obj,index,data,html){return(html);}}
+	                {"html":(o,i,d,h)=>h}
 	           ]}
         },
-        "data":{"employee":{"name":"dorian"}},
-        "template":{"[]":"C/wrapper","{}":function(){return(this.employee);},"html":[
+        "data":{"employee":{"name":"ashley"}},
+        "template":{"[]":"C/wrapper","{}":o=>o.employee,"html":[
                 {"<>":"span","html":"${name}"}
             ]},
-        "html":"<section><span>dorian</span></section>"
+        "html":"<section><span>ashley</span></section>"
     },
     
     {
-        "name":"Components [D] (Dynamic Component Name)",
+        "name":"Components [D] - Dynamic Component Name",
         "components":{
             "D/name":{"<>":"span","html":"${name}"}
         },
-        "data":{"component":"D/name","employee":{"name":"dorian"}},
-        "template":{"[]":"${component}","{}":function(){return(this.employee);}},
-        "html":"<span>dorian</span>"
+        "data":{"component":"D/name","employee":{"name":"ashley"}},
+        "template":{"[]":"${component}","{}":o=>o.employee},
+        "html":"<span>ashley</span>"
     },
     
     {
-        "name":"Components [E] (Undefined)",
+        "name":"Components [E] - Undefined",
         "components":{
             "E/item":{"<>":"div","html":"${name}"}
         },
@@ -588,14 +593,13 @@ module.exports =
     },
     
     {
-        "name":"Components [F] (obj undefined)",
+        "name":"Components [F] - Object undefined",
         "components":{
             "F/name":{"<>":"span","html":"${name}"}
         },
         "data":{},
-        "template":{"[]":"F/name","{}":function(){return}},
+        "template":{"[]":"F/name","{}":o=>undefined},
         "html":""
-    },
-    
+    }
     
 ]; 

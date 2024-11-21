@@ -5,22 +5,22 @@ describe("jquery", function() {
     //=================== jQuery Specific Options =====================
     
     //Test Method Append
-    $("body").append("<div id='method-append'><li>monica</li></div>");
+    $("body").append("<div id='method-append'><li>ashley</li></div>");
     it("OPTIONS - Append", function() {
-        chai.assert.equal($("#method-append").json2html({"name":"dorian"},{"<>":"li","html":"${name}"}).html(), "<li>monica</li><li>dorian</li>");
+        chai.assert.equal($("#method-append").json2html({"name":"chad"},{"<>":"li","html":"${name}"}).html(), "<li>ashley</li><li>chad</li>");
     });
     
     //Test Method Prepend
-    $("body").append("<div id='method-prepend'><li>monica</li></div>");
+    $("body").append("<div id='method-prepend'><li>ashley</li></div>");
     it("OPTIONS - Prepend", function() {
-        chai.assert.equal($("#method-prepend").json2html({"name":"dorian"},{"<>":"li","html":"${name}"},{"method":"prepend"}).html(), "<li>dorian</li><li>monica</li>");
+        chai.assert.equal($("#method-prepend").json2html({"name":"chad"},{"<>":"li","html":"${name}"},{"method":"prepend"}).html(), "<li>chad</li><li>ashley</li>");
     });
     
     //Test Method Replace
-    $("body").append("<div id='method-replace'><li>monica</li></div>");
+    $("body").append("<div id='method-replace'><li>ashley</li></div>");
     it("OPTIONS - Replace", function() {
-        $("#method-replace li").json2html({"name":"dorian"},{"<>":"li","html":"${name}"},{"method":"replace"});
-        chai.assert.equal($("#method-replace").html(), "<li>dorian</li>");
+        $("#method-replace li").json2html({"name":"chad"},{"<>":"li","html":"${name}"},{"method":"replace"});
+        chai.assert.equal($("#method-replace").html(), "<li>chad</li>");
     });
     
     //Set Local Components

@@ -1,5 +1,5 @@
 
-//     json2html.js 3.2.0
+//     json2html.js 3.2.2
 //     https://www.json2html.com
 //     (c) 2006-2024 Crystalline Technologies
 //     json2html may be freely distributed under the MIT license.
@@ -77,6 +77,10 @@
 	    });
 	};
 	
+	//Seal the object
+	// don't allow any more properties or methods
+	Object.seal(iHTML);
+	
 	/* ---------------------------------------- Tokenizer ------------------------------------------------ */
 	
 	function Tokenizer( tokenizers, doBuild ){
@@ -141,10 +145,11 @@
 
 	/* ---------------------------------------- Public Methods ------------------------------------------------ */
 	
-	if(!root.json2html) root.json2html = {};
+	//Create the new json2html with prototype polution protection
+	if(!root.json2html) root.json2html = Object.create(null);
 	
 	//Current Version
-	root.json2html.version = "3.2.0";
+	root.json2html.version = "3.2.2";
 	
 	//Render a json2html template to html string
 	//  obj (requried) : json object to render, or json string
@@ -172,14 +177,28 @@
 		//Set the object to the parsed value 
 		// allows for JSON object or a string value of a JSON object or literal
 		obj = parsed;
-		
-		//Check to make sure we have a template and object
-		if(_typeof(template) !== "object" || _typeof(obj) !== "object") return(ihtml);
         
+        //Set the options
         if(!options) options = {};
         
         //Set the default to html output
         if(!options.output) options.output = "html";
+        
+        //Check to make sure we have a template and object
+		if(_typeof(template) !== "object" || _typeof(obj) !== "object") {
+		    
+		    //Check what type of output we're looking for
+            switch(options.output) {
+            
+                case "ihtml":
+                    return(new iHTML(""));
+                break;
+                
+                default:
+                    return("");
+                break;
+            }
+		}
 		
 	    //Check what type of output we're looking for
 	    switch(options.output) {
@@ -195,38 +214,38 @@
 	};
 	
     //json2html component methods
-    root.json2html.component = {
+    // use Object.create to prevent prototype polution
+    root.json2html.component = Object.create(null);
+	
+	//Add a component (name = string, template = json2html template)
+    //OR function(components) where component is obj with name:template property eg {"name":template,...}
+    root.json2html.component.add = function(name,template){
             
-        //Add a component (name = string, template = json2html template)
-        //OR function(components) where component is obj with name:template property eg {"name":template,...}
-        "add":function(name,template){
-            
-            //Determine what we're adding
-            switch(_typeof(name,true)) {
-            
-                //Multiple components
-                case "object":
-                    
-                    //Components
-                    COMPONENTS = Object.assign(COMPONENTS,name);
-                break;
-                
-                //One component
-                case "string":
-                    COMPONENTS[name] = template;
-                break;
-                
-                //Not supported
-                default:
-                break;
-            }
-        },
+        //Determine what we're adding
+        switch(_typeof(name,true)) {
         
-        //Get a component
-        "get":function(name) {
-            return(COMPONENTS[name]);   
+            //Multiple components
+            case "object":
+                
+                //Components
+                COMPONENTS = Object.assign(COMPONENTS,name);
+            break;
+            
+            //One component
+            case "string":
+                COMPONENTS[name] = template;
+            break;
+            
+            //Not supported
+            default:
+            break;
         }
-	};
+    };
+    
+    //Get a component
+    root.json2html.component.get = function(name) {
+        return(COMPONENTS[name]);   
+    };
 	
 	//Trigger a component to be updated
 	//  DEPRECATED, use refresh instead
@@ -305,9 +324,6 @@
 			.replace(/\//g, "&#x2F;");
 	};
 	
-	//Set object value
-	root.json2html.set = _set;
-	
 	//Hydrate elements with their events & update triggers
 	root.json2html.hydrate = function(parent,events,triggers) {
 	    
@@ -361,7 +377,7 @@
             
             //Convert the html into a dom object using innerHTML
             // return the childNodes (Node List)
-            let dom = document.createElement("tbody");
+            let dom = document.createElement(this.tagName);
             dom.innerHTML = ihtml.html;
             
             //Set the element that we want to hydrate with
@@ -443,10 +459,10 @@
                                 
                                 //Convert the html into a dom object using innerHTML
                                 // return the childNodes (Node List)
-                                let $dom = $("div");
-                                $dom.innerHTML = ihtml.html;
+                                let $dom = $("<" + $ele[0].tagName + ">");
+                                $dom.html(ihtml.html);
                                 
-                                //Get the elements we want to replace with
+                                //Set the element to the dom object children
                                 $ele = $dom.children();
                                 
                                 //Repace with these dom children
@@ -892,17 +908,6 @@
 		return(subObj);
 	}
 	
-	//Set object value 
-	function _set(obj, path, val) {
-    	path.split && (path=path.split('.'));
-    	var i=0, l=path.length, t=obj, x, k;
-    	while (i < l) {
-    		k = path[i++];
-    		if (k === '__proto__' || k === 'constructor' || k === 'prototype') break;
-    		t = t[k] = (i === l) ? val : (typeof(x=t[k])===typeof(path)) ? x : (path[i]*0 !== 0 || !!~(''+path[i]).indexOf('.')) ? {} : [];
-    	}
-    }
-	
 	/* ---------------------------------------- Interpolate (Template Literals) -------------------------------------------- */
 	
 	//Typeof helper
@@ -1075,7 +1080,7 @@
 					parent.events[aId] = {"type":"change","data":aData,"action":function(e){
 					    
 					    //Set the value
-					    json2html.set( e.obj, e.var, e.event.target.value);
+					    _set( e.obj, e.var, e.event.target.value);
 					}};
 					
 					//Add the event to the list of events for this element
@@ -1188,12 +1193,30 @@
 							//Determine if we should add events
 							if(options.output === "ihtml") {
 							    
-								//if so then setup the event data
+							    //if so then setup the event data
 								let data = {
 									"obj":obj,
-									"data":options.data,
-									"index":index
+									"data":options.data
 								};
+							    
+							    //Check to see what type of object we're trying to render
+                                switch(_typeof(obj)) {
+                                
+                                    //Do nothing for json object
+                                    case "function":
+                                    case "undefined":
+                                    case "null":
+                                    case "object":
+                                    break;
+                                    		
+                                    //BOOLEAN, NUMBER, BIGINT, STRING, SYMBOL
+                                    default:
+                                    
+                                    	//Create a new object with the properties (value & index)
+                                    	data.obj = {"value":obj,"index":index};
+                                    	
+                                    break;
+                                }
 								
 								//create a new id for this event
 								let id = _id();
@@ -1212,6 +1235,7 @@
 						
 					//If this wasn't an event AND we actually have a value then add it as a property
 					if(!isEvent){
+					    
 						//Get the value
 						let val = _getValue(obj, template, prop, options, index);
 						
@@ -1333,6 +1357,4 @@
         
         return(ihtml);
     }
-}()); 
-
-   
+}());

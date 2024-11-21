@@ -2,14 +2,39 @@
 <html>
  <head>
 	<title>json2html Tests</title>
+
+    <!-- jQuery -->
+    <script type="application/javascript" charset="utf-8" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <!-- json2html -->
+    <script src="../../json2html.js"></script>
+    
+    <!-- mocha -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/mocha/11.0.0/mocha.min.js" integrity="sha512-1Z/Pem6SCwgvq1bEHxIrCh5EtvY0iuGo1LTgv5keAovZadqSwklYrqiqE8WculH+0erhwrAe2JZgqq3LPRUC3A==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+	<script src="https://www.chaijs.com/chai.js"></script>
  </head>
  <body>
+     
+     <script>
+         console.log("CHAI",chai);
+     </script>
+     
+    <div id="mocha"></div>
     
-    <h1>json2html Tests</h1>
-    <ul>
-        <li><a href="./es5.html">ES5 Support Tests (Default)</a></li>
-        <li><a href="./es6.html">ES6 Support Tests</a></li>
-    </ul>
+    <div id="output"></div>
+     
+    <script class="mocha-init">
+        mocha.setup("bdd");
+        mocha.checkLeaks();
+    </script>
+    
+    <script src="./test.jquery.js"></script>
+    
+    <script src="./test.native.js"></script>
+    
+    <script class="mocha-exec">
+        mocha.run();
+    </script>
 	
  </body>
-</html>
+</html> 
