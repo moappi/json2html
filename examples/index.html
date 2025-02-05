@@ -28,42 +28,43 @@
 	  </div>
 	</div>
 
-    
+     <script>
+     
+        //Examples that we want to render
+        const examples = [
+        	{"name":"Creating your First Template","url":"simple.html","desc":"Understand how to create a simple tempate that maps data using both shorthand and longhand notation along with some simple logic to toggle the class name of an element"},
+        	{"name":"Add Events","url":"events.html","desc":"Understand how to add events to your templates, like onclick etc.."},
+            {"name":"Mapping Data & Working with Arrays","url":"arrays.html","desc":"Understand how to map data to your elements plus understand how to work with arrays of literals (instead of objects)"},
+            {"name":"Creating Tables","url":"tables.html","desc":"Understand how to map data to a table"},
+            {"name":"Creating Re-Usable Components","url":"components.html","desc":"Understand how to create and register re-usable components"},
+            {"name":"Using Properties","url":"props.html","desc":"Understand how to pass properties to your shared components"},
+            {"name":"Using a Wrapper Component","url":"wrapper.html","desc":"Understand how to use a component that can wrap around another template (plus why you would want to do this)"},
+            {"name":"Using with jQuery","url":"jquery.html","desc":"Understand how to create templates with embedded events that can be used with jQuery"},
+    		{"name":"Understanding Refresh Triggers","url":"refresh.html","desc":"Understand how you can use triggers to help refresh parts of your template without having to re-render again"},
+    		{"name":"Using Input Variable Assignment","url":"assign.html","desc":"Understand how you can attach variables to html input elements that will automatically update when the input changes"}
+        ];
+        
+        //Template we'll use to render these examples
+    	const template = {"<>":"div","class":"flex flex-col","html":[
+    				{"<>":"dt","class":"flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-600","html":[
+    					{"<>":"span","text":(o,index)=>{
+    						return( (index+1) + ". " + o.name);
+    					}}
+    				  ]},
+    				{"<>":"dd","class":"mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600","html":[
+    					{"<>":"p","class":"flex-auto","text":"${desc}"},
+    					{"<>":"p","class":"mt-6","html":[
+    						{"<>":"a","href":"${url}","class":"text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-800","html":[
+    							{"<>":"span","text":"Start "},
+    							{"<>":"span","aria-hidden":"true","html":"&rarr;"}
+    						  ]}
+    					  ]}
+    				  ]}
+    			  ]};
+        
+        //Render the list of example tutorials
+    	document.getElementById("tutorials-list").json2html(examples,template);
+    </script>
  </body>
  
- <script>
- 
-    //Examples that we want to render
-    const examples = [
-    	{"name":"Creating your First Template","url":"simple.html","desc":"Understand how to create a simple tempate that maps data using both shorthand and longhand notation along with some simple logic to toggle the class name of an element"},
-    	{"name":"Add Events","url":"events.html","desc":"Understand how to add events to your templates, like onclick etc.."},
-        {"name":"Mapping Data & Working with Arrays","url":"arrays.html","desc":"Understand how to map data to your elements plus understand how to work with arrays of literals (instead of objects)"},
-        {"name":"Creating Re-Usable Components","url":"components.html","desc":"Understand how to create and register re-usable components"},
-        {"name":"Using a Wrapper Component","url":"wrapper.html","desc":"Understand how to use a component that can wrap around another template (plus why you would want to do this)"},
-        {"name":"Using with jQuery","url":"jquery.html","desc":"Understand how to create templates with embedded events that can be used with jQuery"},
-		{"name":"Understanding Refresh Triggers","url":"refresh.html","desc":"Understand how you can use triggers to help refresh parts of your template without having to re-render again"},
-		{"name":"Using Input Variable Assignment","url":"assign.html","desc":"Understand how you can attach variables to html input elements that will automatically update when the input changes"},
-    ];
-    
-    //Template we'll use to render these examples
-	const template = {"<>":"div","class":"flex flex-col","html":[
-				{"<>":"dt","class":"flex items-center gap-x-3 text-base font-semibold leading-7 text-gray-600","html":[
-					{"<>":"span","text":(o,index)=>{
-						return( (index+1) + ". " + o.name);
-					}}
-				  ]},
-				{"<>":"dd","class":"mt-4 flex flex-auto flex-col text-base leading-7 text-gray-600","html":[
-					{"<>":"p","class":"flex-auto","text":"${desc}"},
-					{"<>":"p","class":"mt-6","html":[
-						{"<>":"a","href":"${url}","class":"text-sm font-semibold leading-6 text-indigo-600 hover:text-indigo-800","html":[
-							{"<>":"span","text":"Start "},
-							{"<>":"span","aria-hidden":"true","html":"&rarr;"}
-						  ]}
-					  ]}
-				  ]}
-			  ]};
-    
-    //Render the list of example tutorials
-	document.getElementById("tutorials-list").json2html(examples,template);
-</script>
 </html>

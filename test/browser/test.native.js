@@ -32,13 +32,6 @@ describe("native", function() {
         chai.assert.equal( $("#native-set-components").html(), "<div></div>");
     });
     
-    //Set Data
-    $("body").append("<div id='native-set-data'></div>");
-    it("OPTIONS - Data", function() {
-        document.getElementById("native-set-data").json2html({},{"<>":"div","html":function(obj,index,data){return(data);}},{"data":"test"});
-        chai.assert.equal( $("#native-set-data").html(), "<div>test</div>");
-    });
-    
     //=================== Events =====================
     
     //click
@@ -128,18 +121,14 @@ describe("native", function() {
         
         let state = {};
         
-        document.getElementById("input-text-c").json2html(state,{"<>":"input","id":"input-checkbox","type":"checkbox",">>":"val","value":"test"});
+        document.getElementById("input-text-c").json2html(state,{"<>":"input","id":"input-checkbox","type":"checkbox",">>":"val"});
         
-        $("#input-checkbox").toggle();
-        
-        //Trigger the change
-        let event = new Event("change", { bubbles: true });
-        document.getElementById("input-checkbox").dispatchEvent(event);
-        
-        chai.assert.equal( state.val, "test");
+        $("#input-checkbox").click();
+
+        chai.assert.equal( state.val, true);
     });
 
-    //Input Checkbox
+    //Input Color
     $("body").append("<div id='input-color-c'></div>");
     it("ASSIGN - color", function() {
         
@@ -241,24 +230,7 @@ describe("native", function() {
         chai.assert.equal( state.val, "10");
     });   
     
-    //Input Radio
-    $("body").append("<div id='input-radio-c'></div>");
-    it("ASSIGN - radio", function() {
-        
-        let state = {};
-        
-        document.getElementById("input-radio-c").json2html(state,{"<>":"input","id":"input-radio","type":"radio",">>":"val","value":"test"});
-        
-        $("#input-radio").toggle();
-        
-        //Trigger the change
-        let event = new Event("change", { bubbles: true });
-        document.getElementById("input-radio").dispatchEvent(event);
-        
-        chai.assert.equal( state.val, "test");
-    });  
-
-    //Input Radio
+    //Input Search
     $("body").append("<div id='input-search-c'></div>");
     it("ASSIGN - search", function() {
         

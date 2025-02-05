@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+ <head>
+	<title>json2html - Component Tutorial</title>
+	
+	<!-- Tailwind CSS -->
+	<script src="https://cdn.tailwindcss.com"></script>
+	
+    <!-- json2html -->
+    <script src="../json2html.js"></script>
+	
+ </head>
+ <body>
+     
+	<div class="px-6 py-24 sm:px-6 sm:py-32 lg:px-8">
+
+		<!-- Header -->
+		<div class="mx-auto max-w-2xl text-center">
+		  <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Using Properties with your Components</h2>
+		  <p class="mx-auto mt-6 max-w-xl text-lg leading-8 text-gray-600">Understand how to pass properties to your components.</p>
+		  <p class="mx-auto mt-6 max-w-xl text-base leading-8 text-gray-400">Right click and 'View page source' to see source code.</p>
+		</div>
+
+		<!-- Tutorials -->
+		<div class="mx-auto mt-16 max-w-2xl sm:mt-20 lg:mt-24 lg:max-w-4xl border rounded p-10">
+			<ul id="list" class="space-y-5"></ul>
+		</div>
+		
+	  </div>
+	</div>
+     
+ </body>
+ 
+ <script>
+    //In this example we'll show you how you can create re-usable components
+    // and how to register them so you can use them across the entire page
+
+	//We'll add a new attribute for payments
+    const employees = [
+    	{"name":"Jenny Brown","role":"CEO","management":true,"access":["hr","finance","technical"],"payments":[{"date":"Today","amount":"$4,500"},{"date":"Last Week","amount":"$4,500"},{"date":"2 Weeks Ago","amount":"$3,500"}]},
+    	{"name":"Ashley White","role":"CFO","management":true,"access":["hr","finance"],"payments":[{"date":"Yesterday","amount":"$3,500"},{"date":"Last Week","amount":"$3,500"},{"date":"2 Weeks Ago","amount":"$2,500"}]},
+    	{"name":"Brandon Green","role":"Graphic Designer","access":["technical"],"payments":[{"date":"Today","amount":"$2,500"},{"date":"Last Week","amount":"$2,500"}]},
+    	{"name":"Sasha Black","role":"Front End Developer","access":["technical"],"payments":[{"date":"Yesterday","amount":"$2,500"}]}
+	];
+    
+    //Regsiter all components with json2html
+    // note we can also register a single component using 
+    // json2html.component.add(name,template)
+    json2html.component.add({
+        
+        //Employee name (and role) Component
+        "employee/name":{"<>":"div","class":(o,i,p)=>{
+            
+            console.log("PROPS",JSON.stringify(p));
+           
+            //Check to see if we're management, if so choose the appropriate color 
+            if(o.management) return("text-" + p.color.management); 
+            
+            //Otherwise we're an employee
+            return("text-" + p.color.employee);
+        },"text":"${name} - ${role}"},
+        
+        //Employee access Component (lists all access inline)
+        "employee/access":{"<>":"div","html":[
+            
+                //Let's add a title so we know what we're looking at
+                {"<>":"div","class":"font-gray-800","text":(o,i,p)=>p.title},
+            
+                //Inline list of access
+                {"<>":"ul","class":"italic text-gray-500 space-x-1 inline-block pl-5","html":[
+                
+                    //List all the access as an inline list
+                    // use the access for each employee
+                    {"<>":"li","class":"inline-block","{}":o=>o.access,"text":"${value}"}
+                ]}
+        ]},
+
+		//Employee Payments
+		"employee/payments":{"<>":"div","html":[
+						
+			//Add a title so we know what we're looking at
+			{"<>":"div","class":"font-gray-800","text":(o,i,p)=>p.title},
+			
+			// note that we only created a component for the list item
+			// this requires us to wrap the component in a ul list 
+			{"<>":"ul","class":"italic text-gray-500 pl-5","html":[
+				
+				//Render the employees payments using the employee/payment component
+				// note that we need to pass the payment array directly to this component so it can render each payment
+				// the data property MUST be a function with the return value being the data used to render this component
+				{"[]":"employee/payment","{}":o=>o.payments}
+				
+				// this can also be done without a component like this
+				// {"<>":"li","{}":o=>o.payments,"text":"${amount} (${date})"}
+			]}
+		]},
+        
+        //Employee payment list item
+        // note how we do this differently than access
+        // this list item needs to be passed the payment array
+        "employee/payment":{"<>":"li","text":"${amount} (${date})"}
+    });
+    
+    //Template that we'll use to convert an employee
+	const templates = {
+	    
+	    //Template to render an employee
+	    "employee":{"<>":"li","html": [
+				
+				//Output the employee name
+				// note that the entire employee object is passed to this component
+				// allowing it to access properties like name and role
+				{"<>":"div","class":"font-medium","html":[
+				    {"[]":"employee/name","color":{"management":"red-600","employee":"blue-600"}},
+				]},
+				
+				{"<>":"div","class":"ml-5","html":[
+
+					//Employee Access
+					// note that the entire employee object is passed to this component
+					// allowing it to access the 'access' array
+					{"[]":"employee/access","title":"Employee Access"},
+					
+					//Employee Payments
+					// note that the entire employee object is passed to this component
+					// allowing it to access the 'payments' array
+					{"[]":"employee/payments","title":"Payments Received"}
+				]}
+			]}
+	};
+	
+    //Render the list of employees using jquery 
+    // note we can also do this using json2html.render as we don't have any events
+	document.getElementById("list").json2html(employees,templates.employee);
+	
+</script>
+</html>
+  

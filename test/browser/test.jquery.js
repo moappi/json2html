@@ -30,13 +30,6 @@ describe("jquery", function() {
         chai.assert.equal( $("#set-components").html(), "<div></div>");
     });
     
-    //Set Data
-    $("body").append("<div id='set-data'></div>");
-    it("OPTIONS - Data", function() {
-        $("#set-data").json2html({},{"<>":"div","html":function(obj,index,data){return(data);}},{"data":"test"});
-        chai.assert.equal( $("#set-data").html(), "<div>test</div>");
-    });
-    
     //=================== jQuery Events =====================
     
     //jQuery Click

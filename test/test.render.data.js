@@ -64,16 +64,6 @@ module.exports =
         "html":""
     },
     
-    // ============================== Rendering Options ===========================
-    
-    {
-        "name":"Rendering Options (Data Object)",
-        "data":{},
-        "template":{"<>":"environment","html":(o,index,data)=>data.env},
-        "html":"<environment>development</environment>",
-        "options":{"data":{"env":"development"}}
-    },
-    
     // ============================== Non HTML Element (Block) ===========================
     {
         "name":"Block - Literal HTML",
@@ -385,12 +375,33 @@ module.exports =
     },
     
     {
+        "name":"{} Attribute - Embedded (Object)",
+        "data":{},
+        "template":{"<>":"ul","html":[
+            {"<>":"li","{}":{"name":"ashley"},"text":"${name}"}
+        ]},
+        "html":"<ul><li>ashley</li></ul>"
+    },
+    
+    {
+        "name":"{} Attribute - Embedded (Array)",
+        "data":{},
+        "template":{"<>":"ul","html":[
+            {"<>":"li","{}":[{"name":"ashley"},{"name":"monica"}],"html":[
+                {"<>":"span","text":"${name}"},
+                {"<>":"i","text":(o,i,p)=>i}
+            ]}
+        ]},
+        "html":"<ul><li><span>ashley</span><i>0</i></li><li><span>monica</span><i>1</i></li></ul>"
+    },
+    
+    {
         "name":"{} Attribute - Embedded Children x2 (Inline Function Array)",
         "data":{"departments":[{"name":"catering","employees":["ashley","monica"]},{"name":"finance","employees":["monica"]}]},
         "template":{"<>":"ul","html":[
             {"<>":"li","{}":o=>o.departments,"html":[
                 {"<>":"h1","html":"${name}"},
-            {"<>":"div","{}":o=>o.employees,"html":[
+                {"<>":"div","{}":o=>o.employees,"html":[
                     {"<>":"span","html":"${value}"}
                 ]}
             ]}
@@ -600,6 +611,77 @@ module.exports =
         "data":{},
         "template":{"[]":"F/name","{}":o=>undefined},
         "html":""
+    },
+    
+    {
+        "name":"Components [G] - Simple Property",
+        "components":{
+            "G/name":{"<>":"span","text":(o,i,p)=>p.name}
+        },
+        "data":{},
+        "template":{"[]":"G/name","name":"chad"},
+        "html":"<span>chad</span>"
+    },
+    
+    {
+        "name":"Components [H] - Nested Properties",
+        "components":{
+            "H/name":{"<>":"i","text":(o,i,p)=>p.name},
+            "H/user":{"<>":"div","html":[
+                        {"<>":"span","text":(o,i,p)=>p.name},
+                        {"[]":"H/name"}
+                    ]}
+        },
+        "data":{},
+        "template":{"[]":"H/user","name":"chad"},
+        "html":"<div><span>chad</span><i></i></div>"
+    },
+    
+    {
+        "name":"Components [I] - Shorthand Property",
+        "components":{
+            "I/name":{"<>":"span","text":"${@name}"}
+        },
+        "data":{},
+        "template":{"[]":"I/name","name":"chad"},
+        "html":"<span>chad</span>"
+    },
+    
+    {
+        "name":"Components [J] - Nested Properties (Object)",
+        "components":{
+            "J/text":{"<>":"span","text":"${@text}"},
+            "J/user":{"<>":"div","html":[
+                        {"<>":"div","text":"${@user.name}"},
+                        {"[]":"J/text","text":" "},
+                        {"[]":"J/text","text":(o,i,p)=>p.user.name}
+                    ]}
+        },
+        "data":{},
+        "template":{"[]":"J/user","user":{"name":"chad"}},
+        "html":"<div><div>chad</div><span> </span><span>chad</span></div>"
+    },
+    
+    {
+        "name":"Components [K] - Nested Properties (Array)",
+        "components":{
+            "J/container":{"<>":"ul","html":[
+                        {"<>":"li","{}":(o,i,p)=>p.users,"text":"${name}"}
+                    ]}
+        },
+        "data":{},
+        "template":{"[]":"J/container","users":[{"name":"ashley"},{"name":"monica"}]},
+        "html":"<ul><li>ashley</li><li>monica</li></ul>"
+    },
+    
+    {
+        "name":"Components [L] - Empty Property",
+        "components":{
+            "L/text":{"<>":"span","text":"${@text}"},
+        },
+        "data":{},
+        "template":{"[]":"L/text"},
+        "html":"<span></span>"
     }
     
 ]; 

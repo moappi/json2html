@@ -15,8 +15,10 @@ Features
 
 +   Native JS templates that work both the client and server
 +   Interactive with embedded events directly in your templates
++   Reusable components
 +   Dynamically update parts of your rendered templates when changes occur
-+   100% Javascript so no need to learn any new syntax: use inline js functions for complex logic
++   Use simple inline js functions for complex logic
++   100% javascript so no need to learn special syntax
 
 Example
 --------------

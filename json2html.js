@@ -1,7 +1,7 @@
 
-//     json2html.js 3.2.2
+//     json2html.js 3.3.2
 //     https://www.json2html.com
-//     (c) 2006-2024 Crystalline Technologies
+//     (c) 2006-2025 Crystalline Technologies
 //     json2html may be freely distributed under the MIT license.
 
 (function() {
@@ -24,6 +24,16 @@
 	
 	//Triggers {name:[{obj,template,ele}]} for updates
 	let TRIGGERS = {};
+	
+	//Constants
+	const CONST = {
+        
+        "tokenization":{
+        
+            //Regex for tokenization
+            "regex":/\${([\w\-\.\,\$\@\s]+)}/
+        }
+	};
 	
     /* ---------------------------------------- Interactive HTML Object (iHTML) ------------------------------------------------ */
     
@@ -149,14 +159,14 @@
 	if(!root.json2html) root.json2html = Object.create(null);
 	
 	//Current Version
-	root.json2html.version = "3.2.2";
+	root.json2html.version = "3.3.1";
 	
 	//Render a json2html template to html string
 	//  obj (requried) : json object to render, or json string
 	//  template (required): json2html template (array / json object / json string)
 	//  options (optional) : {
+	//      props : {name:value,...}
 	//      components : {name:template,...}
-	//      data : passed to event.data
 	//      output : ihtml / html (default)
 	//  }
     root.json2html.render = function(obj,template,options) {
@@ -200,17 +210,28 @@
             }
 		}
 		
-	    //Check what type of output we're looking for
-	    switch(options.output) {
-	        
-	        case "ihtml":
-	            return(_render(obj, template, options));
-	        break;
-	        
-	        default:
-	            return(_render(obj, template, options).html);
-	        break;
-	    }
+		//Get the properties
+		if(!options.props) options.props = {};
+		
+        //Check what type of output we're looking for
+        switch(options.output) {
+        
+            case "ihtml":
+                return(_render({
+                    "obj":obj,
+                    "props":options.props,
+                    "template":template,
+                    "options":options}));
+            break;
+            
+            default:
+                return(_render({
+                    "obj":obj,
+                    "props":options.props,
+                    "template":template,
+                    "options":options}).html);
+            break;
+        }
 	};
 	
     //json2html component methods
@@ -362,7 +383,6 @@
         //  template: json2html template (array / object / json string)
         //  options : {}
         //      components : {name:template,...}
-        //      data : passed to event.data
         //      method : prepend, replace, append (default)
         Element.prototype.json2html = function(obj,template,options) {
             
@@ -430,7 +450,6 @@
                 //  template: json2html template (array / object / json string)
                 //  options : {}
                 //      components : {name:template,...}
-                //      data : passed to event.data
                 //      method : prepend, replace, append (default)
                 $.fn.json2html = function(obj, template, options) {
                 
@@ -502,22 +521,38 @@
 	/* ---------------------------------------- Prviate Methods ------------------------------------------------ */
 	
 	//Trigger the event type for this element
-	function _triggerEvent(element,type) {
-	    
-	    let event; // The custom event that will be created
-	    
-	    //Check to see if we have the createEvent function
+	function _triggerEvent(element,type,props) {
+        
+        let event; // The custom event that will be created
+        
+        //TODO switch to use new CustomEvent instead
+        // removes support for IE
+
+        //Check to see if we have the createEvent function
         if(document.createEvent){
             event = document.createEvent("HTMLEvents");
             event.initEvent(type, true, true);
             event.eventName = type;
+            
+            //Add custom properties to event
+            if(props) 
+                for(let prop in props)
+                    event[prop] = props[prop];
+
             element.dispatchEvent(event);
         } else {
             event = document.createEventObject();
             event.eventName = type;
             event.eventType = type;
+            
+            //Add custom properties to event
+            if(props) 
+                for(let prop in props)
+                    event[prop] = props[prop];
+
             element.fireEvent("on" + event.eventType, event);
         }
+
 	}
 	
 	//Attach the events to the parent & children of this element
@@ -640,30 +675,35 @@
 	}
 
     //Render the object using the template to ihtml (html + events)
-    //  obj : json object 
-	//  template: json2html template (array / object / json string)
-    //  options : {}
-    //      components : {name:template,...}
-    //      data : passed to event.data
-    //      method : prepend, replace, append (default)
-    //      output : html / ihtml (although we always output iHTML needed to determine if we bother with events)
-	function _render(obj, template, options, index, pobj) {
+    //  rendering {
+    //      obj      : state object used for rendering
+    //      parent   : parent object to the state we're rendering (if we have one)
+    //      index    : index of the array that we're rendering (if the parent is an array)
+    //      props    : properties used for rendering
+	//      template : json2html template (array / object / json string)
+    //      options  : {}
+    //          components : {name:template,...}
+    //          method     : prepend, replace, append (default)
+    //          output     : html / ihtml (although we always output iHTML needed to determine if we bother with events)
+	//function _render(obj, template, options, index, pobj) {
+    function _render(rendering) {
+        
+        //obj, props, template, options, index, parent
         
         //Create a new ihtml object
 		let ihtml = new iHTML();
 		
 		//Check to see what type of object we're rending
-		switch(_typeof(obj,true)) {
+		switch(_typeof(rendering.obj,true)) {
             
             case "array":
                 
                 //Itterrate through the array and render each object
-                let len=obj.length;
-                for(let j=0;j<len;++j) {	
+                let len=rendering.obj.length;
                 
-                    //Render the object using this template depending on the type of object
-                    ihtml.append( _renderObj(obj[j], template, options, j, pobj) );
-                }
+                ////Render the object using this template depending on the type of object
+                for(let j=0;j<len;++j) 
+                    ihtml.append( _renderObj({...rendering,"obj":rendering.obj[j],"index":j}) );
             break;
             
             //Don't render for undefined or null objects
@@ -675,7 +715,7 @@
             default:
                 
                 //Render the object using this template depending on the type of object
-                ihtml.append( _renderObj(obj, template, options, index, pobj) );
+                ihtml.append( _renderObj(rendering) );
             break;
 		}
 		
@@ -683,50 +723,65 @@
 	}
 	
 	//Render an object using this template to ithml
-	function _renderObj(obj, template, options, index, pobj) {
+	// takes the rendering {obj,parent,index,props,template,options}
+	// obj, template, options, index, pobj
+	function _renderObj(rendering) {
 		
 		let ihtml = new iHTML();
 		
 		//Check the type of template we want to apply
-		switch(_typeof(template,true)) {
+		switch(_typeof(rendering.template,true)) {
 		    
             //Array of templates
             case "array":
-            
+                
                 //Itterate through each template
-                let t_len = template.length;
-                for(let t=0; t < t_len; ++t) {
-                	
-                	//Render the template and append
-                	ihtml.append( _renderObj(obj, template[t], options, index) );
-                }
+                let t_len = rendering.template.length;
+                
+                //Render the template and append
+                // using a new rendering object
+                for(let t=0; t < t_len; ++t) 
+                	ihtml.append( _renderObj({...rendering,"template":rendering.template[t],"parent":undefined}) );
                 
             break;
             
             //single template & single object
             case "object":
                 
-                let fobj = template["{}"];
+                let obj = rendering.template["{}"],
+                    func;
                 
-                //Check to see if this template uses it's own data object
-                // allows us to run the template under a different data object
-                // AND we haven't already got the parent before (in the case of an array)
-                if( _typeof(fobj) === "function" && !pobj) {
+                //Check what type of object we're looking to use for the data state
+                switch(_typeof(obj)) {
                     
-                    //Set the parent object
-                    pobj = obj;
+                    case "function":
+                        
+                        //Set to use the function
+                        func = obj;
                     
-                    //Get the new object
-                    obj = fobj.call(obj,obj,index);
+                    case "object":
+                        
+                        //If we have a rendering parent
+                        // then process the function OR object
+                        // this will allow for arrays to be processed correctly (as they have parents)
+                        if(!rendering.parent) {
+                            
+                            //Run the function if we have one
+                            if(func) obj = func.call(rendering.obj,rendering.obj,rendering.index,rendering.props);
+                            
+                            //Render the object
+                            ihtml.append( _render({...rendering,"obj":obj,"parent":rendering.obj}) );
+                            
+                            break;
+                        }
+                
+                    default:
                     
-                    //Render the object (might be an array)
-                    ihtml.append( _render(obj, template, options, index, pobj) );
-                } else {
-                    
-                    //Render the component
-                    // or html
-                    if(template["[]"]) ihtml.append( _component(pobj, obj, template, options, index) );
-                    else ihtml.append( _html(pobj, obj, template, options, index) );
+                        //Render the component
+                        // or html
+                        if(rendering.template["[]"]) ihtml.append( _component(rendering) );
+                        else ihtml.append( _html(rendering) );
+                    break;
                 }
             break;
 		}
@@ -735,158 +790,151 @@
 	}
 	
 	//Get the html value of the object
-	function _getValue(obj, template, key, options, index) {
+	// using the key
+	function _getValue(key, rendering,allowObjects) {
 		
 		let out = "";
 		
 		//Get the template property
-		let prop = template[key];
+		let prop = rendering.template[key];
 		
         //Check the type of this template property
-        switch(_typeof(prop,true)) {
-        	
-        	//Get the value from the function
-        	case "function":
-        	    
-        		//Check what typeof value is for the object we're rendering
-        		switch(_typeof(obj)) {
-        			
-        			//If this is a json object or array then get the component that we want
-        			case "object":
-        			    
-        			    //Otherwise get the value
-        				return( prop.call(obj,obj,index,options.data) );
-        			break;
-        			
-        			//NOT SUPPORTED
-        			case "function":
-        			case "undefined":
-        			case "null":
-        				return("");
-        			break;
-        					
-        			//BOOLEAN, NUMBER, BIGINT, STRING, SYMBOL
-        			default:
-        
-        				//Create a new object with the properties (value & index)
-        				let _obj = {"value":obj,"index":index,"data":options.data};
-        				return(prop.call(_obj,_obj,index,options.data));
-        			break;
-        		}
-        	break;
-        	
-        	//Check for short hand ${..}
-        	// NOTE that with es6 support short hand is parsed as a template literal
-        	//  otherwise parsed internally with simple variable replacement
-        	case "string":
-        	    
-        	    //Check to see if we have es6 support with this browser
-        	    if(json2html.es6) {
-        	        
-                    //Use template literals to parse strings
-                    
-                    //Check what typeof value is for the object we're rendering
-                    switch(_typeof(obj)) {
-                        //If this is an json object then get the value we're looking for
-                        case "object":
-                        	out = json2html.es6.interpolate.call(prop,obj);
-                        break;
-                        
-                        //NOT SUPPORTED
-                        case "function":
-                        case "undefined":
-                        case "null":
-                        	return("");
-                        break;
-                        
-                        //For literal arrays (and single objects) of type
-                        //BOOLEAN, NUMBER, BIGINT, STRING, SYMBOL
-                        default:
-                        
-                            out = json2html.es6.interpolate.call(prop,{
-                            	    "value":obj,
-                            	    "index":index
-                            	});
-                        
-                        break;
-                    }
-                } else {
+        switch(_typeof(prop)) {
+            
+            //Get the value from the function
+            case "function":
                 
-                    //Parse the property string and fill in any tokens using simple variable replacement
-                    out = _parse(prop,function(all,path){
+                //Check what typeof value is for the object we're rendering
+                switch(_typeof(rendering.obj)) {
+                	
+                    //If this is a json object or array then get the component that we want
+                    case "object":
                         
-                        //Check what typeof value is for the object we're rendering
-                        switch(_typeof(obj)) {
-                        	
-                        	//If this is an json object then get the value we're looking for
-                        	case "object":
-                        		return(_get(obj,path));
-                        	break;
-                        	
-                        	//NOT SUPPORTED
-                        	case "function":
-                        	case "undefined":
-                        	case "null":
-                        		return("");
-                        	break;
-                        	
-                        	//For literal arrays (and single objects) of type
-                        	//BOOLEAN, NUMBER, BIGINT, STRING, SYMBOL
-                        	default:
-                        		
-                                //Check the path of the shorthand
-                                switch(path) {
-                                
-                                    //RESERVED word for literal array value
-                                    case "value":
-                                    	return(obj);
-                                    break;
-                                    
-                                    //RESERVED word for literal array value index
-                                    case "index":
-                                	    
-                                        //Return empty string if we don't have an index
-                                        // for objects
-                                        if(index === undefined || index === null) return("");
-                                        else return(index);
-                                	break;
-                                }
-                        	break;
-                        }
-                    });
-        	    }
-        	break;
-        	
-        	//Spit out blank
+                        //Otherwise get the value
+                        return( prop.call(rendering.obj,rendering.obj,rendering.index,rendering.props) );
+                    break;
+                    
+                    //NOT SUPPORTED
+                    case "function":
+                    case "undefined":
+                    case "null":
+                    	return("");
+                    break;
+                    		
+                    //BOOLEAN, NUMBER, BIGINT, STRING, SYMBOL
+                    default:
+                        
+                        //Create a new object with the properties (value & index)
+                        let _obj = {"value":rendering.obj,"index":rendering.index,"props":rendering.props};
+                        return(prop.call(_obj,_obj,rendering.index,rendering.props));
+                    break;
+                }
+            break;
+            
+            //Check for short hand ${..} (state) and ${%...} (props)
+            case "string":
+                
+                //Parse the string and replace ${..} with object values
+                out = _parse(prop,(all,path)=>_getByType(path,rendering));
+            break;
+            
+            //Spit out blank
             case "null":
-        	case "undefined":
-        	case "object":
-        	    out = "";
-        	break;
-        	
-        	//Arrays, and other literals
-        	default:
-        	    
-        	    //Get the string representation for this property
-        	    out = prop.toString();
-        	break;
+            case "undefined":
+                out = "";
+            break;
+            
+            //Check for objects and arrays
+            case "object":
+                
+                //Use the object (if we allow it)
+                if(allowObjects) out = prop;
+                else out = "";
+            break;
+            
+            //Arrays, and other literals
+            default:
+                
+                //Get the string representation for this property
+                out = prop.toString();
+            break;
         }
-		
 		
 		return(out);
 	}
 	
 	/* ---------------------------------------- Safe Object Methods -------------------------------------------- */
 	
-	//Get the property from the object
-	function _get(obj,path){
+	//Get the value by path from the state object or properties
+	// using the object type
+	function _getByType(path,rendering) {
+        
+        //By default use the state object
+        let obj = rendering.obj,
+            useIndex = true;
+        
+        //Check the first part of the path
+        // to see if we should use the properties object instead
+        if(path.indexOf("@") === 0) {
+        
+            //Set the object to the rendering properties
+            obj = rendering.props;
+            
+            //Remove the @ from the path
+            path = path.slice(1);
+        }
+        
+        //Check what typeof value is for the object we're rendering
+        switch(_typeof(obj)) {
+        	
+                //If this is an json object then get the value we're looking for
+                // properties will always be an object
+                case "object":
+                	return(_get(path,obj));
+                break;
+                
+                //NOT SUPPORTED
+                case "function":
+                case "undefined":
+                case "null":
+                	return("");
+                break;
+                
+                //For literal arrays (and single objects) of type
+                //BOOLEAN, NUMBER, BIGINT, STRING, SYMBOL
+                default:
+                	
+                //Check the path of the shorthand
+                switch(path) {
+                
+                    //RESERVED word for literal array value
+                    case "value":
+                    	return(obj);
+                    break;
+                    
+                    //RESERVED word for literal array value index
+                    case "index":
+                	    
+                        //Return empty string if we don't have an index
+                        // for objects
+                        if(rendering.index === undefined || rendering.index === null) return("");
+                        
+                        return(rendering.index);
+                	break;
+                }
+        	break;
+        }
+	}
+	
+	//Get the value by the path from this object
+	function _get(path,obj){
 	    
 	    //Split the path into it's seperate components
 		let _path = path.split(".");
 		
 		//Set the object we use to query for this name to be the original object
 		let subObj = obj;
-	    
+		
 		//Parse the object properties
 		let c_len = _path.length;
 		for(let i=0;i<c_len;++i) {
@@ -907,6 +955,17 @@
 		
 		return(subObj);
 	}
+	
+	//Set object value 
+	function _set(obj, path, val) {
+    	path.split && (path=path.split('.'));
+    	var i=0, l=path.length, t=obj, x, k;
+    	while (i < l) {
+    		k = path[i++];
+    		if (k === '__proto__' || k === 'constructor' || k === 'prototype') break;
+    		t = t[k] = (i === l) ? val : (typeof(x=t[k])===typeof(path)) ? x : (path[i]*0 !== 0 || !!~(''+path[i]).indexOf('.')) ? {} : [];
+    	}
+    }
 	
 	/* ---------------------------------------- Interpolate (Template Literals) -------------------------------------------- */
 	
@@ -975,16 +1034,13 @@
 	}
 	
     //Use the tokenizer to parse the str
-    function _parse(str, method) {	
-    	
-    	const tokenizer = new Tokenizer([
-    		/\${([\w\-\.\,\$\s]+)}/  
-    	 ],function( src, real, re ){
-    		return real ? src.replace(re,method) : src;
-    	  }
-    	);
-    	
-    	return(tokenizer.parse(str).join(""));		
+    function _parse(str, method) {
+        
+        const tokenizer = new Tokenizer([
+        	CONST.tokenization.regex 
+         ],( src, real, re )=>real ? src.replace(re,method) : src);
+        
+        return(tokenizer.parse(str).join(""));		
     }
     
 	/* ---------------------------------------- Template Types ------------------------------------------------ */
@@ -992,7 +1048,8 @@
 	//default html type
 	// supports <> 
 	// returns iHTML
-	function _html(pobj, obj, template, options, index){
+	//  pobj, obj, template, options, index
+	function _html(rendering){
     
         //Create a new ihtml object for the parent and it's children
         let parent = new iHTML(),
@@ -1004,8 +1061,8 @@
 		    events = [],
 		    triggers = [];
 		
-		//Look into the properties of this template
-		for(let prop in template) {
+		//Itterate through the properties of this template
+		for(let prop in rendering.template) {
 		    
 			switch(prop) {
 				
@@ -1013,13 +1070,13 @@
 				case "<>":
 					
 					//Get the element name (this can be tokenized)
-            		parent.name = _getValue(pobj || obj, template, ele, options, index);
+            		parent.name = _getValue(ele, {...rendering,"obj":rendering.parent || rendering.obj});
             		
             		//Create a new element
 		            parent.appendHTML("<" + parent.name);
 				break;
 				
-				//Object
+				//Object we want to render
 				case "{}":
 				break;
 				
@@ -1029,31 +1086,32 @@
                     //Add in onchange event
                     //if so then setup the event data
 					let aData = {
-						"obj":obj,
-						"data":options.data,
-						"index":index,
+						"obj":rendering.obj,
+						"props":rendering.props,
+						"index":rendering.index,
 						
 						//Unique for assign
-						"var":template[prop]
+						"var":rendering.template[prop]
 					};
 					
 					//create a new id for this event
 					let aId = _id();
 					
 					//Check for the type of element this is
-					switch(template["<>"]) {
+					switch(rendering.template["<>"]) {
 					    
                         //Partial Support
                         case "input":
                         
                             //Check the type of input
-                            switch(template["type"]) {
+                            switch(rendering.template["type"]) {
                                 
                                 //These types of inputs aren't supported
                                 case "button":
                                 case "submit":
                                 case "reset":
                                 case "image":
+                                case "radio":
                                     continue;
                                 break;
                                 
@@ -1077,10 +1135,28 @@
 					
 					//Add to the events for this element
 					// we'll add these later into the DOM
-					parent.events[aId] = {"type":"change","data":aData,"action":function(e){
-					    
+					parent.events[aId] = {"type":"change","data":aData,"action":e=>{
+                        
+                        let target = e.event.target,
+                            val;
+                        
+                        //Check the type of input
+                        switch(target.type) {
+                            
+                            //Special types
+                            // we need to check these to see if we un-selected them
+                            case "checkbox":
+                                if(target.checked) val = true;
+                            break;
+
+                            //Otherwise set the value to the targets value
+                            default:
+                                val = target.value;
+                            break;
+                        }
+
 					    //Set the value
-					    _set( e.obj, e.var, e.event.target.value);
+					    _set( e.obj, e.var, val);
 					}};
 					
 					//Add the event to the list of events for this element
@@ -1095,7 +1171,7 @@
 					
 					//Add to the triggers for this element
 					// we'll add these later in the DOM
-					parent.triggers[tid] = {"name":_getValue(obj,template,prop,options,index),"obj":obj,"template":template};
+					parent.triggers[tid] = {"name":_getValue(prop,rendering),"obj":rendering.obj,"template":rendering.template};
 					
 					//Add the trigger to the list of triggers for this element
 					triggers.push(tid);
@@ -1108,7 +1184,7 @@
 					// array => NOT SUPPORTED
 					// other => text
 					// Encode the value as text and add it to the children
-					if(!Array.isArray(template[prop])) children.appendHTML( json2html.toText( _getValue(obj,template,prop,options,index) ) );
+					if(!Array.isArray(rendering.template[prop])) children.appendHTML( json2html.toText( _getValue(prop,rendering) ) );
 					 
 				break;
 				
@@ -1119,19 +1195,19 @@
 					//Determine if we have more than one template
 					// array & function => children
 					// other => html
-					switch(_typeof(template[prop],true)) {
+					switch(_typeof(rendering.template[prop],true)) {
                         
                         case "array":
                             
-                            //render the children
-				            children.append( _render(obj, template[prop], options, index) );
+                            //Append the rendered children
+				            children.append( _render({...rendering,"template":rendering.template[prop],"parent":undefined}) );
                         break;
                         
                         case "function":
                             
                             //Get the result from the function
                             // HTML is the inner html of the component (if it had any)
-                            let temp = template[prop].call(obj, obj, index, options.data, options.html);
+                            let temp = rendering.template[prop].call(rendering.obj, rendering.obj, rendering.index, rendering.props, rendering.html);
                             
                             //Determine what type of result we have
                             switch(_typeof(temp,true)) {
@@ -1177,12 +1253,13 @@
                         
                         default:
                             //Get the HTML associated with this element
-                            children.appendHTML( _getValue(obj,template,prop,options,index) );
+                            children.appendHTML( _getValue(prop,rendering) );
                         break;
 					}
 				break;
-
+				
 				default:
+				
 					//Add the property as a attribute if it's not a key one
 					let isEvent = false;
 					
@@ -1191,16 +1268,16 @@
 						if( prop.substring(0,2).toLowerCase() === "on" ) {
 						    
 							//Determine if we should add events
-							if(options.output === "ihtml") {
+							if(rendering.options.output === "ihtml") {
 							    
 							    //if so then setup the event data
 								let data = {
-									"obj":obj,
-									"data":options.data
+									"obj":rendering.obj,
+									"props":rendering.props
 								};
 							    
 							    //Check to see what type of object we're trying to render
-                                switch(_typeof(obj)) {
+                                switch(_typeof(rendering.obj)) {
                                 
                                     //Do nothing for json object
                                     case "function":
@@ -1213,7 +1290,7 @@
                                     default:
                                     
                                     	//Create a new object with the properties (value & index)
-                                    	data.obj = {"value":obj,"index":index};
+                                    	data.obj = {"value":rendering.obj,"index":rendering.index};
                                     	
                                     break;
                                 }
@@ -1223,7 +1300,7 @@
 								
 								//Add to the events for this element
 								// we'll add these later into the DOM
-								parent.events[id] = {"type":prop.substring(2),"data":data,"action":template[prop]};
+								parent.events[id] = {"type":prop.substring(2),"data":data,"action":rendering.template[prop]};
 								
 								//Add the event to the list of events for this element
 								events.push(id);
@@ -1237,7 +1314,7 @@
 					if(!isEvent){
 					    
 						//Get the value
-						let val = _getValue(obj, template, prop, options, index);
+						let val = _getValue(prop,rendering);
 						
 						//Make sure we have a value
 						if(val !== undefined) {
@@ -1296,7 +1373,8 @@
     //component type
     // supports []
     // returns iHTML
-    function _component(pobj, obj, template, options, index) {
+    //  pobj, obj, template, options, index
+    function _component(rendering) {
         
         //Create a new ihtml object for the parent
         let ihtml = new iHTML();
@@ -1306,7 +1384,14 @@
             "name":undefined
         };
         
-        for(let prop in template) {
+        //Create a new props object for this component
+        let props = {};
+        
+        //Set the innner html for this component
+        let html;
+        
+        //Itterate over the template properties
+        for(let prop in rendering.template) {
             
             //Check the property
             switch(prop) {
@@ -1314,11 +1399,12 @@
                 //REQUIRED
                 case "[]":
                     
-                    //Get the component name (from the parent if we have one)
-                    let name = _getValue(pobj || obj, template, prop, options, index);
+                    //Get the component name
+                    // these can be dynamic 
+                    let name = _getValue(prop,{...rendering,"obj":rendering.parent || rendering.obj,"parent":undefined});
                     
                     //Check for a local component first
-                    if(options.components) component.template = options.components[name];
+                    if(rendering.options.components) component.template = rendering.options.components[name];
                     
                     //Otherwise check the global components (if we didn't have a local template)
                     if(!component.template) component.template = COMPONENTS[name];
@@ -1331,7 +1417,7 @@
                 case "html":
                     
                     //Check what object type of template we allow
-                    switch(_typeof(template.html)) {
+                    switch(_typeof(rendering.template.html)) {
                         
                         //Make sure we have an object or array
                         case "object":
@@ -1339,9 +1425,18 @@
                             //Render the children
                             // make sure to clear the parent
                             // children don't have access to the parent
-                            options.html = _render(obj, template.html, options, index);
+                            html = _render({...rendering,"template":rendering.template.html,"parent":undefined});
                         break;
                     }
+                    
+                break;
+                
+                //Set the others as properties of this template
+                default:
+                    
+                    //Set the property
+                    // allow an object to be used
+                    props[prop] = _getValue(prop,{...rendering,"obj":rendering.parent || rendering.obj,"parent":undefined},true);
                     
                 break;
             }
@@ -1353,8 +1448,9 @@
         
         //render the template and assign to the output
         // this template is considered a child to it won't have access to the parent
-        ihtml.append(_render(obj, component.template, options));
+        // obj, component.template, options
+        ihtml.append(_render({...rendering,"template":component.template,"props":props,"parent":undefined,"html":html}));
         
         return(ihtml);
     }
-}());
+}()); 
