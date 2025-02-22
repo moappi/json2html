@@ -1,5 +1,5 @@
 
-//     json2html.js 3.3.2
+//     json2html.js 3.3.3
 //     https://www.json2html.com
 //     (c) 2006-2025 Crystalline Technologies
 //     json2html may be freely distributed under the MIT license.
@@ -159,7 +159,7 @@
 	if(!root.json2html) root.json2html = Object.create(null);
 	
 	//Current Version
-	root.json2html.version = "3.3.1";
+	root.json2html.version = "3.3.3";
 	
 	//Render a json2html template to html string
 	//  obj (requried) : json object to render, or json string
@@ -269,10 +269,9 @@
     };
 	
 	//Trigger a component to be updated
-	//  DEPRECATED, use refresh instead
 	//  id (required) : id of the component that needs to be updated
 	//  obj  (optional) : object we want to use, will overwrite the original object used for this rendering
-	root.json2html.trigger = function(id,obj) {
+	root.json2html.refresh = function(id,obj) {
 	    
         //Make sure we have a id
         if(!id) return;
@@ -312,7 +311,7 @@
             let o = all[a];
             
             //Render the update if we can find the element in the dom
-            if( document.contains(o.trigger.ele) ) o.trigger.ele.json2html(o.obj,o.trigger.template,{"method":"replace"});
+            if( document.contains(o.trigger.ele) ) o.trigger.ele.json2html(o.obj,o.trigger.template,{"method":"replace","props":o.trigger.props});
 	        else {
 	            //Otherwise remove the trigger as it's stale
 	            arry.splice(o.trigger.index,1);
@@ -323,11 +322,9 @@
         // as we might have removed some
         TRIGGERS[id] = arry;
     };
-	
-	//Refresh a component with id
-	//  id (required) : id of the component that needs to be updated
-	//  obj  (optional) : object we want to use, will overwrite the original object used for this rendering
-	root.json2html.refresh = root.json2html.trigger;
+
+    //DEPRECATED
+    root.json2html.trigger = root.json2html.refresh;
 	
 	//Encode the html string to text
 	root.json2html.toText = function(html) {
@@ -1171,7 +1168,7 @@
 					
 					//Add to the triggers for this element
 					// we'll add these later in the DOM
-					parent.triggers[tid] = {"name":_getValue(prop,rendering),"obj":rendering.obj,"template":rendering.template};
+					parent.triggers[tid] = {"name":_getValue(prop,rendering),"obj":rendering.obj,"props":rendering.props,"template":rendering.template};
 					
 					//Add the trigger to the list of triggers for this element
 					triggers.push(tid);

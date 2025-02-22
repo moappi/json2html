@@ -78,22 +78,48 @@ describe("native", function() {
     //=================== Refresh =====================
     
     //Refresh element
-    $("body").append("<div id='trigger'></div>");
-    it("TRIGGERS - refresh", function() {
+    $("body").append("<div id='refresh'></div>");
+    it("REFRESH - refresh", function() {
         
         let state = {"text":"chad"};
         
         //Create object to refresh
-        document.getElementById("trigger").json2html(state,{"<>":"span","#":"trigger-test","text":"${text}"});
+        document.getElementById("refresh").json2html(state,{"<>":"span","#":"refresh-test","text":"${text}"});
         
         //Change the state
         state.text = "ashley";
         
         //Refresh the object
-        json2html.refresh("trigger-test");
+        json2html.refresh("refresh-test");
         
         //Test
-        chai.assert.equal( $("#trigger > span ").html(), "ashley");
+        chai.assert.equal( $("#refresh > span ").html(), "ashley");
+    });
+
+    //Refresh component with parameters
+    $("body").append("<div id='refresh-component-parameter'></div>");
+    it("REFRESH - component with parameters", function() {
+        
+        let state = {"text":"chad"};
+
+        //Add the component
+        json2html.component.add("refresh/component",{"<>":"span","text":"${@text}"});
+        
+        //Create object to refresh
+        document.getElementById("refresh-component-parameter").json2html(state,[
+            {"<>":"div","#":"refresh-component-parameter","html":[
+                {"[]":"refresh/component","text":"${text}"}
+            ]}
+        ]);
+        
+        //Change the state
+        state.text = "ashley";
+        
+        //Refresh the object
+        json2html.refresh("refresh-component-parameter");
+        
+        //Test
+        chai.assert.equal( $("#refresh-component-parameter > div > span ").html(), "ashley");
     });
  
      //=================== Assign =====================
