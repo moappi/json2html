@@ -1,5 +1,5 @@
 
-//     json2html.js 3.3.3
+//     json2html.js 3.4.0
 //     https://www.json2html.com
 //     (c) 2006-2025 Crystalline Technologies
 //     json2html may be freely distributed under the MIT license.
@@ -27,14 +27,14 @@
 	
 	//Constants
 	const CONST = {
-        
+
         "tokenization":{
-        
-            //Regex for tokenization
-            "regex":/\${([\w\-\.\,\$\@\s]+)}/
+
+            //Regex for tokenization (global: matches every ${..} occurrence in one pass)
+            "regex":/\${([\w\-\.\,\$\@\s]+)}/g
         }
 	};
-	
+
     /* ---------------------------------------- Interactive HTML Object (iHTML) ------------------------------------------------ */
     
     function iHTML(html){
@@ -91,68 +91,6 @@
 	// don't allow any more properties or methods
 	Object.seal(iHTML);
 	
-	/* ---------------------------------------- Tokenizer ------------------------------------------------ */
-	
-	function Tokenizer( tokenizers, doBuild ){
-    
-    	if( !(this instanceof Tokenizer ) )
-    		return new Tokenizer( tokenizers, onEnd, onFound );
-    		
-    	this.tokenizers = tokenizers.splice ? tokenizers : [tokenizers];
-    	if( doBuild )
-    		this.doBuild = doBuild;
-    }
-    
-    Tokenizer.prototype.parse = function( src ){
-    	this.src = src;
-    	this.ended = false;
-    	this.tokens = [ ];
-    	do this.next(); while( !this.ended );
-    	return this.tokens;
-    };
-    
-    Tokenizer.prototype.build = function( src, real ){
-    	if( src )
-    		this.tokens.push(
-    			!this.doBuild ? src :
-    			this.doBuild(src,real,this.tkn)
-    		);	
-    };
-    
-    Tokenizer.prototype.next = function(){
-    	let self = this,
-    		plain;
-    		
-    	self.findMin();
-    	plain = self.src.slice(0, self.min);
-    	
-    	self.build( plain, false );
-    		
-    	self.src = self.src.slice(self.min).replace(self.tkn,function( all ){
-    		self.build(all, true);
-    		return '';
-    	});
-    	
-    	if( !self.src )
-    		self.ended = true;
-    };
-    
-    Tokenizer.prototype.findMin = function(){
-    	let self = this, i=0, tkn, idx;
-    	self.min = -1;
-    	self.tkn = '';
-    	
-    	while(( tkn = self.tokenizers[i++]) !== undefined ){
-    		idx = self.src[tkn.test?'search':'indexOf'](tkn);
-    		if( idx != -1 && (self.min == -1 || idx < self.min )){
-    			self.tkn = tkn;
-    			self.min = idx;
-    		}
-    	}
-    	if( self.min == -1 )
-    		self.min = self.src.length;
-    };
-
 	/* ---------------------------------------- Public Methods ------------------------------------------------ */
 	
 	//Create the new json2html with prototype polution protection
@@ -217,19 +155,11 @@
         switch(options.output) {
         
             case "ihtml":
-                return(_render({
-                    "obj":obj,
-                    "props":options.props,
-                    "template":template,
-                    "options":options}));
+                return(_render(_extend(obj,undefined,undefined,options.props,template,options,undefined)));
             break;
-            
+
             default:
-                return(_render({
-                    "obj":obj,
-                    "props":options.props,
-                    "template":template,
-                    "options":options}).html);
+                return(_render(_extend(obj,undefined,undefined,options.props,template,options,undefined)).html);
             break;
         }
 	};
@@ -519,37 +449,18 @@
 	
 	//Trigger the event type for this element
 	function _triggerEvent(element,type,props) {
-        
-        let event; // The custom event that will be created
-        
-        //TODO switch to use new CustomEvent instead
-        // removes support for IE
 
-        //Check to see if we have the createEvent function
-        if(document.createEvent){
-            event = document.createEvent("HTMLEvents");
-            event.initEvent(type, true, true);
-            event.eventName = type;
-            
-            //Add custom properties to event
-            if(props) 
-                for(let prop in props)
-                    event[prop] = props[prop];
+        //Create the custom event
+        // (targets modern evergreen browsers - legacy IE createEventObject/fireEvent fallback removed)
+        let event = new CustomEvent(type, {"bubbles":true,"cancelable":true});
+        event.eventName = type;
 
-            element.dispatchEvent(event);
-        } else {
-            event = document.createEventObject();
-            event.eventName = type;
-            event.eventType = type;
-            
-            //Add custom properties to event
-            if(props) 
-                for(let prop in props)
-                    event[prop] = props[prop];
+        //Add custom properties to event
+        if(props)
+            for(let prop in props)
+                event[prop] = props[prop];
 
-            element.fireEvent("on" + event.eventType, event);
-        }
-
+        element.dispatchEvent(event);
 	}
 	
 	//Attach the events to the parent & children of this element
@@ -671,6 +582,24 @@
 		}
 	}
 
+    //Build a new rendering context (obj,parent,index,props,template,options,html).
+    // Always constructed with the same fixed key set & order so every rendering object
+    // shares one V8 hidden class (monomorphic property access) instead of the many
+    // different shapes that {...rendering, "x":y} produced depending on which optional
+    // keys ("index","parent","html") happened to be present yet - that shape polymorphism
+    // showed up as megamorphic property loads when profiling large renders.
+    function _extend(obj,parent,index,props,template,options,html) {
+        return({
+            "obj":obj,
+            "parent":parent,
+            "index":index,
+            "props":props,
+            "template":template,
+            "options":options,
+            "html":html
+        });
+    }
+
     //Render the object using the template to ihtml (html + events)
     //  rendering {
     //      obj      : state object used for rendering
@@ -700,7 +629,7 @@
                 
                 ////Render the object using this template depending on the type of object
                 for(let j=0;j<len;++j) 
-                    ihtml.append( _renderObj({...rendering,"obj":rendering.obj[j],"index":j}) );
+                    ihtml.append( _renderObj(_extend(rendering.obj[j],rendering.parent,j,rendering.props,rendering.template,rendering.options,rendering.html)) );
             break;
             
             //Don't render for undefined or null objects
@@ -738,7 +667,7 @@
                 //Render the template and append
                 // using a new rendering object
                 for(let t=0; t < t_len; ++t) 
-                	ihtml.append( _renderObj({...rendering,"template":rendering.template[t],"parent":undefined}) );
+                	ihtml.append( _renderObj(_extend(rendering.obj,undefined,rendering.index,rendering.props,rendering.template[t],rendering.options,rendering.html)) );
                 
             break;
             
@@ -767,7 +696,7 @@
                             if(func) obj = func.call(rendering.obj,rendering.obj,rendering.index,rendering.props);
                             
                             //Render the object
-                            ihtml.append( _render({...rendering,"obj":obj,"parent":rendering.obj}) );
+                            ihtml.append( _render(_extend(obj,rendering.obj,rendering.index,rendering.props,rendering.template,rendering.options,rendering.html)) );
                             
                             break;
                         }
@@ -923,12 +852,24 @@
         }
 	}
 	
+	//Cache of path.split(".") results, keyed by the raw path string.
+	// Paths come from templates (a bounded, reused set of ${..} / @ expressions), not from
+	// rendered data, so this cache stays small no matter how many items/rows are rendered -
+	// it just avoids re-splitting the same path string on every array item.
+	const PATH_CACHE = Object.create(null);
+
+	function _splitPath(path) {
+	    let cached = PATH_CACHE[path];
+	    if(cached === undefined) cached = PATH_CACHE[path] = path.split(".");
+	    return(cached);
+	}
+
 	//Get the value by the path from this object
 	function _get(path,obj){
-	    
+
 	    //Split the path into it's seperate components
-		let _path = path.split(".");
-		
+		let _path = _splitPath(path);
+
 		//Set the object we use to query for this name to be the original object
 		let subObj = obj;
 		
@@ -1030,14 +971,11 @@
 		}
 	}
 	
-    //Use the tokenizer to parse the str
+    //Parse ${..} tokens out of str, replacing each with method(match, path)
+    // (CONST.tokenization.regex is global, so replace() finds every occurrence in one native pass
+    //  instead of the previous hand-rolled tokenizer loop)
     function _parse(str, method) {
-        
-        const tokenizer = new Tokenizer([
-        	CONST.tokenization.regex 
-         ],( src, real, re )=>real ? src.replace(re,method) : src);
-        
-        return(tokenizer.parse(str).join(""));		
+        return( str.replace(CONST.tokenization.regex, method) );
     }
     
 	/* ---------------------------------------- Template Types ------------------------------------------------ */
@@ -1067,7 +1005,7 @@
 				case "<>":
 					
 					//Get the element name (this can be tokenized)
-            		parent.name = _getValue(ele, {...rendering,"obj":rendering.parent || rendering.obj});
+            		parent.name = _getValue(ele, _extend(rendering.parent || rendering.obj,rendering.parent,rendering.index,rendering.props,rendering.template,rendering.options,rendering.html));
             		
             		//Create a new element
 		            parent.appendHTML("<" + parent.name);
@@ -1197,7 +1135,7 @@
                         case "array":
                             
                             //Append the rendered children
-				            children.append( _render({...rendering,"template":rendering.template[prop],"parent":undefined}) );
+				            children.append( _render(_extend(rendering.obj,undefined,rendering.index,rendering.props,rendering.template[prop],rendering.options,rendering.html)) );
                         break;
                         
                         case "function":
@@ -1261,8 +1199,12 @@
 					let isEvent = false;
 					
 					//Check if the first two characters are 'on' then this is an event
+					// cheap charCode prefilter first (avoids a substring+toLowerCase allocation
+					// for the common case of non-event attributes like "class", "id", etc.)
+					// before falling back to the exact original check
 					if( prop.length > 2 )
-						if( prop.substring(0,2).toLowerCase() === "on" ) {
+						if( (prop.charCodeAt(0)===111||prop.charCodeAt(0)===79) && (prop.charCodeAt(1)===110||prop.charCodeAt(1)===78) )
+							if( prop.substring(0,2).toLowerCase() === "on" ) {
 						    
 							//Determine if we should add events
 							if(rendering.options.output === "ihtml") {
@@ -1398,7 +1340,7 @@
                     
                     //Get the component name
                     // these can be dynamic 
-                    let name = _getValue(prop,{...rendering,"obj":rendering.parent || rendering.obj,"parent":undefined});
+                    let name = _getValue(prop,_extend(rendering.parent || rendering.obj,undefined,rendering.index,rendering.props,rendering.template,rendering.options,rendering.html));
                     
                     //Check for a local component first
                     if(rendering.options.components) component.template = rendering.options.components[name];
@@ -1422,7 +1364,7 @@
                             //Render the children
                             // make sure to clear the parent
                             // children don't have access to the parent
-                            html = _render({...rendering,"template":rendering.template.html,"parent":undefined});
+                            html = _render(_extend(rendering.obj,undefined,rendering.index,rendering.props,rendering.template.html,rendering.options,rendering.html));
                         break;
                     }
                     
@@ -1433,7 +1375,7 @@
                     
                     //Set the property
                     // allow an object to be used
-                    props[prop] = _getValue(prop,{...rendering,"obj":rendering.parent || rendering.obj,"parent":undefined},true);
+                    props[prop] = _getValue(prop,_extend(rendering.parent || rendering.obj,undefined,rendering.index,rendering.props,rendering.template,rendering.options,rendering.html),true);
                     
                 break;
             }
@@ -1446,7 +1388,7 @@
         //render the template and assign to the output
         // this template is considered a child to it won't have access to the parent
         // obj, component.template, options
-        ihtml.append(_render({...rendering,"template":component.template,"props":props,"parent":undefined,"html":html}));
+        ihtml.append(_render(_extend(rendering.obj,undefined,rendering.index,props,component.template,rendering.options,html)));
         
         return(ihtml);
     }

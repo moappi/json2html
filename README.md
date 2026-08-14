@@ -84,4 +84,19 @@ TypeScript:
   const { render, component } = json2html; // Import methods from Json2html
 ```
 
+Testing
+------------
+
+	npm run test
+
+  Will run 90+ tests using mocha.  There's also a browser test package that can be run by opening /test/browser/index.html 
+
+Benchmarks
+------------
+
+	npm run benchmark
+
+  Will run 5 simple benchmarks with up to 200,000 interations
+
+
 <a href='http://www.json2html.com'>www.json2html.com</a> for full documentation.

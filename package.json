@@ -1,12 +1,12 @@
 {
   "author": {
     "name": "Chad Brown",
-    "email": "info@json2html.com",
+    "email": "chad.brown@crystallinetech.com",
     "url": "https://www.json2html.com"
   },
   "name": "node-json2html",
   "description": "json2html - HTML templating in pure javascript",
-  "version": "3.3.3",
+  "version": "3.4.0",
   "homepage": "https://www.json2html.com",
   "repository": {
     "url": "git://github.com/moappi/json2html.git"
@@ -29,6 +29,7 @@
     "node": "*"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "benchmark":"node benchmark.js"
   }
 }
